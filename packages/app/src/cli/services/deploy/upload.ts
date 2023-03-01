@@ -33,6 +33,7 @@ import {fileExists, readFile, readFileSync} from '@shopify/cli-kit/node/fs'
 import {fetch, formData} from '@shopify/cli-kit/node/http'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputToken} from '@shopify/cli-kit/node/output'
+import {createExtension} from '../dev/create-extension.js'
 
 interface DeployThemeExtensionOptions {
   /** The application API key */
@@ -170,6 +171,83 @@ interface UploadFunctionExtensionsOptions {
   identifiers: Identifiers
 }
 
+interface UploadFunctionExtensionOptions {
+  apiKey: string
+  identifier?: string
+  token: string
+}
+
+/**
+ * Uploads a bundle.
+ * @param options - The upload options
+ */
+ export async function uploadFunctionExtensionsWithEF(
+  extensions: FunctionExtension[],
+  options: UploadFunctionExtensionsOptions,
+): Promise<UploadExtensionValidationError[]> {
+  const deploymentUUID = randomUUID()
+  // const signedURL = await getUIExtensionUploadURL(options.identifiers.app, deploymentUUID)
+
+  // Must upload Wasm blobs in sequence. Otherwise we run into "429 too many requests".
+  let signedURLs: {
+    [localIdentifier: string]: string
+  } = {}
+
+  for (const extension of extensions) {
+    const url = await uploadWasmBlob(extension, options.identifiers.app, options.token)
+    signedURLs[extension.localIdentifier] = url
+    await uploadFunctionExtension(extension, url, {
+      apiKey: options.identifiers.app,
+      token: options.token,
+      identifier: options.identifiers.extensions[extension.localIdentifier],
+    })
+  }
+
+  const formattedExtensions: ExtensionSettings[] = await Promise.all(
+    extensions.map(async (extension) => {
+      return {
+        uuid: options.identifiers.extensions[extension.localIdentifier] || "error",
+        config: JSON.stringify(await functionConfiguration(extension, signedURLs[extension.localIdentifier])),
+        context: '',
+      }
+    })
+  )
+
+  // output.info("formattedExtensions " + JSON.stringify(formattedExtensions))
+
+  // const formData = http.formData()
+  // const buffer = readSync("./")
+  // formData.append('my_upload', buffer)
+  // await http.fetch(signedURL, {
+  //   method: 'put',
+  //   body: buffer,
+  //   headers: formData.getHeaders(),
+  // })
+
+  const variables: CreateDeploymentVariables = {
+    apiKey: options.identifiers.app,
+    uuid: deploymentUUID,
+    bundleUrl: "", // we don't use this, but it must be a valid URL for deploy to work.
+    extensions: formattedExtensions,
+  }
+
+  const mutation = CreateDeployment
+  const result: CreateDeploymentSchema = await partnersRequest(mutation, options.token, variables)
+
+  if (result.deploymentCreate?.userErrors?.length > 0) {
+    const errors = result.deploymentCreate.userErrors.map((error) => error.message).join(', ')
+    throw new AbortError(errors)
+  }
+
+  const validationErrors = result.deploymentCreate.deployment.deployedVersions
+    .filter((ver) => ver.extensionVersion.validationErrors.length > 0)
+    .map((ver) => {
+      return {uuid: ver.extensionVersion.registrationUuid, errors: ver.extensionVersion.validationErrors}
+    })
+
+  return validationErrors
+}
+
 /**
  * This function takes a list of function extensions and uploads them.
  * As part of the upload it creates a function server-side if it does not exist
@@ -181,7 +259,7 @@ interface UploadFunctionExtensionsOptions {
  * @param options - Options to adjust the upload.
  * @returns A promise that resolves with the identifiers.
  */
-export async function uploadFunctionExtensions(
+export async function registerFunctionExtensions(
   extensions: FunctionExtension[],
   options: UploadFunctionExtensionsOptions,
 ): Promise<Identifiers> {
@@ -191,13 +269,18 @@ export async function uploadFunctionExtensions(
 
   // Functions are uploaded sequentially to avoid reaching the API limit
   for (const extension of extensions) {
-    // eslint-disable-next-line no-await-in-loop
-    const remoteIdentifier = await uploadFunctionExtension(extension, {
-      apiKey: options.identifiers.app,
-      token: options.token,
-      identifier: identifiers.extensions[extension.localIdentifier],
-    })
-    functionIds[extension.localIdentifier] = remoteIdentifier
+    // output.info("Identifiers " + JSON.stringify(identifiers))
+    if (identifiers.extensions[extension.localIdentifier] === undefined) {
+      // output.info("registering")
+      const registration = await createExtension(
+        options.identifiers.app,
+        'FUNCTION',
+        extension.localIdentifier,
+        options.token
+      )
+      // output.info("registration " + JSON.stringify(registration))
+      functionIds[extension.localIdentifier] = registration.uuid
+    }
   }
 
   identifiers = {
@@ -211,18 +294,42 @@ export async function uploadFunctionExtensions(
   return identifiers
 }
 
-interface UploadFunctionExtensionOptions {
-  apiKey: string
-  identifier?: string
-  token: string
+async function functionConfiguration(
+  extension: FunctionExtension,
+  moduleUploadUrl: String | undefined,
+): Promise<Object> {
+  let inputQuery: string | undefined
+  if (await fileExists(extension.inputQueryPath)) {
+    inputQuery = await readFile(extension.inputQueryPath)
+  }
+
+  return {
+    title: extension.configuration.name,
+    description: extension.configuration.description,
+    apiType: extension.configuration.type,
+    apiVersion: extension.configuration.apiVersion,
+    inputQuery,
+    inputQueryVariables: extension.configuration.input?.variables
+      ? {
+          singleJsonMetafield: extension.configuration.input.variables,
+        }
+      : undefined,
+    appBridge: extension.configuration.ui?.paths
+      ? {
+          detailsPath: extension.configuration.ui.paths.details,
+          createPath: extension.configuration.ui.paths.create,
+        }
+      : undefined,
+    enableCreationUi: extension.configuration.ui?.enable_create ?? true,
+    moduleUploadUrl: moduleUploadUrl
+  }
 }
 
 async function uploadFunctionExtension(
   extension: FunctionExtension,
+  url: string,
   options: UploadFunctionExtensionOptions,
 ): Promise<string> {
-  const url = await uploadWasmBlob(extension, options.apiKey, options.token)
-
   let inputQuery: string | undefined
   if (await fileExists(extension.inputQueryPath)) {
     inputQuery = await readFile(extension.inputQueryPath)

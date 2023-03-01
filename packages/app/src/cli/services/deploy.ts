@@ -1,7 +1,8 @@
 /* eslint-disable require-atomic-updates */
 import {
   UploadExtensionValidationError,
-  uploadFunctionExtensions,
+  registerFunctionExtensions,
+  uploadFunctionExtensionsWithEF,
   uploadThemeExtensions,
   uploadExtensionsBundle,
 } from './deploy/upload.js'
@@ -21,6 +22,7 @@ import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {outputNewline, outputInfo} from '@shopify/cli-kit/node/output'
 import {useThemebundling} from '@shopify/cli-kit/node/context/local'
 import type {AlertCustomSection, Task} from '@shopify/cli-kit/node/ui'
+import {createExtension} from './dev/create-extension.js'
 
 interface DeployOptions {
   /** The app to be built and uploaded */
@@ -112,8 +114,13 @@ export async function deploy(options: DeployOptions) {
               await uploadThemeExtensions(options.app.extensions.theme, {apiKey, identifiers, token})
             }
 
-            identifiers = await uploadFunctionExtensions(app.extensions.function, {identifiers, token})
+            outputInfo("Register extensions if required")
+            identifiers = await registerFunctionExtensions(app.extensions.function, {identifiers, token})
             app = await updateAppIdentifiers({app, identifiers, command: 'deploy'})
+
+            outputInfo("Deploy extension")
+            await uploadFunctionExtensionsWithEF(app.extensions.function, {identifiers, token})
+
             registrations = await fetchAppExtensionRegistrations({token, apiKey: identifiers.app})
           },
         },
