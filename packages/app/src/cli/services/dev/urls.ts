@@ -3,6 +3,7 @@ import {AppInterface} from '../../models/app/app.js'
 import {UpdateURLsQuery, UpdateURLsQuerySchema, UpdateURLsQueryVariables} from '../../api/graphql/update_urls.js'
 import {GetURLsQuery, GetURLsQuerySchema, GetURLsQueryVariables} from '../../api/graphql/get_urls.js'
 import {setAppInfo} from '../local-storage.js'
+import {writeConfigurationFile} from '../../models/app/loader.js'
 import {AbortError, AbortSilentError, BugError} from '@shopify/cli-kit/node/error'
 import {Config} from '@oclif/core'
 import {getAvailableTCPPort} from '@shopify/cli-kit/node/tcp'
@@ -121,7 +122,7 @@ export function generatePartnersURLs(baseURL: string, authCallbackPath?: string 
   }
 }
 
-export async function updateURLs(urls: PartnersURLs, apiKey: string, token: string): Promise<void> {
+export async function updateURLs(app: AppInterface, urls: PartnersURLs, apiKey: string, token: string): Promise<void> {
   const variables: UpdateURLsQueryVariables = {apiKey, ...urls}
   const query = UpdateURLsQuery
   const result: UpdateURLsQuerySchema = await partnersRequest(query, token, variables)
@@ -129,6 +130,8 @@ export async function updateURLs(urls: PartnersURLs, apiKey: string, token: stri
     const errors = result.appUpdate.userErrors.map((error) => error.message).join(', ')
     throw new AbortError(errors)
   }
+  app.configuration = {...app.configuration, ...urls}
+  writeConfigurationFile(app)
 }
 
 export async function getURLs(apiKey: string, token: string): Promise<PartnersURLs> {

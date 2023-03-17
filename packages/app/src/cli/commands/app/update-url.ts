@@ -1,5 +1,6 @@
 import Command from '../../utilities/app-command.js'
 import updateURL, {UpdateURLOptions} from '../../services/app/update-url.js'
+import {appFlags} from '../../flags.js'
 import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 
@@ -8,6 +9,7 @@ export default class UpdateURL extends Command {
 
   static flags = {
     ...globalFlags,
+    ...appFlags,
     'api-key': Flags.string({
       hidden: false,
       description: 'The API key of your app.',
@@ -31,6 +33,8 @@ export default class UpdateURL extends Command {
       apiKey: flags['api-key'],
       appURL: flags['app-url'],
       redirectURLs: flags['redirect-urls']?.split(','),
+      commandConfig: this.config,
+      directory: flags.path,
     }
     await updateURL(options)
   }
