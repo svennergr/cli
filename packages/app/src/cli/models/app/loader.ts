@@ -7,7 +7,7 @@ import {ThemeExtensionInstance, ThemeExtensionSpec} from '../extensions/theme.js
 import {BaseFunctionConfigurationSchema, ThemeExtensionSchema, TypeSchema} from '../extensions/schemas.js'
 import {FunctionInstance} from '../extensions/functions.js'
 import {zod} from '@shopify/cli-kit/node/schema'
-import {fileExists, readFile, glob, findPathUp} from '@shopify/cli-kit/node/fs'
+import {fileExists, readFile, glob, findPathUp, writeFileSync} from '@shopify/cli-kit/node/fs'
 import {readAndParseDotEnv, DotEnvFile} from '@shopify/cli-kit/node/dot-env'
 import {
   getDependencies,
@@ -19,7 +19,7 @@ import {resolveFramework} from '@shopify/cli-kit/node/framework'
 import {getArrayRejectingUndefined} from '@shopify/cli-kit/common/array'
 import {camelize} from '@shopify/cli-kit/common/string'
 import {hashString} from '@shopify/cli-kit/node/crypto'
-import {decodeToml} from '@shopify/cli-kit/node/toml'
+import {decodeToml, encodeToml} from '@shopify/cli-kit/node/toml'
 import {isShopify} from '@shopify/cli-kit/node/context/local'
 import {joinPath, dirname, basename} from '@shopify/cli-kit/node/path'
 import {AbortError} from '@shopify/cli-kit/node/error'
@@ -64,6 +64,10 @@ interface AppLoaderConstructorArgs {
 export async function load(options: AppLoaderConstructorArgs): Promise<AppInterface> {
   const loader = new AppLoader(options)
   return loader.loaded()
+}
+
+export function writeConfigurationFile(app: App): void {
+  writeFileSync(app.configurationPath, encodeToml(app.configuration))
 }
 
 class AppLoader {

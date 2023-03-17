@@ -8,6 +8,8 @@ import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 
 export const AppConfigurationSchema = zod.object({
   scopes: zod.string().default(''),
+  applicationUrl: zod.string().optional(),
+  redirectUrlWhitelist: zod.array(zod.string()).optional(),
   extensionDirectories: zod.array(zod.string()).optional(),
   webDirectories: zod.array(zod.string()).optional(),
 })
