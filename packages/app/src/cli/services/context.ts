@@ -122,7 +122,11 @@ export async function ensureGenerateContext(options: {
  * @param options - Current dev context options
  * @returns The selected org, app and dev store
  */
-export async function ensureDevContext(options: DevContextOptions, token: string): Promise<DevContextOutput> {
+export async function ensureDevContext(
+  options: DevContextOptions,
+  token: string,
+  silent = false,
+): Promise<DevContextOutput> {
   const cachedInfo = getAppDevCachedInfo({
     reset: options.reset,
     directory: options.directory,
@@ -180,7 +184,7 @@ export async function ensureDevContext(options: DevContextOptions, token: string
 
   if (selectedApp.apiKey === cachedInfo?.appId && selectedStore.shopDomain === cachedInfo.storeFqdn) {
     const packageManager = await getPackageManager(options.directory)
-    showReusedValues(organization.businessName, cachedInfo, packageManager)
+    showReusedValues(organization.businessName, cachedInfo, packageManager, silent)
   }
 
   const result = buildOutput(selectedApp, selectedStore, cachedInfo)
@@ -315,6 +319,8 @@ export async function ensureDeployContext(options: DeployContextOptions): Promis
       appType: partnersApp.appType,
       organizationId: partnersApp.organizationId,
       grantedScopes: partnersApp.grantedScopes,
+      applicationUrl: partnersApp.applicationUrl,
+      redirectUrlWhitelist: partnersApp.redirectUrlWhitelist,
     },
     partnersOrganizationId: partnersApp.organizationId,
     identifiers,
@@ -460,7 +466,13 @@ async function selectOrg(token: string): Promise<string> {
  * @param app - App name
  * @param store - Store domain
  */
-function showReusedValues(org: string, cachedAppInfo: CachedAppInfo, packageManager: PackageManager): void {
+function showReusedValues(
+  org: string,
+  cachedAppInfo: CachedAppInfo,
+  packageManager: PackageManager,
+  silent: boolean,
+): void {
+  if (silent) return
   let updateURLs = 'Not yet configured'
   if (cachedAppInfo.updateURLs !== undefined) updateURLs = cachedAppInfo.updateURLs ? 'Always' : 'Never'
 
