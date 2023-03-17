@@ -1,31 +1,43 @@
-import {selectApp} from './select-app.js'
 import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
-import {load} from '../../models/app/loader.js'
+import {load, writeConfigurationFile} from '../../models/app/loader.js'
 import {AppConfiguration} from '../../models/app/app.js'
 import {AppUpdateMutation, AppUpdateMutationSchema, AppUpdateMutationVariables} from '../../api/graphql/app_update.js'
+import {ensureDevContext} from '../context.js'
+import {OrganizationApp} from '../../models/organization.js'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {Config} from '@oclif/core'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
-import {renderSuccess} from '@shopify/cli-kit/node/ui'
+import {renderSuccess, renderWarning} from '@shopify/cli-kit/node/ui'
 
 export interface PushConfigOptions {
-  apiKey?: string
   commandConfig: Config
   directory: string
 }
 
+interface UpdatedApp {
+  applicationUrl: string
+  redirectUrlWhitelist: string[]
+}
+
 export default async function pushConfig(options: PushConfigOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
-  const apiKey = options.apiKey || (await selectApp()).apiKey
+  const {remoteApp} = await ensureDevContext({...options, reset: false}, token, true)
+  const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
   const app = await load({directory: options.directory, specifications})
 
-  await pushToPartners(app.configuration, apiKey, token)
+  printDiff(app.configuration, remoteApp)
+
+  const updatedApp = await pushToPartners(app.configuration, apiKey, token)
+
+  app.configuration = {...app.configuration, ...updatedApp}
+  writeConfigurationFile(app)
+
   printResult(app.configuration)
 }
 
-async function pushToPartners(config: AppConfiguration, apiKey: string, token: string): Promise<void> {
+async function pushToPartners(config: AppConfiguration, apiKey: string, token: string): Promise<UpdatedApp> {
   const variables: AppUpdateMutationVariables = {
     apiKey,
     applicationUrl: config.applicationUrl || '',
@@ -37,18 +49,42 @@ async function pushToPartners(config: AppConfiguration, apiKey: string, token: s
     const errors = result.appUpdate.userErrors.map((error) => error.message).join(', ')
     throw new AbortError(errors)
   }
+  return result.appUpdate.app
 }
 
-// async function getNewURLs(token: string, apiKey: string, options: URLs): Promise<PartnersURLs> {
-//   const currentURLs: PartnersURLs = await getURLs(apiKey, token)
-//   const newURLs: PartnersURLs = {
-//     applicationUrl: options.appURL || (await appUrlPrompt(currentURLs.applicationUrl)),
-//     redirectUrlWhitelist:
-//       options.redirectURLs || (await allowedRedirectionURLsPrompt(currentURLs.redirectUrlWhitelist.join(','))),
-//   }
-//   validatePartnersURLs(newURLs)
-//   return newURLs
-// }
+function printDiff(
+  config: AppConfiguration,
+  remoteConfig: Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string | undefined},
+): void {
+  const remoteItems = []
+  const localItems = []
+
+  // TODO: do this smartly
+  if (config.applicationUrl !== remoteConfig.applicationUrl) {
+    remoteItems.push(`App URL:                     ${remoteConfig.applicationUrl}`)
+    localItems.push(`App URL:                     ${config.applicationUrl}`)
+  }
+  if (config.redirectUrlWhitelist?.toString() !== remoteConfig.redirectUrlWhitelist.toString()) {
+    remoteItems.push(
+      `Allowed redirection URL(s):\n${remoteConfig.redirectUrlWhitelist
+        .map((url) => `                             ${url}`)
+        .join('\n')}`,
+    )
+    localItems.push(
+      `Allowed redirection URL(s):\n${(config.redirectUrlWhitelist || [])
+        .map((url) => `                             ${url}`)
+        .join('\n')}`,
+    )
+  }
+  if (remoteItems.length === 0) return
+  renderWarning({
+    headline: 'Some of your app’s local configurations are different than they are on Shopify',
+    customSections: [
+      {title: 'The configurations on Shopify are', body: {list: {items: remoteItems}}},
+      {title: 'Your local configurations are', body: {list: {items: localItems}}},
+    ],
+  })
+}
 
 function printResult(config: AppConfiguration): void {
   renderSuccess({

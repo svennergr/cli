@@ -358,13 +358,6 @@
           "description": "Increase the verbosity of the logs.",
           "hidden": false,
           "allowNo": false
-        },
-        "api-key": {
-          "name": "api-key",
-          "type": "option",
-          "description": "The API key of your app.",
-          "hidden": false,
-          "multiple": false
         }
       },
       "args": {}

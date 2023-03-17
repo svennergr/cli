@@ -22,6 +22,8 @@ export type OrganizationApp = MinimalOrganizationApp & {
   appType?: string
   newApp?: boolean
   grantedScopes: string[]
+  applicationUrl: string
+  redirectUrlWhitelist: string[]
 }
 
 export interface OrganizationStore {
