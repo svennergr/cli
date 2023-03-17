@@ -332,6 +332,39 @@
       },
       "args": {}
     },
+    "app:push-config": {
+      "id": "app:push-config",
+      "description": "Push your toml configuration to the Partners Dashboard.",
+      "strict": true,
+      "pluginName": "@shopify/app",
+      "pluginAlias": "@shopify/app",
+      "pluginType": "core",
+      "aliases": [],
+      "flags": {
+        "environment": {
+          "name": "environment",
+          "type": "option",
+          "description": "The environment to apply to the current command.",
+          "hidden": true,
+          "multiple": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "Increase the verbosity of the logs.",
+          "hidden": false,
+          "allowNo": false
+        },
+        "api-key": {
+          "name": "api-key",
+          "type": "option",
+          "description": "The API key of your app.",
+          "hidden": false,
+          "multiple": false
+        }
+      },
+      "args": {}
+    },
     "webhook:trigger": {
       "id": "webhook:trigger",
       "description": "Trigger delivery of a sample webhook topic payload to a designated address.",
