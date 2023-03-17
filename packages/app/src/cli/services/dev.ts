@@ -119,7 +119,7 @@ async function dev(options: DevOptions) {
       cachedUpdateURLs,
       newApp: remoteApp.newApp,
     })
-    if (shouldUpdateURLs) await updateURLs(newURLs, apiKey, token)
+    if (shouldUpdateURLs) await updateURLs(localApp, newURLs, apiKey, token)
     await outputUpdateURLsResult(shouldUpdateURLs, newURLs, remoteApp)
     previewUrl = buildAppURLForWeb(storeFqdn, exposedUrl)
   }
