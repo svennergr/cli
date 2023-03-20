@@ -42,6 +42,7 @@ async function pushToPartners(config: AppConfiguration, apiKey: string, token: s
     apiKey,
     applicationUrl: config.applicationUrl || '',
     redirectUrlWhitelist: config.redirectUrlWhitelist || [],
+    webhookApiVersion: config.webhookApiVersion,
   }
   const query = AppUpdateMutation
   const result: AppUpdateMutationSchema = await partnersRequest(query, token, variables)
@@ -76,6 +77,11 @@ function printDiff(
         .join('\n')}`,
     )
   }
+  if (config.webhookApiVersion !== remoteConfig.webhookApiVersion) {
+    remoteItems.push(`Webhook API Version:         ${remoteConfig.webhookApiVersion}`)
+    localItems.push(`Webhook API Version:         ${config.webhookApiVersion}`)
+  }
+
   if (remoteItems.length === 0) return
   renderWarning({
     headline: 'Some of your app’s local configurations are different than they are on Shopify',

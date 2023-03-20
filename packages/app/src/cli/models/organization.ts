@@ -24,6 +24,7 @@ export type OrganizationApp = MinimalOrganizationApp & {
   grantedScopes: string[]
   applicationUrl: string
   redirectUrlWhitelist: string[]
+  webhookApiVersion: string
 }
 
 export interface OrganizationStore {
