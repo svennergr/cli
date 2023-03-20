@@ -2,10 +2,18 @@ import {gql} from 'graphql-request'
 
 export const AppUpdateMutation = gql`
   mutation appUpdate($apiKey: String!, $applicationUrl: Url!, $redirectUrlWhitelist: [Url]!) {
-    appUpdate(input: {apiKey: $apiKey, applicationUrl: $applicationUrl, redirectUrlWhitelist: $redirectUrlWhitelist}) {
+    appUpdate(
+      input: {
+        apiKey: $apiKey
+        applicationUrl: $applicationUrl
+        redirectUrlWhitelist: $redirectUrlWhitelist
+        webhookApiVersion: $webhookApiVersion
+      }
+    ) {
       app {
         applicationUrl
         redirectUrlWhitelist
+        webhookApiVersion
       }
       userErrors {
         message
@@ -19,6 +27,7 @@ export interface AppUpdateMutationVariables {
   apiKey: string
   applicationUrl: string
   redirectUrlWhitelist: string[]
+  webhookApiVersion: string
 }
 
 export interface AppUpdateMutationSchema {
@@ -26,6 +35,7 @@ export interface AppUpdateMutationSchema {
     app: {
       applicationUrl: string
       redirectUrlWhitelist: string[]
+      webhookApiVersion: string
     }
     userErrors: {
       field: string[]

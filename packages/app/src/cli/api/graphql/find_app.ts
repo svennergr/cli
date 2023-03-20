@@ -17,6 +17,7 @@ export const FindAppQuery = gql`
       }
       applicationUrl
       redirectUrlWhitelist
+      webhookApiVersion
     }
   }
 `
@@ -37,5 +38,6 @@ export interface FindAppQuerySchema {
     }
     applicationUrl: string
     redirectUrlWhitelist: string[]
+    webhookApiVersion: string
   }
 }
