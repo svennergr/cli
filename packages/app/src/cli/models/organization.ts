@@ -26,7 +26,6 @@ export type OrganizationApp = MinimalOrganizationApp & {
   }
   applicationUrl: string
   redirectUrlWhitelist: string[]
-  webhookApiVersion: string
 }
 
 export interface OrganizationStore {
