@@ -59,6 +59,7 @@ function printDiff(
   const remoteItems = []
   const localItems = []
 
+  // eslint-disable-next-line no-warning-comments
   // TODO: do this smartly
   if (config.applicationUrl !== remoteConfig.applicationUrl) {
     remoteItems.push(`App URL:                     ${remoteConfig.applicationUrl}`)
