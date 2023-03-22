@@ -25,6 +25,7 @@ const WebConfigurationAuthCallbackPathSchema = zod.preprocess(ensurePathStartsWi
 
 export const WebConfigurationSchema = zod.object({
   type: zod.enum([WebType.Frontend, WebType.Backend]),
+  applicationUrl: zod.string().optional(),
   authCallbackPath: zod
     .union([WebConfigurationAuthCallbackPathSchema, WebConfigurationAuthCallbackPathSchema.array()])
     .optional(),
