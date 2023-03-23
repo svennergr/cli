@@ -1,11 +1,13 @@
 import {ensureDevContext} from './context.js'
-import {generateFrontendURL, generatePartnersURLs, getURLs, shouldOrPromptUpdateURLs, updateURLs} from './dev/urls.js'
+import {generateFrontendURL, generatePartnersURLs, getURLs, shouldOrPromptUpdateURLs} from './dev/urls.js'
 import {installAppDependencies} from './dependencies.js'
 import {devUIExtensions} from './dev/extension.js'
 import {outputExtensionsMessages, outputUpdateURLsResult} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
 import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-webhook.js'
+import {pushAndWriteConfig} from './app/push-config.js'
+import {mergeAppUrls} from './merge-configuration.js'
 import {
   ReverseHTTPProxyTarget,
   runConcurrentHTTPProcessesAndPathForwardTraffic,
@@ -122,10 +124,14 @@ async function dev(options: DevOptions) {
       cachedUpdateURLs,
       newApp: remoteApp.newApp,
     })
-    if (shouldUpdateURLs) await updateURLs(localApp, newURLs, apiKey, token)
+    if (shouldUpdateURLs) {
+      localApp = mergeAppUrls(localApp, newURLs)
+    }
     await outputUpdateURLsResult(shouldUpdateURLs, newURLs, remoteApp)
     previewUrl = buildAppURLForWeb(storeFqdn, exposedUrl)
   }
+
+  await pushAndWriteConfig(localApp, apiKey, token)
 
   if (localApp.extensions.ui.length > 0) {
     previewUrl = `${proxyUrl}/extensions/dev-console`
