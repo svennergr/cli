@@ -42,7 +42,12 @@ function updateAppConfiguration(
 ): AppInterface {
   localApp.webs
     .filter((web) => web.configuration.type === 'frontend')
-    .map((web) => (web.configuration.applicationUrl = remoteApp.applicationUrl))
+    .map((web) => {
+      web.configuration.applicationUrl = remoteApp.applicationUrl
+      web.configuration.embedded = remoteApp.embedded
+      web.configuration.posEmbedded = remoteApp.posEmbedded
+      web.configuration.preferencesUrl = remoteApp.preferencesUrl
+    })
 
   localApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion
   localApp.configuration.gdprWebhooks = remoteApp.gdprWebhooks
