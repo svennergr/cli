@@ -55,7 +55,6 @@ export type Token =
   | SubduedToken
   | FilePathToken
   | ListToken
-  | BoldToken
 
 export type InlineToken = Exclude<Token, ListToken>
 export type TokenItem<T extends Token = Token> = T | T[]
@@ -90,8 +89,6 @@ export function tokenItemToString(token: TokenItem): string {
     return token.filePath
   } else if ('list' in token) {
     return token.list.items.map(tokenItemToString).join(' ')
-  } else if ('bold' in token) {
-    return token.bold
   } else {
     return token
       .map((item, index) => {
@@ -161,8 +158,6 @@ const TokenizedText: FunctionComponent<TokenizedTextProps> = ({item}) => {
     return <FilePath filePath={item.filePath} />
   } else if ('list' in item) {
     return <List {...item.list} />
-  } else if ('bold' in item) {
-    return <Text bold>{item.bold}</Text>
   } else {
     const groupedItems = item.map(tokenToBlock).reduce(splitByDisplayType, [])
 
