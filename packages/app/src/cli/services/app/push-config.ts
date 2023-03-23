@@ -1,8 +1,9 @@
 import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
 import {load, writeConfigurationFile} from '../../models/app/loader.js'
-import {AppConfiguration, AppInterface} from '../../models/app/app.js'
+import {AppInterface} from '../../models/app/app.js'
 import {AppUpdateMutation, AppUpdateMutationSchema, AppUpdateMutationVariables} from '../../api/graphql/app_update.js'
 import {ensureDevContext} from '../context.js'
+import {mergeAppConfiguration} from '../merge-configuration.js'
 import {OrganizationApp} from '../../models/organization.js'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {Config} from '@oclif/core'
@@ -15,10 +16,7 @@ export interface PushConfigOptions {
   directory: string
 }
 
-interface UpdatedApp {
-  applicationUrl: string
-  redirectUrlWhitelist: string[]
-}
+type UpdatedApp = AppUpdateMutationSchema['appUpdate']['app']
 
 export default async function pushConfig(options: PushConfigOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
@@ -27,14 +25,14 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
   const app = await load({directory: options.directory, specifications})
 
-  printDiff(app.configuration, remoteApp)
+  printDiff(app, remoteApp)
 
   const updatedApp = await pushToPartners(app, apiKey, token)
 
-  app.configuration = {...app.configuration, ...updatedApp}
-  writeConfigurationFile(app)
+  const mergedApp = mergeAppConfiguration(app, {...updatedApp})
+  writeConfigurationFile(mergedApp)
 
-  printResult(app.configuration)
+  printResult(app)
 }
 
 async function pushToPartners(app: AppInterface, apiKey: string, token: string): Promise<UpdatedApp> {
@@ -43,7 +41,6 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
   const variables: AppUpdateMutationVariables = {
     apiKey,
     applicationUrl: webConfig?.urls?.applicationUrl || '',
-    redirectUrlWhitelist: appConfig.redirectUrlWhitelist || [],
     appProxy: {
       proxyUrl: webConfig?.appProxy?.url || '',
       proxySubPath: webConfig?.appProxy?.subPath || '',
@@ -68,30 +65,21 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
 }
 
 function printDiff(
-  config: AppConfiguration,
+  app: AppInterface,
   remoteConfig: Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string | undefined},
 ): void {
   const remoteItems = []
   const localItems = []
 
+  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+
   // eslint-disable-next-line no-warning-comments
   // TODO: do this smartly
-  if (config.applicationUrl !== remoteConfig.applicationUrl) {
+  if (webConfig?.urls?.applicationUrl !== remoteConfig.applicationUrl) {
     remoteItems.push(`App URL:                     ${remoteConfig.applicationUrl}`)
-    localItems.push(`App URL:                     ${config.applicationUrl}`)
+    localItems.push(`App URL:                     ${webConfig?.urls?.applicationUrl}`)
   }
-  if (config.redirectUrlWhitelist?.toString() !== remoteConfig.redirectUrlWhitelist.toString()) {
-    remoteItems.push(
-      `Allowed redirection URL(s):\n${remoteConfig.redirectUrlWhitelist
-        .map((url) => `                             ${url}`)
-        .join('\n')}`,
-    )
-    localItems.push(
-      `Allowed redirection URL(s):\n${(config.redirectUrlWhitelist || [])
-        .map((url) => `                             ${url}`)
-        .join('\n')}`,
-    )
-  }
+
   if (remoteItems.length === 0) return
   renderWarning({
     headline: 'Some of your app’s local configurations are different than they are on Shopify',
@@ -102,12 +90,11 @@ function printDiff(
   })
 }
 
-function printResult(config: AppConfiguration): void {
+function printResult(app: AppInterface): void {
+  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+
   renderSuccess({
     headline: 'App configuration updated',
-    customSections: [
-      {title: 'App URL', body: {list: {items: [config.applicationUrl || '']}}},
-      {title: 'Allowed redirection URL(s)', body: {list: {items: config.redirectUrlWhitelist || []}}},
-    ],
+    customSections: [{title: 'App URL', body: {list: {items: [webConfig?.urls?.applicationUrl || '']}}}],
   })
 }
