@@ -7,7 +7,7 @@ export function mergeAppConfiguration(
   remoteApp: Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string},
 ): AppInterface {
   localApp.webs
-    .filter((web) => web.configuration.type === 'frontend')
+    .filter((web) => web.configuration.type === 'backend')
     .map((web) => {
       web.configuration.embedded = remoteApp.embedded
       web.configuration.posEmbedded = remoteApp.posEmbedded
@@ -28,12 +28,17 @@ export function mergeAppConfiguration(
 
 export function mergeAppUrls(localApp: AppInterface, urls: PartnersURLs): AppInterface {
   localApp.webs
-    .filter((web) => web.configuration.type === 'frontend')
+    .filter((web) => web.configuration.type === 'backend')
     .map((web) => {
+      const authCallbackPath = urls.redirectUrlWhitelist.map((url) => {
+        // const base = urls.applicationUrl.endsWith('/') ? '' : '/'
+        return url.replace(urls.applicationUrl, '/')
+      })
       web.configuration.urls = {
         ...web.configuration.urls,
         applicationUrl: urls.applicationUrl,
         preferencesUrl: urls.preferencesUrl,
+        authCallbackPath,
       }
     })
   return localApp
