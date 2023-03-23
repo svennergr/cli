@@ -42,7 +42,7 @@ export async function pushAndWriteConfig(app: AppInterface, apiKey: string, toke
 }
 
 async function pushToPartners(app: AppInterface, apiKey: string, token: string): Promise<UpdatedApp> {
-  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+  const webConfig = app.webs.find((web) => web.configuration.type === 'backend')?.configuration
   const appConfig = app.configuration
 
   const variables: AppUpdateMutationVariables = {
@@ -64,12 +64,14 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
     variables.gdprWebhooksShopDeletionUrl = appConfig.gdprWebhooks?.shopDeletionUrl
 
   if (webConfig?.urls?.applicationUrl) {
-    const {redirectUrlWhitelist} = generatePartnersURLs(
-      webConfig?.urls?.applicationUrl,
-      webConfig?.urls?.authCallbackPath,
-    )
+    const baseURL = webConfig?.urls?.applicationUrl.endsWith('/')
+      ? webConfig?.urls?.applicationUrl.substring(0, webConfig?.urls?.applicationUrl.length - 1)
+      : webConfig?.urls?.applicationUrl
+    const {redirectUrlWhitelist} = generatePartnersURLs(baseURL, webConfig?.urls?.authCallbackPath)
     variables.redirectUrlWhitelist = redirectUrlWhitelist
   }
+
+  if (webConfig?.urls?.preferencesUrl) variables.preferencesUrl = webConfig?.urls?.preferencesUrl
 
   const query = AppUpdateMutation
   const result: AppUpdateMutationSchema = await partnersRequest(query, token, variables)
@@ -87,7 +89,7 @@ function printDiff(
   const remoteItems = []
   const localItems = []
 
-  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+  const webConfig = app.webs.find((web) => web.configuration.type === 'backend')?.configuration
 
   // eslint-disable-next-line no-warning-comments
   // TODO: do this smartly
@@ -107,7 +109,7 @@ function printDiff(
 }
 
 function printResult(app: AppInterface): void {
-  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+  const webConfig = app.webs.find((web) => web.configuration.type === 'backend')?.configuration
 
   renderSuccess({
     headline: 'App configuration updated',
