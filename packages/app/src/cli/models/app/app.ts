@@ -37,6 +37,14 @@ export const WebConfigurationSchema = zod.object({
   embedded: zod.boolean().optional(),
   posEmbedded: zod.boolean().optional(),
 
+  appProxy: zod
+    .object({
+      url: zod.string().optional(),
+      subPath: zod.string().optional(),
+      subPathPrefix: zod.string().optional(),
+    })
+    .optional(),
+
   urls: zod
     .object({
       preferencesUrl: zod.string().optional(),
