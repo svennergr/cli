@@ -5,6 +5,7 @@ import {AppUpdateMutation, AppUpdateMutationSchema, AppUpdateMutationVariables} 
 import {ensureDevContext} from '../context.js'
 import {mergeAppConfiguration} from '../merge-configuration.js'
 import {OrganizationApp} from '../../models/organization.js'
+import {generatePartnersURLs} from '../dev/urls.js'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {Config} from '@oclif/core'
 import {AbortError} from '@shopify/cli-kit/node/error'
@@ -27,17 +28,23 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
 
   printDiff(app, remoteApp)
 
+  const updatedApp = await pushAndWriteConfig(app, apiKey, token)
+
+  printResult(updatedApp)
+}
+
+export async function pushAndWriteConfig(app: AppInterface, apiKey: string, token: string): Promise<AppInterface> {
   const updatedApp = await pushToPartners(app, apiKey, token)
 
   const mergedApp = mergeAppConfiguration(app, {...updatedApp})
   writeConfigurationFile(mergedApp)
-
-  printResult(app)
+  return mergedApp
 }
 
 async function pushToPartners(app: AppInterface, apiKey: string, token: string): Promise<UpdatedApp> {
   const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
   const appConfig = app.configuration
+
   const variables: AppUpdateMutationVariables = {
     apiKey,
     applicationUrl: webConfig?.urls?.applicationUrl || '',
@@ -55,6 +62,15 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
     variables.gdprWebhooksCustomerDataRequestUrl = appConfig.gdprWebhooks?.customerDataRequestUrl
   if (appConfig.gdprWebhooks?.shopDeletionUrl)
     variables.gdprWebhooksShopDeletionUrl = appConfig.gdprWebhooks?.shopDeletionUrl
+
+  if (webConfig?.urls?.applicationUrl) {
+    const {redirectUrlWhitelist} = generatePartnersURLs(
+      webConfig?.urls?.applicationUrl,
+      webConfig?.urls?.authCallbackPath,
+    )
+    variables.redirectUrlWhitelist = redirectUrlWhitelist
+  }
+
   const query = AppUpdateMutation
   const result: AppUpdateMutationSchema = await partnersRequest(query, token, variables)
   if (result.appUpdate.userErrors.length > 0) {
