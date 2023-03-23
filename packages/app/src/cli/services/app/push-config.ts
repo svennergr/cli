@@ -1,6 +1,6 @@
 import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
 import {load, writeConfigurationFile} from '../../models/app/loader.js'
-import {AppConfiguration} from '../../models/app/app.js'
+import {AppConfiguration, AppInterface} from '../../models/app/app.js'
 import {AppUpdateMutation, AppUpdateMutationSchema, AppUpdateMutationVariables} from '../../api/graphql/app_update.js'
 import {ensureDevContext} from '../context.js'
 import {OrganizationApp} from '../../models/organization.js'
@@ -29,7 +29,7 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
 
   printDiff(app.configuration, remoteApp)
 
-  const updatedApp = await pushToPartners(app.configuration, apiKey, token)
+  const updatedApp = await pushToPartners(app, apiKey, token)
 
   app.configuration = {...app.configuration, ...updatedApp}
   writeConfigurationFile(app)
@@ -37,12 +37,27 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
   printResult(app.configuration)
 }
 
-async function pushToPartners(config: AppConfiguration, apiKey: string, token: string): Promise<UpdatedApp> {
+async function pushToPartners(app: AppInterface, apiKey: string, token: string): Promise<UpdatedApp> {
+  const webConfig = app.webs.find((web) => web.configuration.type === 'frontend')?.configuration
+  const appConfig = app.configuration
   const variables: AppUpdateMutationVariables = {
     apiKey,
-    applicationUrl: config.applicationUrl || '',
-    redirectUrlWhitelist: config.redirectUrlWhitelist || [],
+    applicationUrl: webConfig?.urls?.applicationUrl || '',
+    redirectUrlWhitelist: appConfig.redirectUrlWhitelist || [],
+    appProxy: {
+      proxyUrl: webConfig?.appProxy?.url || '',
+      proxySubPath: webConfig?.appProxy?.subPath || '',
+      proxySubPathPrefix: webConfig?.appProxy?.subPathPrefix || '',
+    },
+    embedded: webConfig?.embedded,
+    posEmbedded: webConfig?.posEmbedded,
   }
+  if (appConfig.gdprWebhooks?.customerDeletionUrl)
+    variables.gdprWebhooksCustomerDeletionUrl = appConfig.gdprWebhooks?.customerDeletionUrl
+  if (appConfig.gdprWebhooks?.customerDataRequestUrl)
+    variables.gdprWebhooksCustomerDataRequestUrl = appConfig.gdprWebhooks?.customerDataRequestUrl
+  if (appConfig.gdprWebhooks?.shopDeletionUrl)
+    variables.gdprWebhooksShopDeletionUrl = appConfig.gdprWebhooks?.shopDeletionUrl
   const query = AppUpdateMutation
   const result: AppUpdateMutationSchema = await partnersRequest(query, token, variables)
   if (result.appUpdate.userErrors.length > 0) {

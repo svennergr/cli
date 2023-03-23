@@ -3,6 +3,7 @@ import {AppInterface} from '../../models/app/app.js'
 import {UpdateURLsQuery, UpdateURLsQuerySchema, UpdateURLsQueryVariables} from '../../api/graphql/update_urls.js'
 import {GetURLsQuery, GetURLsQuerySchema, GetURLsQueryVariables} from '../../api/graphql/get_urls.js'
 import {setAppInfo} from '../local-storage.js'
+import {mergeAppUrls} from '../merge-configuration.js'
 import {writeConfigurationFile} from '../../models/app/loader.js'
 import {AbortError, AbortSilentError, BugError} from '@shopify/cli-kit/node/error'
 import {Config} from '@oclif/core'
@@ -15,6 +16,7 @@ import {runTunnelPlugin, TunnelPluginError} from '@shopify/cli-kit/node/plugins'
 
 export interface PartnersURLs {
   applicationUrl: string
+  preferencesUrl?: string
   redirectUrlWhitelist: string[]
 }
 
@@ -130,8 +132,8 @@ export async function updateURLs(app: AppInterface, urls: PartnersURLs, apiKey: 
     const errors = result.appUpdate.userErrors.map((error) => error.message).join(', ')
     throw new AbortError(errors)
   }
-  app.configuration = {...app.configuration, ...urls}
-  writeConfigurationFile(app)
+  const mergedLocalApp = mergeAppUrls(app, urls)
+  writeConfigurationFile(mergedLocalApp)
 }
 
 export async function getURLs(apiKey: string, token: string): Promise<PartnersURLs> {
