@@ -38,6 +38,9 @@ export const WebConfigurationSchema = zod.object({
     .union([WebConfigurationAuthCallbackPathSchema, WebConfigurationAuthCallbackPathSchema.array()])
     .optional(),
   webhooksPath: zod.preprocess(ensurePathStartsWithSlash, zod.string()).optional(),
+  embedded: zod.boolean().optional(),
+  posEmbedded: zod.boolean().optional(),
+  preferencesUrl: zod.string().optional(),
   commands: zod.object({
     build: zod.string().optional(),
     dev: zod.string(),
