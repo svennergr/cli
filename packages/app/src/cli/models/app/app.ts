@@ -13,6 +13,13 @@ export const AppConfigurationSchema = zod.object({
   extensionDirectories: zod.array(zod.string()).optional(),
   webDirectories: zod.array(zod.string()).optional(),
   webhookApiVersion: zod.string().optional(),
+  gdprWebhooks: zod
+    .object({
+      customerDeletionUrl: zod.string().optional(),
+      customerDataRequestUrl: zod.string().optional(),
+      shopDeletionUrl: zod.string().optional(),
+    })
+    .optional(),
 })
 
 export enum WebType {

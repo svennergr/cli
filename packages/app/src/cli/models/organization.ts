@@ -25,6 +25,11 @@ export type OrganizationApp = MinimalOrganizationApp & {
   applicationUrl: string
   redirectUrlWhitelist: string[]
   webhookApiVersion?: string
+  gdprWebhooks?: {
+    customerDeletionUrl?: string
+    customerDataRequestUrl?: string
+    shopDeletionUrl?: string
+  }
 }
 
 export interface OrganizationStore {

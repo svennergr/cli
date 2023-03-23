@@ -15,6 +15,11 @@ export const FindAppQuery = gql`
       applicationUrl
       redirectUrlWhitelist
       webhookApiVersion
+      gdprWebhooks {
+        customerDeletionUrl
+        customerDataRequestUrl
+        shopDeletionUrl
+      }
     }
   }
 `
@@ -33,5 +38,10 @@ export interface FindAppQuerySchema {
     applicationUrl: string
     redirectUrlWhitelist: string[]
     webhookApiVersion?: string
+    gdprWebhooks?: {
+      customerDeletionUrl?: string
+      customerDataRequestUrl?: string
+      shopDeletionUrl?: string
+    }
   }
 }
