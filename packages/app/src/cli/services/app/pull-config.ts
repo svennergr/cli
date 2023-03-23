@@ -44,5 +44,6 @@ function updateAppConfiguration(
     .filter((web) => web.configuration.type === 'frontend')
     .map((web) => (web.configuration.applicationUrl = remoteApp.applicationUrl))
 
+  localApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion
   return localApp
 }
