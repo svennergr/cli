@@ -23,6 +23,11 @@ export const FindAppQuery = gql`
       embedded
       posEmbedded
       preferencesUrl
+      appProxy {
+        url
+        subPath
+        subPathPrefix
+      }
     }
   }
 `
@@ -49,5 +54,10 @@ export interface FindAppQuerySchema {
     embedded: boolean
     posEmbedded: boolean
     preferencesUrl?: string
+    appProxy?: {
+      url: string
+      subPath: string
+      subPathPrefix: string
+    }
   }
 }

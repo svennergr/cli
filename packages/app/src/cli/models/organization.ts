@@ -33,6 +33,11 @@ export type OrganizationApp = MinimalOrganizationApp & {
   embedded?: boolean
   posEmbedded?: boolean
   preferencesUrl?: string
+  appProxy?: {
+    url: string
+    subPath: string
+    subPathPrefix: string
+  }
 }
 
 export interface OrganizationStore {

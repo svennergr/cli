@@ -50,6 +50,12 @@ function updateAppConfiguration(
         applicationUrl: remoteApp.applicationUrl,
         preferencesUrl: remoteApp.preferencesUrl,
       }
+      web.configuration.appProxy = {
+        ...web.configuration.appProxy,
+        url: remoteApp.appProxy?.url,
+        subPath: remoteApp.appProxy?.subPath,
+        subPathPrefix: remoteApp.appProxy?.subPathPrefix,
+      }
     })
 
   localApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion
