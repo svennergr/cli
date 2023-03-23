@@ -4,7 +4,8 @@ export const AppUpdateMutation = gql`
   mutation appUpdate(
     $apiKey: String!
     $applicationUrl: Url!
-    $redirectUrlWhitelist: [Url]!
+    $redirectUrlWhitelist: [Url]
+    $webhookApiVersion: String
     $appProxy: AppProxyInput
     $gdprWebhooksCustomerDeletionUrl: Url
     $gdprWebhooksCustomerDataRequestUrl: Url
@@ -17,6 +18,7 @@ export const AppUpdateMutation = gql`
         apiKey: $apiKey
         applicationUrl: $applicationUrl
         redirectUrlWhitelist: $redirectUrlWhitelist
+        webhookApiVersion: $webhookApiVersion
         appProxy: $appProxy
         gdprWebhooks: {
           customerDeletionUrl: $gdprWebhooksCustomerDeletionUrl
@@ -28,6 +30,12 @@ export const AppUpdateMutation = gql`
       }
     ) {
       app {
+        id
+        title
+        apiKey
+        organizationId
+        grantedScopes
+        webhookApiVersion
         applicationUrl
         redirectUrlWhitelist
         embedded
@@ -54,7 +62,8 @@ export const AppUpdateMutation = gql`
 export interface AppUpdateMutationVariables {
   apiKey: string
   applicationUrl: string
-  redirectUrlWhitelist: string[]
+  redirectUrlWhitelist?: string[]
+  webhookApiVersion?: string
   appProxy?: {
     proxyUrl: string
     proxySubPath: string
@@ -70,6 +79,12 @@ export interface AppUpdateMutationVariables {
 export interface AppUpdateMutationSchema {
   appUpdate: {
     app: {
+      id: string
+      title: string
+      apiKey: string
+      organizationId: string
+      grantedScopes: string[]
+      webhookApiVersion?: string
       applicationUrl: string
       redirectUrlWhitelist: string[]
       embedded: boolean
