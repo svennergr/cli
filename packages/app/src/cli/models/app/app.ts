@@ -12,6 +12,7 @@ export const AppConfigurationSchema = zod.object({
   redirectUrlWhitelist: zod.array(zod.string()).optional(),
   extensionDirectories: zod.array(zod.string()).optional(),
   webDirectories: zod.array(zod.string()).optional(),
+  webhookApiVersion: zod.string().optional(),
 })
 
 export enum WebType {

@@ -14,6 +14,7 @@ export const FindAppQuery = gql`
       grantedScopes
       applicationUrl
       redirectUrlWhitelist
+      webhookApiVersion
     }
   }
 `
@@ -31,5 +32,6 @@ export interface FindAppQuerySchema {
     grantedScopes: string[]
     applicationUrl: string
     redirectUrlWhitelist: string[]
+    webhookApiVersion?: string
   }
 }
