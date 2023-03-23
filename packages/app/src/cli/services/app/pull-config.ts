@@ -43,10 +43,13 @@ function updateAppConfiguration(
   localApp.webs
     .filter((web) => web.configuration.type === 'frontend')
     .map((web) => {
-      web.configuration.applicationUrl = remoteApp.applicationUrl
       web.configuration.embedded = remoteApp.embedded
       web.configuration.posEmbedded = remoteApp.posEmbedded
-      web.configuration.preferencesUrl = remoteApp.preferencesUrl
+      web.configuration.urls = {
+        ...web.configuration.urls,
+        applicationUrl: remoteApp.applicationUrl,
+        preferencesUrl: remoteApp.preferencesUrl,
+      }
     })
 
   localApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion

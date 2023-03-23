@@ -115,7 +115,7 @@ async function dev(options: DevOptions) {
   let previewUrl
 
   if (initiateUpdateUrls) {
-    const newURLs = generatePartnersURLs(exposedUrl, backendConfig?.configuration.authCallbackPath)
+    const newURLs = generatePartnersURLs(exposedUrl, backendConfig?.configuration.urls?.authCallbackPath)
     shouldUpdateURLs = await shouldOrPromptUpdateURLs({
       currentURLs,
       appDirectory: localApp.directory,
