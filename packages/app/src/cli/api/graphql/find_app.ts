@@ -20,6 +20,9 @@ export const FindAppQuery = gql`
         customerDataRequestUrl
         shopDeletionUrl
       }
+      embedded
+      posEmbedded
+      preferencesUrl
     }
   }
 `
@@ -43,5 +46,8 @@ export interface FindAppQuerySchema {
       customerDataRequestUrl?: string
       shopDeletionUrl?: string
     }
+    embedded: boolean
+    posEmbedded: boolean
+    preferencesUrl?: string
   }
 }

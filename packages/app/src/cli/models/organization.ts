@@ -30,6 +30,9 @@ export type OrganizationApp = MinimalOrganizationApp & {
     customerDataRequestUrl?: string
     shopDeletionUrl?: string
   }
+  embedded?: boolean
+  posEmbedded?: boolean
+  preferencesUrl?: string
 }
 
 export interface OrganizationStore {
