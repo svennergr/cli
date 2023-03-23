@@ -45,5 +45,6 @@ function updateAppConfiguration(
     .map((web) => (web.configuration.applicationUrl = remoteApp.applicationUrl))
 
   localApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion
+  localApp.configuration.gdprWebhooks = remoteApp.gdprWebhooks
   return localApp
 }
