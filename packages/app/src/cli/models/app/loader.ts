@@ -68,6 +68,9 @@ export async function load(options: AppLoaderConstructorArgs): Promise<AppInterf
 
 export function writeConfigurationFile(app: App): void {
   writeFileSync(app.configurationPath, encodeToml(app.configuration))
+  app.webs.forEach((web) => {
+    writeFileSync(`${web.directory}/${configurationFileNames.web}`, encodeToml(web.configuration))
+  })
 }
 
 class AppLoader {
