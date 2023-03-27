@@ -5,7 +5,7 @@ import {devUIExtensions} from './dev/extension.js'
 import {outputExtensionsMessages, outputUpdateURLsResult} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
-import {pushAndWriteConfig} from './app/push-config.js'
+import {pushAndWriteConfig} from './app/push.js'
 import {mergeAppUrls} from './merge-configuration.js'
 import {
   ReverseHTTPProxyTarget,
