@@ -336,7 +336,7 @@
       },
       "args": {}
     },
-    "app:push-config": {
+    "app:push": {
       "id": "app:push-config",
       "description": "Push your toml configuration to the Partners Dashboard.",
       "strict": true,
@@ -362,7 +362,7 @@
       },
       "args": {}
     },
-    "app:pull-config": {
+    "app:pull": {
       "id": "app:pull-config",
       "description": "Pull your Shopify app configuration to your toml file.",
       "strict": true,
