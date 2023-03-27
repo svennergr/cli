@@ -54,6 +54,7 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
       proxySubPathPrefix: webConfig?.appProxy?.subPathPrefix || '',
     },
   }
+  if (appConfig.webhookApiVersion) variables.webhookApiVersion = appConfig.webhookApiVersion
   if (appConfig.gdprWebhooks?.customerDeletionUrl)
     variables.gdprWebhooksCustomerDeletionUrl = appConfig.gdprWebhooks?.customerDeletionUrl
   if (appConfig.gdprWebhooks?.customerDataRequestUrl)
