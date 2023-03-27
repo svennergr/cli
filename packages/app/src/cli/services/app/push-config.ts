@@ -53,8 +53,6 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
       proxySubPath: webConfig?.appProxy?.subPath || '',
       proxySubPathPrefix: webConfig?.appProxy?.subPathPrefix || '',
     },
-    embedded: webConfig?.embedded,
-    posEmbedded: webConfig?.posEmbedded,
   }
   if (appConfig.gdprWebhooks?.customerDeletionUrl)
     variables.gdprWebhooksCustomerDeletionUrl = appConfig.gdprWebhooks?.customerDeletionUrl
@@ -64,10 +62,9 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
     variables.gdprWebhooksShopDeletionUrl = appConfig.gdprWebhooks?.shopDeletionUrl
 
   if (webConfig?.urls?.applicationUrl) {
-    const baseURL = webConfig?.urls?.applicationUrl.endsWith('/')
-      ? webConfig?.urls?.applicationUrl.substring(0, webConfig?.urls?.applicationUrl.length - 1)
-      : webConfig?.urls?.applicationUrl
-    const {redirectUrlWhitelist} = generatePartnersURLs(baseURL, webConfig?.urls?.authCallbackPath)
+    const url = new URL(webConfig?.urls?.applicationUrl)
+
+    const {redirectUrlWhitelist} = generatePartnersURLs(url.origin, webConfig?.urls?.authCallbackPath)
     variables.redirectUrlWhitelist = redirectUrlWhitelist
   }
 

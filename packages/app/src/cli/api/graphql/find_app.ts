@@ -23,8 +23,6 @@ export const FindAppQuery = gql`
         customerDataRequestUrl
         shopDeletionUrl
       }
-      embedded
-      posEmbedded
       preferencesUrl
       appProxy {
         url
@@ -57,8 +55,6 @@ export interface FindAppQuerySchema {
       customerDataRequestUrl?: string
       shopDeletionUrl?: string
     }
-    embedded: boolean
-    posEmbedded: boolean
     preferencesUrl?: string
     appProxy?: {
       url: string
