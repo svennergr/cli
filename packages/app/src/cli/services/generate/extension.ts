@@ -1,11 +1,9 @@
 import {blocks, versions} from '../../constants.js'
 import {AppInterface} from '../../models/app/app.js'
-import {FunctionSpec} from '../../models/extensions/functions.js'
 import {GenericSpecification} from '../../models/app/extensions.js'
 import {UIExtensionSpec} from '../../models/extensions/ui.js'
 import {ThemeExtensionSpec} from '../../models/extensions/theme.js'
 import {buildGraphqlTypes} from '../function/build.js'
-import {ensureFunctionExtensionFlavorExists} from '../function/common.js'
 import {
   addNPMDependenciesIfNeeded,
   addResolutionOrOverride,
@@ -47,11 +45,12 @@ interface ExtensionDirectory {
 
 interface FunctionFlavor {
   extensionFlavor: ExtensionFlavorValue
+  specification: {templateURL: string; templatePath: (flavor: string) => string}
 }
 
 export type ExtensionFlavorValue = 'vanilla-js' | 'react' | 'typescript' | 'typescript-react' | 'rust' | 'wasm'
 
-type FunctionExtensionInitOptions = ExtensionInitOptions<FunctionSpec> & ExtensionDirectory & FunctionFlavor
+type FunctionExtensionInitOptions = ExtensionInitOptions & ExtensionDirectory & FunctionFlavor
 type UIExtensionInitOptions = ExtensionInitOptions<UIExtensionSpec> & ExtensionDirectory
 type ThemeExtensionInitOptions = ExtensionInitOptions<ThemeExtensionSpec> & ExtensionDirectory
 
@@ -240,7 +239,12 @@ async function functionExtensionInit(options: FunctionExtensionInitOptions) {
           destination: templateDownloadDir,
           shallow: true,
         })
-        const origin = await ensureFunctionExtensionFlavorExists(specification, extensionFlavor, templateDownloadDir)
+
+        const templatePath = specification.templatePath(extensionFlavor)
+        const origin = joinPath(templateDownloadDir, templatePath)
+        if (!(await fileExists(origin))) {
+          throw new AbortError(`\nExtension '${options.name}' is not available for ${extensionFlavor}`)
+        }
 
         await recursiveLiquidTemplateCopy(origin, options.extensionDirectory, {
           flavor: extensionFlavor,

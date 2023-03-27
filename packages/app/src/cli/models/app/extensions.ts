@@ -1,4 +1,4 @@
-import {FunctionSpec, FunctionConfigType} from '../extensions/functions.js'
+import {FunctionConfigType} from '../extensions/functions.js'
 import {ThemeConfigContents, ThemeExtensionSpec} from '../extensions/theme.js'
 import {UIExtensionSpec} from '../extensions/ui.js'
 import {BaseConfigContents} from '../extensions/schemas.js'
@@ -10,7 +10,7 @@ import {DependencyVersion} from '@shopify/cli-kit/node/node-package-manager'
 export type ExtensionCategory = 'ui' | 'function' | 'theme'
 
 /**
- * Common interface for ExtensionSpec and FunctionSpec
+ * Common interface for all Extensions.
  */
 export interface GenericSpecification {
   identifier: string
@@ -78,8 +78,4 @@ export function isUIExtension(spec: GenericSpecification): spec is UIExtensionSp
 
 export function isThemeExtension(spec: GenericSpecification): spec is ThemeExtensionSpec {
   return spec.category() === 'theme'
-}
-
-export function isFunctionExtension(spec: GenericSpecification): spec is FunctionSpec {
-  return spec.category() === 'function'
 }
