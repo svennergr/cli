@@ -333,7 +333,7 @@
       "args": {}
     },
     "app:push": {
-      "id": "app:push-config",
+      "id": "app:push",
       "description": "Push your toml configuration to the Partners Dashboard.",
       "strict": true,
       "pluginName": "@shopify/app",
