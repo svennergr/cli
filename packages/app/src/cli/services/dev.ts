@@ -5,7 +5,6 @@ import {devUIExtensions} from './dev/extension.js'
 import {outputExtensionsMessages, outputUpdateURLsResult} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
-import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-webhook.js'
 import {pushAndWriteConfig} from './app/push-config.js'
 import {mergeAppUrls} from './merge-configuration.js'
 import {
@@ -89,7 +88,7 @@ async function dev(options: DevOptions) {
   const frontendConfig = localApp.webs.find(({configuration}) => configuration.type === WebType.Frontend)
   const backendConfig = localApp.webs.find(({configuration}) => configuration.type === WebType.Backend)
   const webhooksPath = backendConfig?.configuration?.webhooksPath || '/api/webhooks'
-  const sendUninstallWebhook = Boolean(webhooksPath) && remoteAppUpdated
+  // const sendUninstallWebhook = Boolean(webhooksPath) && remoteAppUpdated
 
   const initiateUpdateUrls = (frontendConfig || backendConfig) && options.update
   let shouldUpdateURLs = false
@@ -212,20 +211,20 @@ async function dev(options: DevOptions) {
     }
   }
 
-  if (sendUninstallWebhook) {
-    additionalProcesses.push({
-      prefix: 'webhooks',
-      action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {
-        await sendUninstallWebhookToAppServer({
-          stdout,
-          token,
-          address: `http://localhost:${backendOptions.backendPort}${webhooksPath}`,
-          sharedSecret: backendOptions.apiSecret,
-          storeFqdn,
-        })
-      },
-    })
-  }
+  // if (sendUninstallWebhook) {
+  //   additionalProcesses.push({
+  //     prefix: 'webhooks',
+  //     action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {
+  //       await sendUninstallWebhookToAppServer({
+  //         stdout,
+  //         token,
+  //         address: `http://localhost:${backendOptions.backendPort}${webhooksPath}`,
+  //         sharedSecret: backendOptions.apiSecret,
+  //         storeFqdn,
+  //       })
+  //     },
+  //   })
+  // }
 
   await logMetadataForDev({devOptions: options, tunnelUrl: frontendUrl, shouldUpdateURLs, storeFqdn})
 
