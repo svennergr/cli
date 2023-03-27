@@ -1,6 +1,6 @@
 import Command from '../../utilities/app-command.js'
 import {appFlags} from '../../flags.js'
-import pullConfig, {PullConfigOptions} from '../../services/app/pull-config.js'
+import pullConfig, {PullConfigOptions} from '../../services/app/pull.js'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 
 export default class PullConfig extends Command {
