@@ -32,8 +32,6 @@ const WebConfigurationAuthCallbackPathSchema = zod.preprocess(ensurePathStartsWi
 export const WebConfigurationSchema = zod.object({
   type: zod.enum([WebType.Frontend, WebType.Backend]),
   webhooksPath: zod.preprocess(ensurePathStartsWithSlash, zod.string()).optional(),
-  embedded: zod.boolean().optional(),
-  posEmbedded: zod.boolean().optional(),
 
   appProxy: zod
     .object({
