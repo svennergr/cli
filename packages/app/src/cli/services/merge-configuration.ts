@@ -9,8 +9,6 @@ export function mergeAppConfiguration(
   localApp.webs
     .filter((web) => web.configuration.type === 'backend')
     .map((web) => {
-      web.configuration.embedded = remoteApp.embedded
-      web.configuration.posEmbedded = remoteApp.posEmbedded
       web.configuration.appProxy = {
         ...web.configuration.appProxy,
         url: remoteApp.appProxy?.url,
@@ -30,10 +28,7 @@ export function mergeAppUrls(localApp: AppInterface, urls: PartnersURLs): AppInt
   localApp.webs
     .filter((web) => web.configuration.type === 'backend')
     .map((web) => {
-      const authCallbackPath = urls.redirectUrlWhitelist.map((url) => {
-        // const base = urls.applicationUrl.endsWith('/') ? '' : '/'
-        return url.replace(urls.applicationUrl, '/')
-      })
+      const authCallbackPath = urls.redirectUrlWhitelist.map((url) => new URL(url).pathname)
       web.configuration.urls = {
         ...web.configuration.urls,
         applicationUrl: urls.applicationUrl,

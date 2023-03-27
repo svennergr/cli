@@ -11,8 +11,6 @@ export const AppUpdateMutation = gql`
     $gdprWebhooksCustomerDeletionUrl: Url
     $gdprWebhooksCustomerDataRequestUrl: Url
     $gdprWebhooksShopDeletionUrl: Url
-    $embedded: Boolean
-    $posEmbedded: Boolean
   ) {
     appUpdate(
       input: {
@@ -27,8 +25,6 @@ export const AppUpdateMutation = gql`
           customerDataRequestUrl: $gdprWebhooksCustomerDataRequestUrl
           shopDeletionUrl: $gdprWebhooksShopDeletionUrl
         }
-        embedded: $embedded
-        posEmbedded: $posEmbedded
       }
     ) {
       app {
@@ -40,8 +36,6 @@ export const AppUpdateMutation = gql`
         webhookApiVersion
         applicationUrl
         redirectUrlWhitelist
-        embedded
-        posEmbedded
         preferencesUrl
         appProxy {
           url
@@ -76,8 +70,6 @@ export interface AppUpdateMutationVariables {
   gdprWebhooksCustomerDeletionUrl?: string
   gdprWebhooksCustomerDataRequestUrl?: string
   gdprWebhooksShopDeletionUrl?: string
-  embedded?: boolean
-  posEmbedded?: boolean
 }
 
 export interface AppUpdateMutationSchema {
@@ -91,8 +83,6 @@ export interface AppUpdateMutationSchema {
       webhookApiVersion?: string
       applicationUrl: string
       redirectUrlWhitelist: string[]
-      embedded: boolean
-      posEmbedded: boolean
       preferencesUrl?: string
       appProxy: {
         url: string
