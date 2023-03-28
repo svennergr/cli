@@ -133,6 +133,76 @@ class AppLoader {
     return appClass
   }
 
+  // create a function to load all extensions combining function, uiextensions and theme extensions
+  async loadExtensions(extensionDirectories: string[]) {
+    const extensionConfigPaths = [...(extensionDirectories ?? [defaultExtensionDirectory])].map((extensionPath) => {
+      return joinPath(this.appDirectory, extensionPath, `*.extension.toml`)
+    })
+    const configPaths = await glob(extensionConfigPaths)
+    const extensions = await Promise.all(
+      configPaths.map(async (configurationPath) => {
+        const directory = dirname(configurationPath)
+        const fileContent = await readFile(configurationPath)
+        const obj = decodeToml(fileContent)
+        const {type} = TypeSchema.parse(obj)
+        const specification = this.findSpecificationForType(type)
+
+        if (!specification) {
+          this.abortOrReport(
+            outputContent`Unknown theme type ${outputToken.yellow('theme')} in ${outputToken.path(configurationPath)}`,
+            undefined,
+            configurationPath,
+          )
+          return undefined
+        }
+
+        const configuration = await this.parseConfigurationFile(specification.schema, configurationPath)
+
+        const entryPath = (
+          await Promise.all(
+            ['src/index.js', 'src/index.ts', 'src/main.rs', 'src/main.tsx', 'src/main.jsx']
+              .map((relativePath) => joinPath(directory, relativePath))
+              .map(async (sourcePath) => ((await fileExists(sourcePath)) ? sourcePath : undefined)),
+          )
+        ).find((sourcePath) => sourcePath !== undefined)
+
+        let extension: Extension
+        switch (type) {
+          case 'ui_extension':
+            extension = new UIExtensionInstance({
+              configuration,
+              configurationPath,
+              entryPath: entryPath ?? '',
+              directory,
+              specification: specification as UIExtensionSpec,
+            })
+            break
+          case 'theme':
+            extension = new ThemeExtensionInstance({
+              configuration,
+              configurationPath,
+              directory,
+              specification: specification as ThemeExtensionSpec,
+              outputBundlePath: directory,
+            })
+            break
+          case 'function':
+            extension = new FunctionInstance({
+              configuration,
+              configurationPath,
+              entryPath,
+              directory,
+            })
+            break
+          default:
+            throw new Error(`Unknown extension type ${type}`)
+        }
+        return extension
+      }),
+    )
+    return {extensions, usedCustomLayout: extensionDirectories !== undefined}
+  }
+
   async loadDotEnv(): Promise<DotEnvFile | undefined> {
     let dotEnvFile: DotEnvFile | undefined
     const dotEnvPath = joinPath(this.appDirectory, dotEnvFileNames.production)
