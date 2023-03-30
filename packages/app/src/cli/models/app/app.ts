@@ -6,6 +6,10 @@ import {getDependencies, PackageManager, readAndParsePackageJson} from '@shopify
 import {fileRealPath, findPathUp} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 
+const ensurePathStartsWithSlash = (arg: unknown) => (typeof arg === 'string' && !arg.startsWith('/') ? `/${arg}` : arg)
+
+const WebConfigurationAuthCallbackPathSchema = zod.preprocess(ensurePathStartsWithSlash, zod.string())
+
 export const AppConfigurationSchema = zod.object({
   scopes: zod.string().default(''),
   extensionDirectories: zod.array(zod.string()).optional(),
@@ -18,24 +22,6 @@ export const AppConfigurationSchema = zod.object({
       shopDeletionUrl: zod.string().optional(),
     })
     .optional(),
-})
-
-export enum WebType {
-  Frontend = 'frontend',
-  Backend = 'backend',
-}
-
-const ensurePathStartsWithSlash = (arg: unknown) => (typeof arg === 'string' && !arg.startsWith('/') ? `/${arg}` : arg)
-
-const WebConfigurationAuthCallbackPathSchema = zod.preprocess(ensurePathStartsWithSlash, zod.string())
-
-export const WebConfigurationSchema = zod.object({
-  type: zod.enum([WebType.Frontend, WebType.Backend]),
-  webhooksPath: zod.preprocess(ensurePathStartsWithSlash, zod.string()).optional(),
-  port: zod.number().max(65536).min(0).optional(),
-  embedded: zod.boolean().optional(),
-  posEmbedded: zod.boolean().optional(),
-
   appProxy: zod
     .object({
       url: zod.string().optional(),
@@ -53,7 +39,16 @@ export const WebConfigurationSchema = zod.object({
         .optional(),
     })
     .optional(),
+})
 
+export enum WebType {
+  Frontend = 'frontend',
+  Backend = 'backend',
+}
+
+export const WebConfigurationSchema = zod.object({
+  type: zod.enum([WebType.Frontend, WebType.Backend]),
+  webhooksPath: zod.preprocess(ensurePathStartsWithSlash, zod.string()).optional(),
   commands: zod.object({
     build: zod.string().optional(),
     dev: zod.string(),

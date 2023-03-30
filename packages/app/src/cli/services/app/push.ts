@@ -47,11 +47,11 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
 
   const variables: AppUpdateMutationVariables = {
     apiKey,
-    applicationUrl: webConfig?.urls?.applicationUrl || '',
+    applicationUrl: appConfig?.urls?.applicationUrl || '',
     appProxy: {
-      proxyUrl: webConfig?.appProxy?.url || '',
-      proxySubPath: webConfig?.appProxy?.subPath || '',
-      proxySubPathPrefix: webConfig?.appProxy?.subPathPrefix || '',
+      proxyUrl: appConfig?.appProxy?.url || '',
+      proxySubPath: appConfig?.appProxy?.subPath || '',
+      proxySubPathPrefix: appConfig?.appProxy?.subPathPrefix || '',
     },
   }
   if (appConfig.webhookApiVersion) variables.webhookApiVersion = appConfig.webhookApiVersion
@@ -62,14 +62,14 @@ async function pushToPartners(app: AppInterface, apiKey: string, token: string):
   if (appConfig.gdprWebhooks?.shopDeletionUrl)
     variables.gdprWebhooksShopDeletionUrl = appConfig.gdprWebhooks?.shopDeletionUrl
 
-  if (webConfig?.urls?.applicationUrl) {
-    const url = new URL(webConfig?.urls?.applicationUrl)
+  if (appConfig?.urls?.applicationUrl) {
+    const url = new URL(appConfig?.urls?.applicationUrl)
 
-    const {redirectUrlWhitelist} = generatePartnersURLs(url.origin, webConfig?.urls?.authCallbackPath)
+    const {redirectUrlWhitelist} = generatePartnersURLs(url.origin, appConfig?.urls?.authCallbackPath)
     variables.redirectUrlWhitelist = redirectUrlWhitelist
   }
 
-  if (webConfig?.urls?.preferencesUrl) variables.preferencesUrl = webConfig?.urls?.preferencesUrl
+  if (appConfig?.urls?.preferencesUrl) variables.preferencesUrl = appConfig?.urls?.preferencesUrl
 
   const query = AppUpdateMutation
   const result: AppUpdateMutationSchema = await partnersRequest(query, token, variables)
@@ -87,13 +87,13 @@ function printDiff(
   const remoteItems = []
   const localItems = []
 
-  const webConfig = app.webs.find((web) => web.configuration.type === 'backend')?.configuration
+  const appConfig = app.configuration
 
   // eslint-disable-next-line no-warning-comments
   // TODO: do this smartly
-  if (webConfig?.urls?.applicationUrl !== remoteConfig.applicationUrl) {
+  if (appConfig?.urls?.applicationUrl !== remoteConfig.applicationUrl) {
     remoteItems.push(`App URL:                     ${remoteConfig.applicationUrl}`)
-    localItems.push(`App URL:                     ${webConfig?.urls?.applicationUrl}`)
+    localItems.push(`App URL:                     ${appConfig?.urls?.applicationUrl}`)
   }
 
   if (remoteItems.length === 0) return
@@ -107,10 +107,10 @@ function printDiff(
 }
 
 function printResult(app: AppInterface): void {
-  const webConfig = app.webs.find((web) => web.configuration.type === 'backend')?.configuration
+  const appConfig = app.configuration
 
   renderSuccess({
     headline: 'App configuration updated',
-    customSections: [{title: 'App URL', body: {list: {items: [webConfig?.urls?.applicationUrl || '']}}}],
+    customSections: [{title: 'App URL', body: {list: {items: [appConfig?.urls?.applicationUrl || '']}}}],
   })
 }
