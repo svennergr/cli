@@ -82,6 +82,7 @@ async function dev(options: DevOptions) {
     localApp = await installAppDependencies(localApp)
   }
 
+  const appConfig = localApp.configuration
   const frontendConfig = localApp.webs.find(({configuration}) => configuration.type === WebType.Frontend)
   const backendConfig = localApp.webs.find(({configuration}) => configuration.type === WebType.Backend)
   const webhooksPath = backendConfig?.configuration?.webhooksPath || '/api/webhooks'
@@ -113,7 +114,7 @@ async function dev(options: DevOptions) {
   let previewUrl
 
   if (initiateUpdateUrls) {
-    const newURLs = generatePartnersURLs(exposedUrl, backendConfig?.configuration.urls?.authCallbackPath)
+    const newURLs = generatePartnersURLs(exposedUrl, appConfig?.urls?.authCallbackPath)
     shouldUpdateURLs = await shouldOrPromptUpdateURLs({
       currentURLs,
       appDirectory: localApp.directory,
