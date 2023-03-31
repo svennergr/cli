@@ -244,6 +244,13 @@
           "description": "Local port of the theme app extension development server.",
           "hidden": false,
           "multiple": false
+        },
+        "app-env": {
+          "name": "app-env",
+          "type": "option",
+          "description": "Shopify API client that you want to point to.",
+          "hidden": false,
+          "multiple": false
         }
       },
       "args": {}

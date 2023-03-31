@@ -55,6 +55,7 @@ interface AppLoaderConstructorArgs {
   directory: string
   mode?: AppLoaderMode
   specifications: GenericSpecification[]
+  appConfigName?: string
 }
 
 /**
@@ -80,11 +81,13 @@ class AppLoader {
   private configurationPath = ''
   private errors: AppErrors = new AppErrors()
   private specifications: GenericSpecification[]
+  private appConfigName?: string
 
-  constructor({directory, mode, specifications}: AppLoaderConstructorArgs) {
+  constructor({directory, mode, specifications, appConfigName}: AppLoaderConstructorArgs) {
     this.mode = mode ?? 'strict'
     this.directory = directory
     this.specifications = specifications
+    this.appConfigName = appConfigName
   }
 
   findSpecificationForType(type: string) {
@@ -159,7 +162,11 @@ class AppLoader {
   async getConfigurationPath() {
     if (this.configurationPath) return this.configurationPath
 
-    const configurationPath = await findPathUp(configurationFileNames.app, {
+    const configPathFileName = this.appConfigName
+      ? `shopify.app.${this.appConfigName}.toml`
+      : configurationFileNames.app
+
+    const configurationPath = await findPathUp(configPathFileName, {
       cwd: this.directory,
       type: 'file',
     })

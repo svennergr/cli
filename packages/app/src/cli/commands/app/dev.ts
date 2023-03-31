@@ -112,6 +112,7 @@ export default class Dev extends Command {
       noTunnel: flags['no-tunnel'],
       theme: flags.theme,
       themeExtensionPort: flags['theme-app-extension-port'],
+      appEnv: flags['app-env'],
     })
   }
 }
