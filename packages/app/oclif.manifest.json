@@ -388,7 +388,7 @@
       },
       "args": {}
     },
-    "config:create": {
+    "app:config-create": {
       "id": "app:config-create",
       "description": "lala",
       "strict": true,
@@ -412,7 +412,11 @@
           "allowNo": false
         }
       },
-      "args": {}
+      "args": {
+        "name": {
+          "name": "string"
+        }
+      }
     },
     "webhook:trigger": {
       "id": "webhook:trigger",
