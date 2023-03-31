@@ -388,6 +388,32 @@
       },
       "args": {}
     },
+    "config:create": {
+      "id": "app:config-create",
+      "description": "lala",
+      "strict": true,
+      "pluginName": "@shopify/app",
+      "pluginAlias": "@shopify/app",
+      "pluginType": "core",
+      "aliases": [],
+      "flags": {
+        "environment": {
+          "name": "environment",
+          "type": "option",
+          "description": "The environment to apply to the current command.",
+          "hidden": true,
+          "multiple": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "Increase the verbosity of the logs.",
+          "hidden": false,
+          "allowNo": false
+        }
+      },
+      "args": {}
+    },
     "webhook:trigger": {
       "id": "webhook:trigger",
       "description": "Trigger delivery of a sample webhook topic payload to a designated address.",
