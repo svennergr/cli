@@ -57,6 +57,7 @@ export interface DevOptions {
   theme?: string
   themeExtensionPort?: number
   notify?: string
+  appEnv?: string
 }
 
 interface DevWebOptions {
@@ -79,7 +80,7 @@ async function dev(options: DevOptions) {
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
-  let localApp = await load({directory: options.directory, specifications})
+  let localApp = await load({directory: options.directory, specifications, appConfigName: options.appEnv})
 
   if (!options.skipDependenciesInstallation) {
     localApp = await installAppDependencies(localApp)

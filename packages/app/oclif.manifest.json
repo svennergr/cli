@@ -270,6 +270,12 @@
           "name": "notify",
           "type": "option",
           "description": "The file path or URL. The file path is to a file that you want updated on idle. The URL path is where you want a webhook posted to report on file changes.",
+        },
+        "app-env": {
+          "name": "app-env",
+          "type": "option",
+          "description": "Shopify API client that you want to point to.",
+          "hidden": false,
           "multiple": false
         }
       },

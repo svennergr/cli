@@ -118,6 +118,7 @@ export default class Dev extends Command {
       theme: flags.theme,
       themeExtensionPort: flags['theme-app-extension-port'],
       notify: flags.notify,
+      appEnv: flags['app-env'],
     })
   }
 }
