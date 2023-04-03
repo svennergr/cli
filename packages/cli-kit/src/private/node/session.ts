@@ -166,7 +166,9 @@ async function executeCompleteFlow(applications: OAuthApplications, identityFqdn
   }
 
   let identityToken: IdentityToken
-  if (useDeviceAuth()) {
+  if (process.env.IDENTITY_ACCESS_TOKEN) {
+    identityToken = buildIdentityTokenFromEnv(scopes)
+  } else if (useDeviceAuth()) {
     // Request a device code to authorize without a browser redirect.
     outputDebug(outputContent`Requesting device authorization code...`)
     const deviceAuth = await requestDeviceAuthorization(scopes)
@@ -345,5 +347,14 @@ function getExchangeScopes(apps: OAuthApplications): ExchangeScopes {
     admin: apiScopes('admin', adminScope),
     partners: apiScopes('partners', partnerScope),
     storefront: apiScopes('storefront-renderer', storefrontScopes),
+  }
+}
+
+function buildIdentityTokenFromEnv(scopes: string[]): IdentityToken {
+  return {
+    accessToken: process.env.IDENTITY_ACCESS_TOKEN || '',
+    refreshToken: process.env.IDENTITY_REFRESH_TOKEN || '',
+    expiresAt: new Date(Date.now() + 15865002 * 1000),
+    scopes,
   }
 }

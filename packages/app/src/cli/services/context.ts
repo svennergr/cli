@@ -27,7 +27,6 @@ import {renderInfo, renderTasks} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
-import {usePartnersToken} from '@shopify/cli-kit/node/environment'
 
 export const InvalidApiKeyErrorMessage = (apiKey: string) => {
   return {
@@ -136,10 +135,10 @@ export async function ensureDevContext(options: DevContextOptions, token: string
     outputInfo(explanation)
   }
 
-  const orgId = cachedInfo?.orgId || (await selectOrg(token))
+  const orgId = process.env.ORG || cachedInfo?.orgId || (await selectOrg(token))
 
   let {app: selectedApp, store: selectedStore} = await fetchDevDataFromOptions(options, orgId, token)
-  const organization = await fetchOrgFromId(orgId, token)
+  const organization = await fetchOrgFromId(selectedApp?.organizationId, token)
   const useCloudflareTunnels = organization.betas.cliTunnelAlternative !== true
 
   if (selectedApp && selectedStore) {
@@ -375,7 +374,7 @@ export async function fetchAppAndIdentifiers(
 
   // if the command is run using a partnersToken then it is not possible to fetch the organization information because
   // that token has not enough permissions and the command break at this point with a not found organizations error.
-  if (!usePartnersToken() && !organization) {
+  if (!organization) {
     organization = await fetchOrgFromId(partnersApp.organizationId, token)
   }
 
