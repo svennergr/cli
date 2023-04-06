@@ -92,7 +92,20 @@ describe('frontFrameworkUsed', () => {
       expect(got).toEqual('symfony')
     })
   })
-  test('return unkonw when no configuration file is present', async () => {
+  test('return remix when match every detectors', async () => {
+    await inTemporaryDirectory(async (tmpDir) => {
+      // Given
+      const remixConfigPath = joinPath(tmpDir, 'remix.config.js')
+      await writeFile(remixConfigPath, '')
+
+      // When
+      const got = await resolveFramework(tmpDir)
+
+      // Then
+      expect(got).toEqual('remix')
+    })
+  })
+  test('return unknown when no configuration file is present', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       // When
       const got = await resolveFramework(tmpDir)
@@ -101,7 +114,7 @@ describe('frontFrameworkUsed', () => {
       expect(got).toEqual('unknown')
     })
   })
-  test('return unkonw when unsupported dependency', async () => {
+  test('return unknown when unsupported dependency', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       // Given
       const packageJsonPath = joinPath(tmpDir, 'package.json')
@@ -116,7 +129,7 @@ describe('frontFrameworkUsed', () => {
       expect(got).toEqual('unknown')
     })
   })
-  test('return unkonw when not every detector is present', async () => {
+  test('return unknown when not every detector is present', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       // Given
       const packageJsonPath = joinPath(tmpDir, 'package.json')

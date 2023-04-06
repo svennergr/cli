@@ -139,6 +139,16 @@ const frameworks: Framework[] = [
       ],
     },
   },
+  {
+    name: 'remix',
+    detectors: {
+      every: [
+        {
+          path: 'remix.config.js',
+        },
+      ],
+    },
+  },
 ]
 
 /**
@@ -173,6 +183,8 @@ export async function resolveFramework(rootDirectory: string): Promise<string> {
 }
 
 function matchDetector(detector: FrameworkDetectionPattern, fwConfigFiles: {[key: string]: string | undefined} = {}) {
+  console.log(detector.path)
+  console.log(fwConfigFiles)
   if (!fwConfigFiles[detector.path]) return false
 
   return !detector.matchContent || new RegExp(detector.matchContent).test(fwConfigFiles[detector.path]!)

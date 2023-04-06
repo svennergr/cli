@@ -1,5 +1,13 @@
 import {UIExtension, ThemeExtension, FunctionExtension, Extension, GenericSpecification} from './extensions.js'
-import {AppConfigurationSchema, Web, WebConfigurationSchema, App, AppInterface, WebType} from './app.js'
+import {
+  AppConfigurationSchema,
+  Web,
+  WebConfigurationSchema,
+  App,
+  AppInterface,
+  WebType,
+  AppConfiguration,
+} from './app.js'
 import {configurationFileNames, dotEnvFileNames} from '../../constants.js'
 import metadata from '../../metadata.js'
 import {UIExtensionInstance, UIExtensionSpec} from '../extensions/ui.js'
@@ -102,7 +110,7 @@ class AppLoader {
     const name = await loadAppName(this.appDirectory)
     const nodeDependencies = await getDependencies(packageJSONPath)
     const packageManager = await getPackageManager(this.appDirectory)
-    const {webs, usedCustomLayout: usedCustomLayoutForWeb} = await this.loadWebs(configuration.webDirectories)
+    const {webs, usedCustomLayout: usedCustomLayoutForWeb} = await this.loadWebs(configuration)
     const usesWorkspaces = await appUsesWorkspaces(this.appDirectory)
 
     const appClass = new App(
@@ -168,26 +176,39 @@ class AppLoader {
     return configurationPath
   }
 
-  async loadWebs(webDirectories?: string[]): Promise<{webs: Web[]; usedCustomLayout: boolean}> {
+  async loadWebs(appConfiguration: AppConfiguration): Promise<{webs: Web[]; usedCustomLayout: boolean}> {
     const defaultWebDirectory = '**'
-    const webConfigGlobs = [...(webDirectories ?? [defaultWebDirectory])].map((webGlob) => {
+    const webConfigGlobs = [...(appConfiguration.webDirectories ?? [defaultWebDirectory])].map((webGlob) => {
       return joinPath(this.appDirectory, webGlob, configurationFileNames.web)
     })
     const webTomlPaths = await glob(webConfigGlobs)
 
-    const webs = await Promise.all(webTomlPaths.map((path) => this.loadWeb(path)))
+    let webs = await Promise.all(webTomlPaths.map((path) => this.loadWeb(path)))
+    webs = webs.concat(await this.loadAppWebs(appConfiguration))
 
     const webTomlsInStandardLocation = await glob(joinPath(this.appDirectory, `web/**/${configurationFileNames.web}`))
-    const usedCustomLayout = webDirectories !== undefined || webTomlsInStandardLocation.length !== webTomlPaths.length
+    const usedCustomLayout =
+      appConfiguration.webDirectories !== undefined || webTomlsInStandardLocation.length !== webTomlPaths.length
 
     return {webs, usedCustomLayout}
   }
 
-  async loadWeb(WebConfigurationFile: string): Promise<Web> {
+  async loadAppWebs(appConfiguration: AppConfiguration): Promise<Web[]> {
+    const framework = await resolveFramework(this.appDirectory)
+    return (appConfiguration.webs ?? []).map((webConfiguration) => {
+      return {
+        directory: this.appDirectory,
+        configuration: webConfiguration,
+        framework,
+      }
+    })
+  }
+
+  async loadWeb(configurationFilePath: string): Promise<Web> {
     return {
-      directory: dirname(WebConfigurationFile),
-      configuration: await this.parseConfigurationFile(WebConfigurationSchema, WebConfigurationFile),
-      framework: await resolveFramework(dirname(WebConfigurationFile)),
+      directory: dirname(configurationFilePath),
+      configuration: await this.parseConfigurationFile(WebConfigurationSchema, configurationFilePath),
+      framework: await resolveFramework(dirname(configurationFilePath)),
     }
   }
 
