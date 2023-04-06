@@ -6,12 +6,6 @@ import {getDependencies, PackageManager, readAndParsePackageJson} from '@shopify
 import {fileRealPath, findPathUp} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 
-export const AppConfigurationSchema = zod.object({
-  scopes: zod.string().default(''),
-  extensionDirectories: zod.array(zod.string()).optional(),
-  webDirectories: zod.array(zod.string()).optional(),
-})
-
 export enum WebType {
   Frontend = 'frontend',
   Backend = 'backend',
@@ -32,6 +26,13 @@ export const WebConfigurationSchema = zod.object({
     build: zod.string().optional(),
     dev: zod.string(),
   }),
+})
+
+export const AppConfigurationSchema = zod.object({
+  scopes: zod.string().default(''),
+  extensionDirectories: zod.array(zod.string()).optional(),
+  webDirectories: zod.array(zod.string()).optional(),
+  webs: zod.array(WebConfigurationSchema).optional(),
 })
 
 export type AppConfiguration = zod.infer<typeof AppConfigurationSchema>
