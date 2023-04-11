@@ -89,6 +89,12 @@ export default class Dev extends Command {
         'The file path or URL. The file path is to a file that you want updated on idle. The URL path is where you want a webhook posted to report on file changes.',
       env: 'SHOPIFY_FLAG_NOTIFY',
     }),
+    'app-env': Flags.string({
+      hidden: true,
+      char: 'z',
+      description: 'The environment to apply to the current command.',
+      env: 'SHOPIFY_FLAG_APP_ENVIRONMENT',
+    }),
   }
 
   public async run(): Promise<void> {

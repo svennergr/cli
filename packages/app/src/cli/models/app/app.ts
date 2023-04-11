@@ -70,6 +70,7 @@ export interface AppInterface {
   name: string
   idEnvironmentVariableName: string
   directory: string
+  appEnv?: string
   packageManager: PackageManager
   configuration: AppConfiguration
   configurationPath: string

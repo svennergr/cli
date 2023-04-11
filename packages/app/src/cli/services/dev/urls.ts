@@ -173,7 +173,7 @@ export async function shouldOrPromptUpdateURLs(options: ShouldOrPromptUpdateURLs
         shouldUpdate = false
     }
     /* eslint-enable no-fallthrough */
-    setAppInfo({directory: options.appDirectory, updateURLs: newUpdateURLs})
+    setAppInfo({directory: options.appDirectory, updateURLs: newUpdateURLs, appEnv: ''})
   }
   return shouldUpdate
 }
