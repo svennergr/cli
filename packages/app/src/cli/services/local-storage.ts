@@ -4,6 +4,7 @@ import {normalizePath} from '@shopify/cli-kit/node/path'
 
 export interface CachedAppInfo {
   directory: string
+  appEnv: string
   appId?: string
   title?: string
   orgId?: string
@@ -28,15 +29,20 @@ function appLocalStorage() {
 
 export function getAppInfo(
   directory: string,
+  appEnv = '',
   config: LocalStorage<AppLocalStorageSchema> = appLocalStorage(),
 ): CachedAppInfo | undefined {
-  const normalized = normalizePath(directory)
+  const normalized = normalizePath(`${directory}-${appEnv}`)
   outputDebug(outputContent`Reading cached app information for directory ${outputToken.path(normalized)}...`)
   return config.get(normalized)
 }
 
-export function clearAppInfo(directory: string, config: LocalStorage<AppLocalStorageSchema> = appLocalStorage()): void {
-  const normalized = normalizePath(directory)
+export function clearAppInfo(
+  directory: string,
+  appEnv = '',
+  config: LocalStorage<AppLocalStorageSchema> = appLocalStorage(),
+): void {
+  const normalized = normalizePath(`${directory}-${appEnv}`)
   outputDebug(outputContent`Clearing app information for directory ${outputToken.path(normalized)}...`)
   config.delete(normalized)
 }
@@ -50,7 +56,7 @@ export function setAppInfo(
   options: CachedAppInfo,
   config: LocalStorage<AppLocalStorageSchema> = appLocalStorage(),
 ): void {
-  const normalized = normalizePath(options.directory)
+  const normalized = normalizePath(`${options.directory}-${options.appEnv}`)
   outputDebug(
     outputContent`Storing app information for directory ${outputToken.path(normalized)}:${outputToken.json(options)}`,
   )
@@ -58,6 +64,7 @@ export function setAppInfo(
   if (savedApp) {
     config.set(normalized, {
       directory: normalized,
+      appEnv: options.appEnv,
       appId: options.appId ?? savedApp.appId,
       title: options.title ?? savedApp.title,
       storeFqdn: options.storeFqdn ?? savedApp.storeFqdn,

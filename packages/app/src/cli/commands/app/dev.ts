@@ -84,6 +84,12 @@ export default class Dev extends Command {
       description: 'Local port of the theme app extension development server.',
       env: 'SHOPIFY_FLAG_THEME_APP_EXTENSION_PORT',
     }),
+    'app-env': Flags.string({
+      hidden: true,
+      char: 'z',
+      description: 'The environment to apply to the current command.',
+      env: 'SHOPIFY_FLAG_APP_ENVIRONMENT',
+    }),
   }
 
   public async run(): Promise<void> {

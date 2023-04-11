@@ -37,6 +37,7 @@ export const InvalidApiKeyErrorMessage = (apiKey: string) => {
 
 export interface DevContextOptions {
   directory: string
+  appEnv?: string
   apiKey?: string
   storeFqdn?: string
   reset: boolean
@@ -65,6 +66,7 @@ export async function ensureGenerateContext(options: {
   directory: string
   reset: boolean
   token: string
+  appEnv?: string
 }): Promise<string> {
   if (options.apiKey) {
     const app = await fetchAppFromApiKey(options.apiKey, options.token)
@@ -102,6 +104,7 @@ export async function ensureGenerateContext(options: {
       appId: selectedApp.apiKey,
       title: selectedApp.title,
       directory: options.directory,
+      appEnv: options.appEnv ? options.appEnv : '',
       orgId,
     })
     return selectedApp.apiKey
@@ -149,6 +152,7 @@ export async function ensureDevContext(
     setAppInfo({
       appId: selectedApp.apiKey,
       directory: options.directory,
+      appEnv: options.appEnv ? options.appEnv : '',
       storeFqdn: selectedStore.shopDomain,
       orgId,
     })
@@ -180,6 +184,7 @@ export async function ensureDevContext(
     appId: selectedApp.apiKey,
     title: selectedApp.title,
     directory: options.directory,
+    appEnv: options.appEnv ? options.appEnv : '',
     storeFqdn: selectedStore?.shopDomain,
     orgId,
   })
@@ -260,7 +265,7 @@ interface DeployContextOutput {
  * undefined if there is no cached value or the user doesn't want to use it.
  */
 export async function fetchDevAppAndPrompt(app: AppInterface, token: string): Promise<OrganizationApp | undefined> {
-  const devAppId = getAppInfo(app.directory)?.appId
+  const devAppId = getAppInfo(app.directory, app.appEnv)?.appId
   if (!devAppId) return undefined
 
   const partnersResponse = await fetchAppFromApiKey(devAppId, token)
