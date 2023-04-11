@@ -163,7 +163,7 @@ async function dev(options: DevOptions) {
     localApp.webs.map(async (web) => {
       const isFrontend = isWebType(web, WebType.Frontend)
       const hostname = isFrontend ? frontendUrl : exposedUrl
-      const fullWebOptions: DevWebOptions = {...webOptions, web, hostname}
+      const fullWebOptions: DevWebOptions = {...webOptions, name: localApp.name, web, hostname}
 
       if (isFrontend && !usingLocalhost) {
         proxyTargets.push(await devProxyTarget(fullWebOptions))
@@ -285,6 +285,7 @@ function isWebType(web: Web, type: WebType): boolean {
 }
 
 interface DevWebOptions {
+  name: string
   web: Web
   backendPort: number
   apiKey: string
@@ -332,11 +333,34 @@ async function devProxyTarget(options: DevWebOptions): Promise<ReverseHTTPProxyT
   const [cmd, ...args] = commands.dev.split(' ')
 
   const env = {
+    /**
+     * @deprecated Should be removed in the next major version of the CLI.
+     * Users should use SHOPIFY_APP_API_KEY instead.
+     */
     SHOPIFY_API_KEY: options.apiKey,
+    /**
+     * @deprecated Should be removed in the next major version of the CLI.
+     * Users should use SHOPIFY_APP_API_SECRET instead.
+     */
     SHOPIFY_API_SECRET: options.apiSecret,
+    /**
+     * @deprecated Should be removed in the next major version of the CLI.
+     * Users should use SHOPIFY_APP_URL instead.
+     */
     HOST: options.hostname,
+    /**
+     * @deprecated Should be removed in the next major version of the CLI.
+     * Users should use SHOPIFY_APP_SCOPES instead.
+     */
     SCOPES: options.scopes,
     NODE_ENV: `development`,
+    SHOPIFY_APP_NAME: options.name,
+    SHOPIFY_APP_API_KEY: options.apiKey,
+    SHOPIFY_APP_API_SECRET: options.apiSecret,
+    SHOPIFY_APP_SCOPES: options.scopes ?? '',
+    SHOPIFY_APP_URL: options.hostname,
+    SHOPIFY_APP_AUTH_AUTHORIZATION_PATH: '',
+    SHOPIFY_APP_AUTH_CALLBACK_PATH: '',
     ...(isSpinEnvironment() && {
       SHOP_CUSTOM_DOMAIN: `shopify.${await spinFqdn()}`,
     }),
