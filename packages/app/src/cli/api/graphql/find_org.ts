@@ -9,6 +9,7 @@ export const FindOrganizationQuery = gql`
         website
         betas {
           appUiDeployments
+          actionExtension
         }
         apps(first: 25, title: $title) {
           pageInfo {

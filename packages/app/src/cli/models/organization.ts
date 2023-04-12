@@ -5,6 +5,7 @@ export interface Organization {
   betas: {
     appUiDeployments?: boolean
     cliTunnelAlternative?: boolean
+    actionExtension?: boolean
   }
 }
 

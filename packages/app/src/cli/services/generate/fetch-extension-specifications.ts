@@ -8,6 +8,7 @@ import {
   FlattenedRemoteSpecification,
 } from '../../api/graphql/extension_specifications.js'
 
+import {Organization} from '../../models/organization.js'
 import {getArrayRejectingUndefined} from '@shopify/cli-kit/common/array'
 import {Config} from '@oclif/core'
 import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
@@ -18,6 +19,7 @@ export interface FetchSpecificationsOptions {
   token: string
   apiKey: string
   config: Config
+  organization?: Organization
 }
 /**
  * Returns all extension specifications the user has access to.
@@ -35,6 +37,7 @@ export async function fetchSpecifications({
   token,
   apiKey,
   config,
+  organization,
 }: FetchSpecificationsOptions): Promise<GenericSpecification[]> {
   const result: ExtensionSpecificationsQuerySchema = await partnersRequest(ExtensionSpecificationsQuery, token, {
     api_key: apiKey,
@@ -60,18 +63,43 @@ export async function fetchSpecifications({
   const ui = await loadUIExtensionSpecifications(config)
   const theme = await loadThemeSpecifications()
   const local = [...ui, ...theme]
-
-  const updatedSpecs = mergeLocalAndRemoteSpecs(local, extensionSpecifications)
+  const updatedSpecs = mergeLocalAndRemoteSpecs(local, extensionSpecifications, organization)
   return [...updatedSpecs]
 }
 
 function mergeLocalAndRemoteSpecs(
   local: ExtensionSpec[],
   remote: FlattenedRemoteSpecification[],
+  organization?: Organization,
 ): GenericSpecification[] {
+  const localOnly = {
+    action_extension: {
+      externalName: 'Admin App Action',
+      remoteParent: 'ui_extension',
+      beta_flag: 'actionExtension',
+    },
+    inline_extension: {
+      remoteParent: 'ui_extension',
+      externalName: 'Admin App Inline',
+      beta_flag: 'inlineExtension',
+    },
+  }
+
   const updated = local.map((spec) => {
     const remoteSpec = remote.find((remote) => remote.identifier === spec.identifier)
     if (remoteSpec) return {...spec, ...remoteSpec}
+    else if (
+      localOnly[spec.identifier as keyof typeof localOnly] !== undefined &&
+      organization?.betas[localOnly[spec.identifier as keyof typeof localOnly].beta_flag as keyof Organization['betas']]
+    ) {
+      const localOnlySpecConfig = localOnly[spec.identifier as keyof typeof localOnly]
+      return {
+        ...remote.find((item) => item.identifier === localOnlySpecConfig.remoteParent),
+        ...local.find((item) => item.identifier === spec.identifier),
+        externalName: localOnlySpecConfig.externalName,
+      } as GenericSpecification
+    }
+
     return undefined
   })
 

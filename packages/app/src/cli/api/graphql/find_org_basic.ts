@@ -10,6 +10,7 @@ export const FindOrganizationBasicQuery = gql`
         betas {
           appUiDeployments
           cliTunnelAlternative
+          actionExtension
         }
       }
     }

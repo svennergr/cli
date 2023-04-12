@@ -1,0 +1,36 @@
+import {createUIExtensionSpecification} from '../ui.js'
+import {BaseUIExtensionSchema} from '../schemas.js'
+import {loadLocalesConfig} from '../../../utilities/extensions/locales-configuration.js'
+import {zod} from '@shopify/cli-kit/node/schema'
+
+const dependency = {name: '@shopify/checkout-ui-extensions-react', version: '^0.25.0'}
+
+const ActionSchema = BaseUIExtensionSchema.extend({
+  extensionPoints: zod.array(zod.string()).optional(),
+  settings: zod
+    .object({
+      fields: zod.any().optional(),
+    })
+    .optional(),
+})
+
+const spec = createUIExtensionSpecification({
+  identifier: 'action_extension',
+  surface: 'admin',
+  dependency,
+  partnersWebIdentifier: 'action_extension',
+  schema: ActionSchema,
+  deployConfig: async (config, directory) => {
+    return {
+      extension_points: config.extensionPoints,
+      capabilities: config.capabilities,
+      metafields: config.metafields,
+      name: config.name,
+      settings: config.settings,
+      localization: await loadLocalesConfig(directory, 'action_extension'),
+    }
+  },
+  shouldFetchCartUrl: () => true,
+})
+
+export default spec

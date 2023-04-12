@@ -66,14 +66,16 @@ export async function ensureGenerateContext(options: {
   directory: string
   reset: boolean
   token: string
-}): Promise<string> {
+}): Promise<{apiKey: string; organization: Organization}> {
   if (options.apiKey) {
     const app = await fetchAppFromApiKey(options.apiKey, options.token)
     if (!app) {
       const errorMessage = InvalidApiKeyErrorMessage(options.apiKey)
       throw new AbortError(errorMessage.message, errorMessage.tryMessage)
     }
-    return app.apiKey
+    const org = await fetchOrgFromId(app.organizationId, options.token)
+
+    return {apiKey: app.apiKey, organization: org}
   }
   const cachedInfo = getAppDevCachedInfo({reset: options.reset, directory: options.directory})
 
@@ -93,7 +95,7 @@ export async function ensureGenerateContext(options: {
     }
     const packageManager = await getPackageManager(options.directory)
     showGenerateReusedValues(org.businessName, cachedInfo, packageManager)
-    return app.apiKey
+    return {apiKey: app.apiKey, organization: org}
   } else {
     const orgId = cachedInfo?.orgId || (await selectOrg(options.token))
     const {organization, apps} = await fetchOrgAndApps(orgId, options.token)
@@ -105,7 +107,7 @@ export async function ensureGenerateContext(options: {
       directory: options.directory,
       orgId,
     })
-    return selectedApp.apiKey
+    return {apiKey: selectedApp.apiKey, organization}
   }
 }
 

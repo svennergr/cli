@@ -60,8 +60,8 @@ async function generate(options: GenerateOptions) {
 
 async function getTemplateSpecifications(options: GenerateOptions): Promise<TemplateSpecification[]> {
   const token = await ensureAuthenticatedPartners()
-  const apiKey = await ensureGenerateContext({...options, token})
-  const specifications = await fetchSpecifications({token, apiKey, config: options.config})
+  const {apiKey, organization} = await ensureGenerateContext({...options, token})
+  const specifications = await fetchSpecifications({token, apiKey, organization, config: options.config})
   const localTemplateSpecifications = convertSpecificationsToTemplate(specifications)
   const remoteTemplateSpecifications = await fetchTemplateSpecifications(token)
   return localTemplateSpecifications.concat(remoteTemplateSpecifications)
