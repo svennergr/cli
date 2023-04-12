@@ -148,6 +148,7 @@ export interface ShouldOrPromptUpdateURLsOptions {
   appDirectory: string
   cachedUpdateURLs?: boolean
   newApp?: boolean
+  appEnv?: string
 }
 
 export async function shouldOrPromptUpdateURLs(options: ShouldOrPromptUpdateURLsOptions): Promise<boolean> {
@@ -172,7 +173,7 @@ export async function shouldOrPromptUpdateURLs(options: ShouldOrPromptUpdateURLs
         shouldUpdate = false
     }
     /* eslint-enable no-fallthrough */
-    setAppInfo({directory: options.appDirectory, updateURLs: newUpdateURLs, appEnv: ''})
+    setAppInfo({directory: options.appDirectory, updateURLs: newUpdateURLs, appEnv: options.appEnv ?? ''})
   }
   return shouldUpdate
 }

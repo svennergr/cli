@@ -124,6 +124,7 @@ async function dev(options: DevOptions) {
       appDirectory: localApp.directory,
       cachedUpdateURLs,
       newApp: remoteApp.newApp,
+      appEnv: options.appEnv ?? '',
     })
     if (shouldUpdateURLs) {
       localApp = mergeAppUrls(localApp, newURLs)
