@@ -77,7 +77,11 @@ export async function ensureGenerateContext(options: {
     }
     return app.apiKey
   }
-  const cachedInfo = getAppDevCachedInfo({reset: options.reset, directory: options.directory})
+  const cachedInfo = getAppDevCachedInfo({
+    reset: options.reset,
+    directory: options.directory,
+    appEnv: options.appEnv ?? '',
+  })
 
   if (cachedInfo === undefined && !options.reset) {
     const explanation =
@@ -134,6 +138,7 @@ export async function ensureDevContext(
   const cachedInfo = getAppDevCachedInfo({
     reset: options.reset,
     directory: options.directory,
+    appEnv: options.appEnv ? options.appEnv : '',
   })
 
   if (cachedInfo === undefined && !options.reset) {
@@ -451,9 +456,17 @@ async function fetchDevDataFromOptions(
  * @param reset - Whether to reset the cache or not
  * @param directory - The directory containing the app.
  */
-function getAppDevCachedInfo({reset, directory}: {reset: boolean; directory: string}): CachedAppInfo | undefined {
-  if (reset) clearAppInfo(directory)
-  return getAppInfo(directory)
+function getAppDevCachedInfo({
+  reset,
+  directory,
+  appEnv,
+}: {
+  reset: boolean
+  directory: string
+  appEnv: string
+}): CachedAppInfo | undefined {
+  if (reset) clearAppInfo(directory, appEnv)
+  return getAppInfo(directory, appEnv)
 }
 
 /**
