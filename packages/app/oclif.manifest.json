@@ -49,6 +49,46 @@
       },
       "args": {}
     },
+    "app:create": {
+      "id": "app:create",
+      "description": "Create a new app.",
+      "strict": true,
+      "pluginName": "@shopify/app",
+      "pluginAlias": "@shopify/app",
+      "pluginType": "core",
+      "aliases": [],
+      "flags": {
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "Increase the verbosity of the logs.",
+          "hidden": false,
+          "allowNo": false
+        },
+        "path": {
+          "name": "path",
+          "type": "option",
+          "description": "The path to your app directory.",
+          "multiple": false,
+          "default": "."
+        },
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as JSON",
+          "hidden": false,
+          "allowNo": false
+        },
+        "web-env": {
+          "name": "web-env",
+          "type": "boolean",
+          "description": "Outputs environment variables necessary for running and deploying web/.",
+          "hidden": false,
+          "allowNo": false
+        }
+      },
+      "args": {}
+    },
     "app:deploy": {
       "id": "app:deploy",
       "description": "Deploy your Shopify app.",
