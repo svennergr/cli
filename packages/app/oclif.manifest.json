@@ -393,7 +393,11 @@
           "allowNo": false
         }
       },
-      "args": {}
+      "args": {
+        "app-env": {
+          "name": "string"
+        }
+      }
     },
     "app:config-create": {
       "id": "app:config-create",
