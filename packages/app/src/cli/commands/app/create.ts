@@ -7,11 +7,11 @@ import {createApp} from '../../services/dev/select-app.js'
 import {fetchOrgFromId} from '../../services/dev/fetch.js'
 import {getAppInfo, setAppInfo} from '../../services/local-storage.js'
 import {appEnvPrompt} from '../../prompts/dev.js'
+import {pushAndWriteConfig} from '../../services/app/push.js'
 import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {writeFileSync} from '@shopify/cli-kit/node/fs'
-import {encodeToml} from '@shopify/cli-kit/node/toml'
+import {copyFile} from '@shopify/cli-kit/node/fs'
 
 export default class Create extends Command {
   static description = 'Create a new app.'
@@ -34,16 +34,24 @@ export default class Create extends Command {
 
   public async run(): Promise<void> {
     const {flags} = await this.parse(Create)
+    const token = await ensureAuthenticatedPartners()
     const specifications = await loadExtensionsSpecifications(this.config)
-    const app: AppInterface = await loadApp({specifications, directory: flags.path, mode: 'report'})
+    const defaultApp: AppInterface = await loadApp({specifications, directory: flags.path, mode: 'report'})
     const appInfo = getAppInfo(flags.path)
 
-    const token = await ensureAuthenticatedPartners()
     const org = await fetchOrgFromId(appInfo?.orgId!, token)
 
-    const envName = await appEnvPrompt(app.name, 'dev')
+    const envName = await appEnvPrompt(defaultApp.name, 'dev')
 
-    const newApp = await createApp(org, `${app.name} - ${envName}`, token, true)
+    await copyFile(flags.path.concat('/shopify.app.toml'), flags.path.concat(`/shopify.app.${envName}.toml`))
+
+    const newApp = await createApp(org, `${defaultApp.name} - ${envName}`, token, true)
+
+    const localNewApp = await loadApp({specifications, directory: flags.path, appConfigName: envName})
+
+    localNewApp.configuration.urls!.applicationUrl = 'https://example.com'
+
+    await pushAndWriteConfig(localNewApp, newApp.apiKey, token)
 
     setAppInfo({
       appId: newApp.apiKey,
@@ -52,11 +60,11 @@ export default class Create extends Command {
       orgId: appInfo?.orgId,
     })
 
-    const newTomlPath = flags.path.concat(`/shopify.app.${envName}.toml`)
+    // const newTomlPath = flags.path.concat(`/shopify.app.${envName}.toml`)
 
     // console.log({newTomlPath})
-    writeFileSync(newTomlPath, encodeToml(app.configuration))
+    // writeFileSync(newTomlPath, encodeToml(defau.configuration))
 
-    if (app.errors) process.exit(2)
+    if (defaultApp.errors) process.exit(2)
   }
 }
