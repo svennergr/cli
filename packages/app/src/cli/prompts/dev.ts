@@ -74,6 +74,27 @@ export async function appNamePrompt(currentName: string): Promise<string> {
   })
 }
 
+export async function appEnvPrompt(currentName: string, suggestion: string): Promise<string> {
+  const prefix = `${currentName} - `
+  return renderTextPrompt({
+    message: 'App env name:',
+    defaultValue: suggestion,
+    prefix,
+    validate: (value) => {
+      if (value.length === 0) {
+        return "App env name can't be empty"
+      }
+      const fullName = `${currentName} - ${value}`
+      if (fullName.length > 30) {
+        return 'Enter a shorter env name (app name is 30 character max.)'
+      }
+      if (fullName.includes('shopify')) {
+        return 'Env can\'t contain "shopify." Enter another Env.'
+      }
+    },
+  })
+}
+
 export async function reloadStoreListPrompt(org: Organization): Promise<boolean> {
   return renderConfirmationPrompt({
     message: 'Finished creating a dev store?',
