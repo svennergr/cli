@@ -56,6 +56,7 @@ export function setAppInfo(
   options: CachedAppInfo,
   config: LocalStorage<AppLocalStorageSchema> = appLocalStorage(),
 ): void {
+  const normalizedDirectory = normalizePath(options.directory)
   const normalized = normalizePath(`${options.directory}-${options.appEnv}`)
   outputDebug(
     outputContent`Storing app information for directory ${outputToken.path(normalized)}:${outputToken.json(options)}`,
@@ -63,7 +64,7 @@ export function setAppInfo(
   const savedApp = config.get(normalized)
   if (savedApp) {
     config.set(normalized, {
-      directory: normalized,
+      directory: normalizedDirectory,
       appEnv: options.appEnv,
       appId: options.appId ?? savedApp.appId,
       title: options.title ?? savedApp.title,
