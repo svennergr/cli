@@ -373,9 +373,9 @@
         }
       }
     },
-    "app:pull": {
-      "id": "app:pull",
-      "description": "Pull your Shopify app configuration to your toml file.",
+    "app:sync": {
+      "id": "app:sync",
+      "description": "Sync your Shopify app configuration to your toml file.",
       "strict": true,
       "pluginName": "@shopify/app",
       "pluginAlias": "@shopify/app",
