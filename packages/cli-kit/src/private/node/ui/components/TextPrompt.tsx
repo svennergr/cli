@@ -14,6 +14,7 @@ export interface TextPromptProps {
   password?: boolean
   validate?: (value: string) => string | undefined
   allowEmpty?: boolean
+  prefix?: string
 }
 
 const TextPrompt: FunctionComponent<TextPromptProps> = ({
@@ -23,6 +24,7 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
   defaultValue = '',
   password = false,
   allowEmpty = false,
+  prefix = '',
 }) => {
   if (password && defaultValue) {
     throw new Error("Can't use defaultValue with password")
@@ -49,7 +51,11 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
   const [error, setError] = useState<string | undefined>(undefined)
   const shouldShowError = submitted && error
   const color = shouldShowError ? 'red' : 'cyan'
-  const underline = new Array(oneThird - 3).fill('▔')
+  const promptPrefix = `> ${prefix}`
+  const resultPrefix = `${figures.tick} ${prefix}`
+  const promptSize = prefix.length > 0 ? promptPrefix.length : 3
+  const textboxMargin = prefix.length > 0 ? 0 : 2
+  const underline = new Array(oneThird - promptSize).fill('▔')
 
   useInput((input, key) => {
     handleCtrlC(input, key)
@@ -76,8 +82,8 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
       </Box>
       {submitted && !error ? (
         <Box>
-          <Box marginRight={2}>
-            <Text color="cyan">{figures.tick}</Text>
+          <Box marginRight={textboxMargin}>
+            <Text color="cyan">{resultPrefix}</Text>
           </Box>
 
           <Box flexGrow={1}>
@@ -87,8 +93,8 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
       ) : (
         <Box flexDirection="column">
           <Box>
-            <Box marginRight={2}>
-              <Text color={color}>{`>`}</Text>
+            <Box marginRight={textboxMargin}>
+              <Text color={color}>{promptPrefix}</Text>
             </Box>
             <Box flexGrow={1}>
               <TextInput
@@ -103,11 +109,11 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
               />
             </Box>
           </Box>
-          <Box marginLeft={3}>
+          <Box marginLeft={promptSize}>
             <Text color={color}>{underline}</Text>
           </Box>
           {shouldShowError ? (
-            <Box marginLeft={3}>
+            <Box marginLeft={promptSize}>
               <Text color={color}>{error}</Text>
             </Box>
           ) : null}

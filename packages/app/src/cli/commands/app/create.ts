@@ -6,10 +6,11 @@ import {loadExtensionsSpecifications} from '../../models/extensions/specificatio
 import {createApp} from '../../services/dev/select-app.js'
 import {fetchOrgFromId} from '../../services/dev/fetch.js'
 import {getAppInfo, setAppInfo} from '../../services/local-storage.js'
+import {appEnvPrompt} from '../../prompts/dev.js'
 import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {touchFileSync, writeFileSync} from '@shopify/cli-kit/node/fs'
+import {writeFileSync} from '@shopify/cli-kit/node/fs'
 import {encodeToml} from '@shopify/cli-kit/node/toml'
 
 export default class Create extends Command {
@@ -40,20 +41,20 @@ export default class Create extends Command {
     const token = await ensureAuthenticatedPartners()
     const org = await fetchOrgFromId(appInfo?.orgId!, token)
 
-    const newApp = await createApp(org, 'My app', token)
+    const envName = await appEnvPrompt(app.name, 'dev')
+
+    const newApp = await createApp(org, `${app.name} - ${envName}`, token, true)
 
     setAppInfo({
       appId: newApp.apiKey,
       directory: appInfo?.directory!,
-      appEnv: newApp.title,
+      appEnv: envName,
       orgId: appInfo?.orgId,
     })
 
-    const newTomlPath = flags.path.concat(`/shopify.app.${newApp.title}.toml`)
+    const newTomlPath = flags.path.concat(`/shopify.app.${envName}.toml`)
 
     // console.log({newTomlPath})
-    touchFileSync(newTomlPath)
-
     writeFileSync(newTomlPath, encodeToml(app.configuration))
 
     if (app.errors) process.exit(2)
