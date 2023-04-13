@@ -15,6 +15,7 @@ import {renderSuccess, renderWarning} from '@shopify/cli-kit/node/ui'
 export interface PushConfigOptions {
   commandConfig: Config
   directory: string
+  appEnv: string
 }
 
 type UpdatedApp = AppUpdateMutationSchema['appUpdate']['app']
@@ -24,7 +25,7 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
   const {remoteApp} = await ensureDevContext({...options, reset: false}, token, true)
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
-  const app = await load({directory: options.directory, specifications})
+  const app = await load({directory: options.directory, specifications, appConfigName: options.appEnv})
 
   printDiff(app, remoteApp)
 

@@ -367,7 +367,11 @@
           "allowNo": false
         }
       },
-      "args": {}
+      "args": {
+        "app-env": {
+          "name": "string"
+        }
+      }
     },
     "app:pull": {
       "id": "app:pull",
