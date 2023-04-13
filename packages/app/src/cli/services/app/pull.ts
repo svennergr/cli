@@ -11,6 +11,7 @@ import {fileExists, writeFileSync} from '@shopify/cli-kit/node/fs'
 export interface PullConfigOptions {
   commandConfig: Config
   directory: string
+  appEnv: string
 }
 
 export default async function pullConfig(options: PullConfigOptions): Promise<void> {
@@ -28,7 +29,7 @@ export default async function pullConfig(options: PullConfigOptions): Promise<vo
 
   const mergedLocalApp = mergeAppConfiguration(app, remoteApp)
 
-  writeConfigurationFile({...mergedLocalApp})
+  writeConfigurationFile({...mergedLocalApp}, options.appEnv)
 
   renderSuccess({
     headline: 'App configuration pulled',
