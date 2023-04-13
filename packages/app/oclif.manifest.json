@@ -343,9 +343,9 @@
       },
       "args": {}
     },
-    "app:push": {
-      "id": "app:push",
-      "description": "Push your toml configuration to the Partners Dashboard.",
+    "app:update": {
+      "id": "app:update",
+      "description": "Update your toml configuration to the Partners Dashboard.",
       "strict": true,
       "pluginName": "@shopify/app",
       "pluginAlias": "@shopify/app",

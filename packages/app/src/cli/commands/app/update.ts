@@ -4,7 +4,7 @@ import pushConfig, {PushConfigOptions} from '../../services/app/push.js'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {Args} from '@oclif/core'
 
-export default class PushConfig extends Command {
+export default class UpdateConfig extends Command {
   static description = 'Update your app and redirect URLs in the Partners Dashboard.'
 
   static flags = {
@@ -17,7 +17,7 @@ export default class PushConfig extends Command {
   }
 
   public async run(): Promise<void> {
-    const {flags, args} = await this.parse(PushConfig)
+    const {flags, args} = await this.parse(UpdateConfig)
     const options: PushConfigOptions = {
       commandConfig: this.config,
       directory: flags.path,
