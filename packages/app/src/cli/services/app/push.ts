@@ -11,6 +11,7 @@ import {Config} from '@oclif/core'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
 import {renderSuccess, renderWarning} from '@shopify/cli-kit/node/ui'
+import {relativePath} from '@shopify/cli-kit/node/path'
 
 export interface PushConfigOptions {
   commandConfig: Config
@@ -31,7 +32,7 @@ export default async function pushConfig(options: PushConfigOptions): Promise<vo
 
   const updatedApp = await pushAndWriteConfig(app, apiKey, token)
 
-  printResult(updatedApp)
+  printResult(updatedApp, remoteApp)
 }
 
 export async function pushAndWriteConfig(app: AppInterface, apiKey: string, token: string): Promise<AppInterface> {
@@ -107,11 +108,14 @@ function printDiff(
   })
 }
 
-function printResult(app: AppInterface): void {
+function printResult(
+  app: AppInterface,
+  remoteApp: Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string | undefined},
+): void {
   const appConfig = app.configuration
 
   renderSuccess({
-    headline: 'App configuration updated',
+    headline: `App configuration updated · ${remoteApp.title} · ${relativePath(app.directory, app.configurationPath)}`,
     customSections: [{title: 'App URL', body: {list: {items: [appConfig?.urls?.applicationUrl || '']}}}],
   })
 }
