@@ -928,7 +928,11 @@
           "allowNo": false
         }
       },
-      "args": {}
+      "args": {
+        "app-env": {
+          "name": "string"
+        }
+      }
     }
   }
 }
