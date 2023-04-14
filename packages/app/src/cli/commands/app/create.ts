@@ -12,6 +12,9 @@ import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {copyFile} from '@shopify/cli-kit/node/fs'
+import {renderSuccess} from '@shopify/cli-kit/node/ui'
+import {relativePath} from '@shopify/cli-kit/node/path'
+import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 
 export default class Create extends Command {
   static description = 'Create a new app.'
@@ -65,6 +68,21 @@ export default class Create extends Command {
     // console.log({newTomlPath})
     // writeFileSync(newTomlPath, encodeToml(defau.configuration))
 
-    if (defaultApp.errors) process.exit(2)
+    // if (defaultApp.errors) process.exit(2)
+
+    const fqdn = await partnersFqdn()
+    renderSuccess({
+      headline: 'New app configuration created',
+      customSections: [
+        {
+          title: 'Configuration file',
+          body: relativePath(localNewApp.directory, localNewApp.configurationPath),
+        },
+        {
+          title: 'Partners dashboard',
+          body: `https://${fqdn}/${org.id}/apps/${newApp.id}/overview`,
+        },
+      ],
+    })
   }
 }

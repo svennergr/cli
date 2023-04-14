@@ -7,6 +7,7 @@ import {Config} from '@oclif/core'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {renderSuccess} from '@shopify/cli-kit/node/ui'
 import {fileExists, writeFileSync} from '@shopify/cli-kit/node/fs'
+import {relativePath} from '@shopify/cli-kit/node/path'
 
 export interface PullConfigOptions {
   commandConfig: Config
@@ -29,9 +30,9 @@ export default async function pullConfig(options: PullConfigOptions): Promise<vo
 
   const mergedLocalApp = mergeAppConfiguration(app, remoteApp)
 
-  writeConfigurationFile({...mergedLocalApp}, options.appEnv)
+  const file = writeConfigurationFile({...mergedLocalApp}, options.appEnv)
 
   renderSuccess({
-    headline: 'App configuration pulled',
+    headline: `App configuration synced from "${remoteApp.title}" into ${relativePath(mergedLocalApp.directory, file)}`,
   })
 }

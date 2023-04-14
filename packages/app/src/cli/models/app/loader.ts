@@ -67,13 +67,14 @@ export async function load(options: AppLoaderConstructorArgs): Promise<AppInterf
   return loader.loaded()
 }
 
-export function writeConfigurationFile(app: App, appEnv?: string): void {
+export function writeConfigurationFile(app: App, appEnv?: string): string {
   const filePath =
     appEnv && appEnv.length > 0 ? app.directory.concat(`/shopify.app.${appEnv}.toml`) : app.configurationPath
   writeFileSync(filePath, encodeToml(app.configuration))
   // app.webs.forEach((web) => {
   //   writeFileSync(`${web.directory}/${configurationFileNames.web}`, encodeToml(web.configuration))
   // })
+  return filePath
 }
 
 class AppLoader {
