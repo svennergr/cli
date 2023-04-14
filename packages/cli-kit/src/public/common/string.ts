@@ -34,7 +34,6 @@ const SAFE_RANDOM_BUSINESS_ADJECTIVES = [
   'innovative',
   'regional',
   'specialized',
-  'client-focused',
   'pragmatic',
   'ethical',
   'flexible',
