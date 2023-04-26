@@ -58,7 +58,7 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
   const promptPrefix = `> ${prefix}`
   const resultPrefix = `${figures.tick} ${prefix}`
   const promptSize = prefix.length > 0 ? promptPrefix.length : 3
-  const textboxMargin = prefix.length > 0 ? 0 : 2
+  const textboxMargin = prefix.length > 0 ? 0 : 1
   const underline = new Array(oneThird - promptSize).fill('▔')
 
   useInput((input, key) => {

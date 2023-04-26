@@ -56,6 +56,7 @@ interface AppLoaderConstructorArgs {
   mode?: AppLoaderMode
   specifications: GenericSpecification[]
   appConfigName?: string
+  allowEmpty?: boolean
 }
 
 /**
@@ -67,9 +68,12 @@ export async function load(options: AppLoaderConstructorArgs): Promise<AppInterf
   return loader.loaded()
 }
 
+export function tomlFilePath(directory: string, appEnv?: string): string {
+  return directory.concat(appEnv && appEnv.length > 0 ? `/shopify.app.${appEnv}.toml` : '/shopify.app.toml')
+}
+
 export function writeConfigurationFile(app: App, appEnv?: string): string {
-  const filePath =
-    appEnv && appEnv.length > 0 ? app.directory.concat(`/shopify.app.${appEnv}.toml`) : app.configurationPath
+  const filePath = tomlFilePath(app.directory, appEnv)
   writeFileSync(filePath, encodeToml(app.configuration))
   // app.webs.forEach((web) => {
   //   writeFileSync(`${web.directory}/${configurationFileNames.web}`, encodeToml(web.configuration))
@@ -85,10 +89,12 @@ class AppLoader {
   private errors: AppErrors = new AppErrors()
   private specifications: GenericSpecification[]
   private appConfigName?: string
+  private allowEmpty: boolean
 
-  constructor({directory, mode, specifications, appConfigName}: AppLoaderConstructorArgs) {
+  constructor({directory, mode, specifications, appConfigName, allowEmpty = false}: AppLoaderConstructorArgs) {
     this.mode = mode ?? 'strict'
     this.directory = directory
+    this.allowEmpty = allowEmpty
     this.specifications = specifications
     this.appConfigName = appConfigName
   }
@@ -100,7 +106,7 @@ class AppLoader {
   async loaded() {
     this.appDirectory = await this.findAppDirectory()
     const configurationPath = await this.getConfigurationPath()
-    const configuration = await this.parseConfigurationFile(AppConfigurationSchema, configurationPath)
+    const configuration = await this.parseConfigurationFile(AppConfigurationSchema, configurationPath, this.allowEmpty)
     const dotenv = await this.loadDotEnv()
     const {functions, usedCustomLayout: usedCustomLayoutForFunctionExtensions} = await this.loadFunctions(
       configuration.extensionDirectories,
@@ -169,10 +175,13 @@ class AppLoader {
       ? `shopify.app.${this.appConfigName}.toml`
       : configurationFileNames.app
 
-    const configurationPath = await findPathUp(configPathFileName, {
+    const existingConfigPath = await findPathUp(configPathFileName, {
       cwd: this.directory,
       type: 'file',
     })
+
+    const configurationPath =
+      existingConfigPath ?? this.allowEmpty ? tomlFilePath(this.directory, this.appConfigName) : undefined
     if (!configurationPath) {
       throw new AbortError(
         outputContent`Couldn't find the configuration file for ${outputToken.path(
@@ -212,15 +221,17 @@ class AppLoader {
     filepath: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     decode: (input: any) => any = decodeToml,
+    allowEmpty = false,
   ): Promise<unknown> {
-    if (!(await fileExists(filepath))) {
+    const configFileExists = await fileExists(filepath)
+    if (!configFileExists && !allowEmpty) {
       return this.abortOrReport(
         outputContent`Couldn't find the configuration file at ${outputToken.path(filepath)}`,
         '',
         filepath,
       )
     }
-    const configurationContent = await readFile(filepath)
+    const configurationContent = configFileExists ? await readFile(filepath) : ''
     let configuration: object
     try {
       configuration = decode(configurationContent)
@@ -246,12 +257,13 @@ class AppLoader {
   async parseConfigurationFile<TSchema extends zod.ZodType>(
     schema: TSchema,
     filepath: string,
+    allowEmpty = false,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     decode: (input: any) => any = decodeToml,
   ): Promise<zod.TypeOf<TSchema>> {
     const fallbackOutput = {} as zod.TypeOf<TSchema>
 
-    const configurationObject = await this.loadConfigurationFile(filepath, decode)
+    const configurationObject = await this.loadConfigurationFile(filepath, decode, allowEmpty)
     if (!configurationObject) return fallbackOutput
 
     const parseResult = schema.safeParse(configurationObject)
@@ -295,7 +307,7 @@ class AppLoader {
         return undefined
       }
 
-      const configuration = await this.parseConfigurationFile(specification.schema, configurationPath)
+      const configuration = await this.parseConfigurationFile(specification.schema, configurationPath, this.allowEmpty)
 
       let entryPath
       if (specification.singleEntryPath) {

@@ -74,7 +74,7 @@ export async function appNamePrompt(currentName: string): Promise<string> {
   })
 }
 
-export async function appEnvPrompt(currentName: string, suggestion: string): Promise<string> {
+export async function appEnvCreatePrompt(currentName: string, suggestion: string): Promise<string> {
   const prefix = `${currentName} - `
   return renderTextPrompt({
     message: 'App env name:',
@@ -106,8 +106,8 @@ export async function reloadStoreListPrompt(org: Organization): Promise<boolean>
 export async function createAsNewAppPrompt(): Promise<boolean> {
   return renderConfirmationPrompt({
     message: 'Create this project as a new app on Shopify?',
-    confirmationMessage: 'Yes, create it as a new app',
-    cancellationMessage: 'No, connect it to an existing app',
+    confirmationMessage: 'No, connect it to an existing app',
+    cancellationMessage: 'Yes, create it as a new app',
   })
 }
 

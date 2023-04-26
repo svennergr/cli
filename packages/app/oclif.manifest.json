@@ -413,9 +413,9 @@
         }
       }
     },
-    "app:sync": {
-      "id": "app:sync",
-      "description": "Sync your Shopify app configuration to your toml file.",
+    "app:connect": {
+      "id": "app:connect",
+      "description": "Connect your shopify app configuration to this codebase.",
       "strict": true,
       "pluginName": "@shopify/app",
       "pluginAlias": "@shopify/app",
@@ -437,11 +437,7 @@
           "allowNo": false
         }
       },
-      "args": {
-        "app-env": {
-          "name": "string"
-        }
-      }
+      "args": {}
     },
     "webhook:trigger": {
       "id": "webhook:trigger",

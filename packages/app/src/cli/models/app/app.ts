@@ -11,6 +11,15 @@ const ensurePathStartsWithSlash = (arg: unknown) => (typeof arg === 'string' && 
 const WebConfigurationAuthCallbackPathSchema = zod.preprocess(ensurePathStartsWithSlash, zod.string())
 
 export const AppConfigurationSchema = zod.object({
+  remoteShopifyApp: zod
+    .object({
+      apiKey: zod.string(),
+      organizationId: zod.string(),
+      devStore: zod.string(),
+      noUpdate: zod.boolean(),
+    })
+    .optional(),
+
   scopes: zod.string().default(''),
   extensionDirectories: zod.array(zod.string()).optional(),
   webDirectories: zod.array(zod.string()).optional(),

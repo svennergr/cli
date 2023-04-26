@@ -6,7 +6,7 @@ import {loadExtensionsSpecifications} from '../../models/extensions/specificatio
 import {createApp} from '../../services/dev/select-app.js'
 import {fetchOrgFromId} from '../../services/dev/fetch.js'
 import {getAppInfo, setAppInfo} from '../../services/local-storage.js'
-import {appEnvPrompt} from '../../prompts/dev.js'
+import {appEnvCreatePrompt} from '../../prompts/dev.js'
 import {pushAndWriteConfig} from '../../services/app/push.js'
 import {Args, Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
@@ -48,7 +48,7 @@ export default class Create extends Command {
 
     const org = await fetchOrgFromId(appInfo?.orgId!, token)
 
-    const envName = await appEnvPrompt(defaultApp.name, args['app-env'] || 'dev')
+    const envName = await appEnvCreatePrompt(defaultApp.name, args['app-env'] || 'dev')
 
     await copyFile(flags.path.concat('/shopify.app.toml'), flags.path.concat(`/shopify.app.${envName}.toml`))
 
