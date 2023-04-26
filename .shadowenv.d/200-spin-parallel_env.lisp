@@ -1,0 +1,2 @@
+(env/set "PARALLEL_PROCESSOR_COUNT" "7")
+(env/set "PARALLEL_WORKERS" "7")

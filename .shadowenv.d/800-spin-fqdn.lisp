@@ -1,0 +1,13 @@
+(env/set "SPIN_INSTANCE_FQDN" "cli.prototype.martined-olivar.us.spin.dev") ; legacy name for SPIN_APP_HOST, but widely-used
+(env/set "SPIN_APP_HOST" "cli.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_FQDN" "prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_REPO_SOURCE_PATH" "/home/spin/src/github.com/Shopify/cli")
+(env/set "SPIN_PARTNERS_SERVICE_FQDN" "partners.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_WEB_SERVICE_FQDN" "web.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_IMAGERY4_SERVICE_FQDN" "imagery4.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_SHOPIFY_SERVICE_FQDN" "shopify.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_CHECKOUT_WEB_SERVICE_FQDN" "checkout-web.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_STOREFRONT_RENDERER_SERVICE_FQDN" "storefront-renderer.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_EXTENSIONS_SERVICE_FQDN" "extensions.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_IDENTITY_SERVICE_FQDN" "identity.prototype.martined-olivar.us.spin.dev")
+(env/set "SPIN_PARTNERS_WEB_PLATFORM_SERVICE_FQDN" "partners-web-platform.prototype.martined-olivar.us.spin.dev")
