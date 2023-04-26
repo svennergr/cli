@@ -12,14 +12,14 @@ import {
 import {convertToTestStoreIfNeeded, selectStore} from './dev/select-store.js'
 import {ensureDeploymentIdsPresence} from './context/identifiers.js'
 import {createExtension, ExtensionRegistration} from './dev/create-extension.js'
-import {CachedAppInfo, clearAppInfo, getAppInfo, setAppInfo} from './local-storage.js'
+import {CachedAppInfo, clearAppInfo, getAppInfo, getOrganization, setAppInfo, setOrgInfo} from './local-storage.js'
 import {reuseDevConfigPrompt, selectOrganizationPrompt} from '../prompts/dev.js'
 import {AppInterface} from '../models/app/app.js'
 import {Identifiers, UuidOnlyIdentifiers, updateAppIdentifiers, getAppIdentifiers} from '../models/app/identifiers.js'
 import {Organization, OrganizationApp, OrganizationStore} from '../models/organization.js'
 import metadata from '../metadata.js'
 import {ThemeExtension} from '../models/app/extensions.js'
-import {loadAppName} from '../models/app/loader.js'
+import {load, loadAppName} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
@@ -136,11 +136,14 @@ export async function ensureDevContext(
   token: string,
   silent = false,
 ): Promise<DevContextOutput> {
-  const cachedInfo = getAppDevCachedInfo({
-    reset: options.reset,
+  const localApp = await load({directory: options.directory, specifications: [], appConfigName: options.appEnv})
+  const cachedInfo: CachedAppInfo = {
+    appId: localApp.configuration.remoteShopifyApp?.apiKey,
     directory: options.directory,
-    appEnv: options.appEnv ? options.appEnv : '',
-  })
+    orgId: localApp.configuration.remoteShopifyApp?.organizationId,
+    appEnv: options.appEnv || '',
+    storeFqdn: localApp.configuration.remoteShopifyApp?.devStore,
+  }
 
   if (cachedInfo === undefined && !options.reset) {
     const explanation =
@@ -198,7 +201,7 @@ export async function ensureDevContext(
 
   if (selectedApp.apiKey === cachedInfo?.appId && selectedStore.shopDomain === cachedInfo.storeFqdn) {
     const packageManager = await getPackageManager(options.directory)
-    showReusedValues(organization.businessName, cachedInfo, packageManager, silent)
+    showReusedValues(organization.businessName, {...cachedInfo, title: selectedApp.title}, packageManager, silent)
   }
 
   const result = buildOutput(selectedApp, selectedStore, useCloudflareTunnels, cachedInfo)
@@ -207,12 +210,8 @@ export async function ensureDevContext(
 }
 
 export async function selectOrgStoreAppEnv(token: string, directory: string) {
-  const cachedInfo = getAppDevCachedInfo({
-    reset: false,
-    directory,
-    appEnv: '',
-  })
-  const orgId = cachedInfo?.orgId || (await selectOrg(token))
+  const cachedOrg = getOrganization(directory)
+  const orgId = cachedOrg?.orgId || (await selectOrg(token))
   const organization = await fetchOrgFromId(orgId, token)
   const {apps} = await fetchOrgAndApps(orgId, token)
 
@@ -220,19 +219,22 @@ export async function selectOrgStoreAppEnv(token: string, directory: string) {
 
   const allStores = await fetchAllDevStores(orgId, token)
 
-  const store = cachedInfo?.storeFqdn
-    ? await storeFromFqdn(cachedInfo?.storeFqdn, orgId, token)
-    : await selectStore(allStores, organization, token)
+  const store = await selectStore(allStores, organization, token)
 
   const appEnv = await renderTextPrompt({
     message: 'What’s the config name? (this will be used in the file name)',
     allowEmpty: true,
   })
 
+  setOrgInfo({
+    directory,
+    orgId,
+  })
+
   setAppInfo({
     directory,
-    appEnv: '',
-    storeFqdn: store!.shopDomain,
+    appEnv,
+    storeFqdn: store.shopDomain,
     orgId,
   })
   return {organization, app, store, appEnv}
