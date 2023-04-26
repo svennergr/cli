@@ -23,7 +23,7 @@ import {loadAppName} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {renderInfo, renderTasks} from '@shopify/cli-kit/node/ui'
+import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
@@ -43,8 +43,10 @@ export interface DevContextOptions {
   reset: boolean
 }
 
+export type RemoteAppNoSecretKeys = Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string}
+
 interface DevContextOutput {
-  remoteApp: Omit<OrganizationApp, 'apiSecretKeys'> & {apiSecret?: string}
+  remoteApp: RemoteAppNoSecretKeys
   remoteAppUpdated: boolean
   storeFqdn: string
   updateURLs: boolean | undefined
@@ -202,6 +204,38 @@ export async function ensureDevContext(
   const result = buildOutput(selectedApp, selectedStore, useCloudflareTunnels, cachedInfo)
   await logMetadataForLoadedDevContext(result)
   return result
+}
+
+export async function selectOrgStoreAppEnv(token: string, directory: string) {
+  const cachedInfo = getAppDevCachedInfo({
+    reset: false,
+    directory,
+    appEnv: '',
+  })
+  const orgId = cachedInfo?.orgId || (await selectOrg(token))
+  const organization = await fetchOrgFromId(orgId, token)
+  const {apps} = await fetchOrgAndApps(orgId, token)
+
+  const app = await selectOrCreateApp('', apps, organization, token)
+
+  const allStores = await fetchAllDevStores(orgId, token)
+
+  const store = cachedInfo?.storeFqdn
+    ? await storeFromFqdn(cachedInfo?.storeFqdn, orgId, token)
+    : await selectStore(allStores, organization, token)
+
+  const appEnv = await renderTextPrompt({
+    message: 'What’s the config name? (this will be used in the file name)',
+    allowEmpty: true,
+  })
+
+  setAppInfo({
+    directory,
+    appEnv: '',
+    storeFqdn: store!.shopDomain,
+    orgId,
+  })
+  return {organization, app, store, appEnv}
 }
 
 const resetHelpMessage = 'You can pass `--reset` to your command to reset your config.'

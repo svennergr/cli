@@ -23,17 +23,17 @@ export async function selectOrCreateApp(
   org: Organization,
   token: string,
 ): Promise<OrganizationApp> {
-  let createNewApp = apps.nodes.length === 0
-  if (!createNewApp) {
+  let selectApp = apps.nodes.length > 0
+  if (selectApp) {
     outputInfo(`\nBefore you preview your work, it needs to be associated with an app.\n`)
-    createNewApp = await createAsNewAppPrompt()
+    selectApp = await createAsNewAppPrompt()
   }
-  if (createNewApp) {
-    return createApp(org, localAppName, token)
-  } else {
+  if (selectApp) {
     const selectedAppApiKey = await selectAppPrompt(apps, org.id, token)
     const fullSelectedApp = await fetchAppFromApiKey(selectedAppApiKey, token)
     return fullSelectedApp!
+  } else {
+    return createApp(org, localAppName, token)
   }
 }
 
