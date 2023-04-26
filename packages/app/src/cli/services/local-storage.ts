@@ -18,6 +18,11 @@ export interface CachedOrganization {
   orgId?: string
 }
 
+export interface CurrentToml {
+  directory: string
+  toml?: string
+}
+
 // We store each app info using the directory as the key
 export interface AppLocalStorageSchema {
   [key: string]: CachedAppInfo
@@ -27,9 +32,13 @@ export interface OrganizationLocalStorageSchema {
   [key: string]: CachedOrganization
 }
 
-let _instance: LocalStorage<AppLocalStorageSchema> | undefined
+export interface CurrentTomlLocalStorageSchema {
+  [key: string]: CurrentToml
+}
 
+let _instance: LocalStorage<AppLocalStorageSchema> | undefined
 let _orgInstance: LocalStorage<OrganizationLocalStorageSchema> | undefined
+let _currentTomlInstance: LocalStorage<CurrentTomlLocalStorageSchema> | undefined
 
 function appLocalStorage() {
   if (!_instance) {
@@ -45,6 +54,15 @@ function organizationLocalStorage() {
   return _orgInstance
 }
 
+function currentTomlLocalStorage() {
+  if (!_currentTomlInstance) {
+    _currentTomlInstance = new LocalStorage<CurrentTomlLocalStorageSchema>({
+      projectName: 'shopify-cli-app-current-toml',
+    })
+  }
+  return _currentTomlInstance
+}
+
 export function getAppInfo(
   directory: string,
   appEnv = '',
@@ -58,6 +76,14 @@ export function getAppInfo(
 export function getOrganization(
   directory: string,
   config: LocalStorage<OrganizationLocalStorageSchema> = organizationLocalStorage(),
+) {
+  const normalized = normalizePath(directory)
+  return config.get(normalized)
+}
+
+export function getCurrentToml(
+  directory: string,
+  config: LocalStorage<CurrentTomlLocalStorageSchema> = currentTomlLocalStorage(),
 ) {
   const normalized = normalizePath(directory)
   return config.get(normalized)
@@ -107,6 +133,14 @@ export function setAppInfo(
 export function setOrgInfo(
   options: CachedOrganization,
   config: LocalStorage<OrganizationLocalStorageSchema> = organizationLocalStorage(),
+) {
+  const normalized = normalizePath(options.directory)
+  config.set(normalized, options)
+}
+
+export function setCurrentToml(
+  options: CurrentToml,
+  config: LocalStorage<CurrentTomlLocalStorageSchema> = currentTomlLocalStorage(),
 ) {
   const normalized = normalizePath(options.directory)
   config.set(normalized, options)
