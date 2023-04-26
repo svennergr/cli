@@ -22,7 +22,7 @@ export default async function connect(options: ConnectOptions): Promise<void> {
   app.configuration.remoteShopifyApp = {
     apiKey: remoteApp.apiKey,
     organizationId: organization.id,
-    devStore: store!.shopDomain,
+    devStore: store.shopDomain,
     noUpdate: false,
   }
 

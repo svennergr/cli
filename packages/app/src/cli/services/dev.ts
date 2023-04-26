@@ -7,6 +7,7 @@ import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
 import {pushAndWriteConfig} from './app/push.js'
 import {mergeAppUrls} from './merge-configuration.js'
+import {getCurrentToml} from './local-storage.js'
 import {
   ReverseHTTPProxyTarget,
   runConcurrentHTTPProcessesAndPathForwardTraffic,
@@ -70,17 +71,21 @@ interface DevWebOptions {
 
 async function dev(options: DevOptions) {
   const token = await ensureAuthenticatedPartners()
+  const currentToml = getCurrentToml(options.directory)
+
+  const appEnv = currentToml.toml
+
   const {
     storeFqdn,
     remoteApp,
     remoteAppUpdated,
     updateURLs: cachedUpdateURLs,
     useCloudflareTunnels,
-  } = await ensureDevContext(options, token)
+  } = await ensureDevContext({...options, appEnv}, token)
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
-  let localApp = await load({directory: options.directory, specifications, appConfigName: options.appEnv})
+  let localApp = await load({directory: options.directory, specifications, appConfigName: appEnv})
 
   if (!options.skipDependenciesInstallation) {
     localApp = await installAppDependencies(localApp)
@@ -122,7 +127,7 @@ async function dev(options: DevOptions) {
       appDirectory: localApp.directory,
       cachedUpdateURLs,
       newApp: remoteApp.newApp,
-      appEnv: options.appEnv ?? '',
+      appEnv: appEnv ?? '',
     })
     if (shouldUpdateURLs) {
       localApp = mergeAppUrls(localApp, newURLs)
