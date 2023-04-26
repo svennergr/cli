@@ -13,18 +13,36 @@ export interface CachedAppInfo {
   tunnelPlugin?: string
 }
 
+export interface CachedOrganization {
+  directory: string
+  orgId?: string
+}
+
 // We store each app info using the directory as the key
 export interface AppLocalStorageSchema {
   [key: string]: CachedAppInfo
 }
 
+export interface OrganizationLocalStorageSchema {
+  [key: string]: CachedOrganization
+}
+
 let _instance: LocalStorage<AppLocalStorageSchema> | undefined
+
+let _orgInstance: LocalStorage<OrganizationLocalStorageSchema> | undefined
 
 function appLocalStorage() {
   if (!_instance) {
     _instance = new LocalStorage<AppLocalStorageSchema>({projectName: 'shopify-cli-app'})
   }
   return _instance
+}
+
+function organizationLocalStorage() {
+  if (!_orgInstance) {
+    _orgInstance = new LocalStorage<OrganizationLocalStorageSchema>({projectName: 'shopify-cli-app-org'})
+  }
+  return _orgInstance
 }
 
 export function getAppInfo(
@@ -34,6 +52,14 @@ export function getAppInfo(
 ): CachedAppInfo | undefined {
   const normalized = normalizePath(`${directory}-${appEnv}`)
   outputDebug(outputContent`Reading cached app information for directory ${outputToken.path(normalized)}...`)
+  return config.get(normalized)
+}
+
+export function getOrganization(
+  directory: string,
+  config: LocalStorage<OrganizationLocalStorageSchema> = organizationLocalStorage(),
+) {
+  const normalized = normalizePath(directory)
   return config.get(normalized)
 }
 
@@ -76,4 +102,12 @@ export function setAppInfo(
   } else {
     config.set(normalized, options)
   }
+}
+
+export function setOrgInfo(
+  options: CachedOrganization,
+  config: LocalStorage<OrganizationLocalStorageSchema> = organizationLocalStorage(),
+) {
+  const normalized = normalizePath(options.directory)
+  config.set(normalized, options)
 }
