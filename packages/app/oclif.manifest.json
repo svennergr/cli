@@ -245,10 +245,10 @@
           "hidden": false,
           "multiple": false
         },
-        "app-env": {
-          "name": "app-env",
+        "use": {
+          "name": "use",
           "type": "option",
-          "description": "Shopify API client that you want to point to.",
+          "description": "Shopify configuration that you want to point to.",
           "hidden": false,
           "multiple": false
         }

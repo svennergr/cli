@@ -202,7 +202,13 @@ export async function ensureDevContext(
 
   if (selectedApp.apiKey === cachedInfo?.appId && selectedStore.shopDomain === cachedInfo.storeFqdn) {
     const packageManager = await getPackageManager(options.directory)
-    showReusedValues(organization.businessName, {...cachedInfo, title: selectedApp.title}, packageManager, silent)
+    showReusedValues(
+      organization.businessName,
+      {...cachedInfo, title: selectedApp.title},
+      packageManager,
+      silent,
+      localApp.configuration.remoteShopifyApp?.noUpdate ?? true,
+    )
   }
 
   const result = buildOutput(selectedApp, selectedStore, useCloudflareTunnels, cachedInfo)
@@ -546,6 +552,7 @@ function showReusedValues(
   cachedAppInfo: CachedAppInfo,
   packageManager: PackageManager,
   silent: boolean,
+  noUpdate?: boolean,
 ): void {
   if (silent) return
   let updateURLs = 'Not yet configured'
@@ -558,6 +565,7 @@ function showReusedValues(
     `Org:           ${org}`,
     `App:           ${cachedAppInfo.title}`,
     `Dev store:     ${cachedAppInfo.storeFqdn}`,
+    `Update config: ${noUpdate ? 'No' : 'Yes'}`,
     `Update URLs:   ${updateURLs}`,
   ]
 

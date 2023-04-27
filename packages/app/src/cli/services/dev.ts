@@ -24,7 +24,7 @@ import {HostThemeManager} from '../utilities/host-theme-manager.js'
 import {Config} from '@oclif/core'
 import {reportAnalyticsEvent} from '@shopify/cli-kit/node/analytics'
 import {execCLI2} from '@shopify/cli-kit/node/ruby'
-import {renderConcurrent} from '@shopify/cli-kit/node/ui'
+import {renderConcurrent, renderInfo, renderWarning} from '@shopify/cli-kit/node/ui'
 import {checkPortAvailability, getAvailableTCPPort} from '@shopify/cli-kit/node/tcp'
 import {AbortSignal} from '@shopify/cli-kit/node/abort'
 import {hashString} from '@shopify/cli-kit/node/crypto'
@@ -99,7 +99,9 @@ async function dev(options: DevOptions) {
   //   outputInfo('Using a different app than last time, sending uninstall webhook to app server')
   // }
 
-  const initiateUpdateUrls = (frontendConfig || backendConfig) && options.update
+  const shouldUpdate = options.update && !appConfig.remoteShopifyApp?.noUpdate
+
+  const initiateUpdateUrls = shouldUpdate
   let shouldUpdateURLs = false
 
   await validateCustomPorts(backendConfig, frontendConfig)
@@ -138,7 +140,12 @@ async function dev(options: DevOptions) {
     previewUrl = buildAppURLForWeb(storeFqdn, exposedUrl)
   }
 
-  await pushAndWriteConfig(localApp, apiKey, token)
+  if (shouldUpdate) {
+    await pushAndWriteConfig(localApp, apiKey, token)
+    renderInfo({headline: 'Updated app configuration'})
+  } else {
+    renderWarning({headline: 'Did not app configuration because noUpdate = true'})
+  }
 
   if (localApp.extensions.ui.length > 0) {
     previewUrl = `${proxyUrl}/extensions/dev-console`
