@@ -70,12 +70,11 @@ interface DevWebOptions {
 
 async function dev(options: DevOptions) {
   const currentToml = getCurrentToml(options.directory)
-  const appEnv = options.appEnv || currentToml?.toml
+  let appEnv = options.appEnv || currentToml?.toml
 
   if (!appEnv && appEnv !== '') {
     await use({directory: options.directory, commandConfig: options.commandConfig})
-    await dev(options)
-    return
+    appEnv = getCurrentToml(options.directory).toml
   }
 
   const token = await ensureAuthenticatedPartners()

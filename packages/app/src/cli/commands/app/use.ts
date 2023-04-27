@@ -7,7 +7,8 @@ import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {Args, Config, Flags} from '@oclif/core'
 import {renderSelectPrompt, renderSuccess} from '@shopify/cli-kit/node/ui'
 import {relativePath} from '@shopify/cli-kit/node/path'
-import {promises} from 'fs'
+import {promises, readFileSync} from 'fs'
+import path from 'path'
 
 export default class Use extends Command {
   static description = 'Choose which toml file to use.'
@@ -55,18 +56,25 @@ export async function use(options: UseOptions): Promise<void> {
     const files = (await promises.readdir(options.directory)).filter(
       (file) => file.startsWith('shopify.app.') && file.endsWith('.toml'),
     )
-    if (files.length === 0) {
+    if (files.length > 1) {
+      toml = await renderSelectPrompt({
+        message: 'Choose a toml file',
+        choices: files.map((file) => {
+          return {label: file, value: file.match(/shopify\.app\.?(.*)\.toml/)![1]}
+        }),
+      })
+    } else if (files.length === 0) {
       await connect({directory: options.directory, commandConfig: options.commandConfig})
-      await use({...options, toml: getCurrentToml(options.directory).toml})
-      return
+      toml = getCurrentToml(options.directory).toml
+    } else {
+      const tomlContents = readFileSync(path.join(options.directory, files[0]!), {encoding: 'utf-8'})
+      if (tomlContents.includes('remoteShopifyApp')) {
+        toml = files[0]!.match(/shopify\.app\.?(.*)\.toml/)![1]
+      } else {
+        await connect({directory: options.directory, commandConfig: options.commandConfig})
+        toml = getCurrentToml(options.directory).toml
+      }
     }
-
-    toml = await renderSelectPrompt({
-      message: 'Choose a toml file',
-      choices: files.map((file) => {
-        return {label: file, value: file.match(/shopify\.app\.?(.*)\.toml/)![1]}
-      }),
-    })
   }
 
   setCurrentToml({

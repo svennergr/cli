@@ -13,8 +13,9 @@ export function mergeAppConfiguration(
     subPath: remoteApp.appProxy?.subPath,
     subPathPrefix: remoteApp.appProxy?.subPathPrefix,
   }
-  mergedApp.configuration.webhookApiVersion = remoteApp.webhookApiVersion
-  mergedApp.configuration.gdprWebhooks = remoteApp.gdprWebhooks
+  mergedApp.configuration.webhookApiVersion =
+    remoteApp.webhookApiVersion || mergedApp.configuration.webhookApiVersion || '2023-04'
+  mergedApp.configuration.gdprWebhooks = remoteApp.gdprWebhooks || mergedApp.configuration.gdprWebhooks
   return mergedApp
 }
 
