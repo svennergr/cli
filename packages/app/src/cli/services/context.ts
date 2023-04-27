@@ -23,7 +23,7 @@ import {load, loadAppName} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderConfirmationPrompt, renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
@@ -209,7 +209,7 @@ export async function ensureDevContext(
   return result
 }
 
-export async function selectOrgStoreAppEnv(token: string, directory: string) {
+export async function selectOrgStoreAppEnvUpdateable(token: string, directory: string) {
   const cachedOrg = getOrganization(directory)
   const orgId = cachedOrg?.orgId || (await selectOrg(token))
   const organization = await fetchOrgFromId(orgId, token)
@@ -226,18 +226,27 @@ export async function selectOrgStoreAppEnv(token: string, directory: string) {
     allowEmpty: true,
   })
 
+  const updateable = await renderConfirmationPrompt({
+    message:
+      'Should this configuration be updated when running dev? (recommended: no for live apps installed on merchant stores)',
+    cancellationMessage: 'No, never update configuration when running dev',
+    confirmationMessage: 'Yes, always update app configuration when running dev',
+    confirmByDefault: false,
+  })
+
   setOrgInfo({
     directory,
     orgId,
   })
 
   setAppInfo({
+    appId: app.apiKey,
     directory,
     appEnv,
     storeFqdn: store.shopDomain,
     orgId,
   })
-  return {organization, app, store, appEnv}
+  return {organization, app, store, appEnv, updateable}
 }
 
 const resetHelpMessage = 'You can pass `--reset` to your command to reset your config.'

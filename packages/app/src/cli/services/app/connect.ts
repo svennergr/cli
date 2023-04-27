@@ -1,11 +1,12 @@
-import {load, writeConfigurationFile} from '../../models/app/loader.js'
+import {load, tomlFilePath, writeConfigurationFile} from '../../models/app/loader.js'
 import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
 import {mergeAppConfiguration} from '../merge-configuration.js'
-import {selectOrgStoreAppEnv} from '../context.js'
+import {selectOrgStoreAppEnvUpdateable} from '../context.js'
 import {Config} from '@oclif/core'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {renderSuccess} from '@shopify/cli-kit/node/ui'
 import {relativePath} from '@shopify/cli-kit/node/path'
+import {fileExists} from '@shopify/cli-kit/node/fs'
 
 export interface ConnectOptions {
   commandConfig: Config
@@ -14,7 +15,16 @@ export interface ConnectOptions {
 
 export default async function connect(options: ConnectOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
-  const {app: remoteApp, appEnv, organization, store} = await selectOrgStoreAppEnv(token, options.directory)
+  const {
+    app: remoteApp,
+    appEnv,
+    organization,
+    store,
+    updateable,
+  } = await selectOrgStoreAppEnvUpdateable(token, options.directory)
+
+  const fileAlreadyExists = await fileExists(tomlFilePath(options.directory, appEnv))
+
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
 
@@ -23,7 +33,7 @@ export default async function connect(options: ConnectOptions): Promise<void> {
     apiKey: remoteApp.apiKey,
     organizationId: organization.id,
     devStore: store.shopDomain,
-    noUpdate: false,
+    noUpdate: !updateable,
   }
 
   const mergedLocalApp = mergeAppConfiguration(app, remoteApp)
@@ -34,6 +44,6 @@ export default async function connect(options: ConnectOptions): Promise<void> {
     headline: `App "${remoteApp.title}" connected to this codebase, file ${relativePath(
       mergedLocalApp.directory,
       file,
-    )} created`,
+    )} ${fileAlreadyExists ? 'updated' : 'created'}`,
   })
 }
