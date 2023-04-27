@@ -21,6 +21,7 @@ import {getAppIdentifiers} from '../models/app/identifiers.js'
 import {getAnalyticsTunnelType} from '../utilities/analytics.js'
 import {buildAppURLForWeb} from '../utilities/app/app-url.js'
 import {HostThemeManager} from '../utilities/host-theme-manager.js'
+import {use} from '../commands/app/use.js'
 import {Config} from '@oclif/core'
 import {reportAnalyticsEvent} from '@shopify/cli-kit/node/analytics'
 import {execCLI2} from '@shopify/cli-kit/node/ruby'
@@ -68,11 +69,16 @@ interface DevWebOptions {
 }
 
 async function dev(options: DevOptions) {
-  const token = await ensureAuthenticatedPartners()
   const currentToml = getCurrentToml(options.directory)
+  const appEnv = options.appEnv || currentToml?.toml
 
-  const appEnv = options.appEnv || currentToml.toml
+  if (!appEnv && appEnv !== '') {
+    await use({directory: options.directory, commandConfig: options.commandConfig})
+    await dev(options)
+    return
+  }
 
+  const token = await ensureAuthenticatedPartners()
   const {
     storeFqdn,
     remoteApp,
