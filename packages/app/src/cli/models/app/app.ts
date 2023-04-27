@@ -117,6 +117,8 @@ export class App implements AppInterface {
     function: FunctionExtension[]
   }
 
+  appEnv?: string
+
   // eslint-disable-next-line max-params
   constructor(
     name: string,
@@ -133,6 +135,7 @@ export class App implements AppInterface {
     usesWorkspaces: boolean,
     dotenv?: DotEnvFile,
     errors?: AppErrors,
+    appEnv?: string,
   ) {
     this.name = name
     this.idEnvironmentVariableName = idEnvironmentVariableName
@@ -150,6 +153,7 @@ export class App implements AppInterface {
     }
     this.errors = errors
     this.usesWorkspaces = usesWorkspaces
+    this.appEnv = appEnv
   }
 
   async updateDependencies() {

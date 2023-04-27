@@ -566,7 +566,7 @@ function showReusedValues(
     `App:           ${cachedAppInfo.title}`,
     `Dev store:     ${cachedAppInfo.storeFqdn}`,
     `Update config: ${noUpdate ? 'No' : 'Yes'}`,
-    `Update URLs:   ${updateURLs}`,
+    `Update URLs:   ${noUpdate ? 'No' : updateURLs}`,
   ]
 
   if (cachedAppInfo.tunnelPlugin) items.push(`Tunnel:       ${cachedAppInfo.tunnelPlugin}`)

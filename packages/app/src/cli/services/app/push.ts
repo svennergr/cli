@@ -39,7 +39,7 @@ export async function pushAndWriteConfig(app: AppInterface, apiKey: string, toke
   const updatedApp = await pushToPartners(app, apiKey, token)
 
   const mergedApp = mergeAppConfiguration(app, {...updatedApp})
-  writeConfigurationFile(mergedApp)
+  writeConfigurationFile(mergedApp, app.appEnv)
   return mergedApp
 }
 

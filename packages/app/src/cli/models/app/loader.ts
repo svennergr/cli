@@ -138,6 +138,8 @@ class AppLoader {
       functions,
       usesWorkspaces,
       dotenv,
+      undefined,
+      this.appConfigName,
     )
 
     if (!this.errors.isEmpty()) appClass.errors = this.errors

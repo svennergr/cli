@@ -71,7 +71,7 @@ async function dev(options: DevOptions) {
   const token = await ensureAuthenticatedPartners()
   const currentToml = getCurrentToml(options.directory)
 
-  const appEnv = currentToml.toml
+  const appEnv = options.appEnv || currentToml.toml
 
   const {
     storeFqdn,
@@ -144,7 +144,7 @@ async function dev(options: DevOptions) {
     await pushAndWriteConfig(localApp, apiKey, token)
     renderInfo({headline: 'Updated app configuration'})
   } else {
-    renderWarning({headline: 'Did not app configuration because noUpdate = true'})
+    renderWarning({headline: 'Did not update app configuration because noUpdate = true'})
   }
 
   if (localApp.extensions.ui.length > 0) {
