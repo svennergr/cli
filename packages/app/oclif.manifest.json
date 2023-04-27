@@ -421,6 +421,13 @@
           "description": "Increase the verbosity of the logs.",
           "hidden": false,
           "allowNo": false
+        },
+        "clear": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "Increase the verbosity of the logs.",
+          "hidden": false,
+          "allowNo": false
         }
       },
       "args": {

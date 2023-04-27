@@ -99,6 +99,21 @@ export function clearAppInfo(
   config.delete(normalized)
 }
 
+export function clearAllInfo(
+  directory: string,
+  appEnv = '',
+  appConfig: LocalStorage<AppLocalStorageSchema> = appLocalStorage(),
+  orgConfig: LocalStorage<OrganizationLocalStorageSchema> = organizationLocalStorage(),
+  tomlConfig: LocalStorage<CurrentTomlLocalStorageSchema> = currentTomlLocalStorage(),
+): void {
+  const normalized = normalizePath(directory)
+  const normalizedWithEnv = normalizePath(`${directory}-${appEnv}`)
+  outputDebug(outputContent`Clearing app information for directory ${outputToken.path(normalizedWithEnv)}...`)
+  appConfig.delete(normalizedWithEnv)
+  orgConfig.delete(normalized)
+  tomlConfig.delete(normalized)
+}
+
 export function clearAllAppInfo(config: LocalStorage<AppLocalStorageSchema> = appLocalStorage()): void {
   outputDebug(outputContent`Clearing all app information...`)
   config.clear()

@@ -2,6 +2,7 @@ import {load, tomlFilePath, writeConfigurationFile} from '../../models/app/loade
 import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
 import {mergeAppConfiguration} from '../merge-configuration.js'
 import {selectOrgStoreAppEnvUpdateable} from '../context.js'
+import {setCurrentToml} from '../local-storage.js'
 import {Config} from '@oclif/core'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {renderSuccess} from '@shopify/cli-kit/node/ui'
@@ -40,10 +41,16 @@ export default async function connect(options: ConnectOptions): Promise<void> {
 
   const file = writeConfigurationFile({...mergedLocalApp}, appEnv)
 
+  setCurrentToml({
+    directory: options.directory,
+    toml: appEnv,
+  })
+
   renderSuccess({
     headline: `App "${remoteApp.title}" connected to this codebase, file ${relativePath(
       mergedLocalApp.directory,
       file,
     )} ${fileAlreadyExists ? 'updated' : 'created'}`,
+    body: 'Now using this configuration.',
   })
 }

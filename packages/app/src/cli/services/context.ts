@@ -19,7 +19,7 @@ import {Identifiers, UuidOnlyIdentifiers, updateAppIdentifiers, getAppIdentifier
 import {Organization, OrganizationApp, OrganizationStore} from '../models/organization.js'
 import metadata from '../metadata.js'
 import {ThemeExtension} from '../models/app/extensions.js'
-import {load, loadAppName} from '../models/app/loader.js'
+import {load, loadAppName, tomlFilePath} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
@@ -27,6 +27,7 @@ import {renderConfirmationPrompt, renderInfo, renderTasks, renderTextPrompt} fro
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
+import {relativizePath} from '@shopify/cli-kit/node/path'
 
 export const InvalidApiKeyErrorMessage = (apiKey: string) => {
   return {
@@ -550,11 +551,14 @@ function showReusedValues(
   let updateURLs = 'Not yet configured'
   if (cachedAppInfo.updateURLs !== undefined) updateURLs = cachedAppInfo.updateURLs ? 'Always' : 'Never'
 
+  const toml = relativizePath(tomlFilePath(cachedAppInfo.directory, cachedAppInfo.appEnv), cachedAppInfo.directory)
+
   const items = [
-    `Org:          ${org}`,
-    `App:          ${cachedAppInfo.title}`,
-    `Dev store:    ${cachedAppInfo.storeFqdn}`,
-    `Update URLs:  ${updateURLs}`,
+    `Configuration: ${toml}`,
+    `Org:           ${org}`,
+    `App:           ${cachedAppInfo.title}`,
+    `Dev store:     ${cachedAppInfo.storeFqdn}`,
+    `Update URLs:   ${updateURLs}`,
   ]
 
   if (cachedAppInfo.tunnelPlugin) items.push(`Tunnel:       ${cachedAppInfo.tunnelPlugin}`)
