@@ -19,6 +19,7 @@ import {InlineToken, LinkToken, TokenItem} from '../../private/node/ui/component
 import {InfoTableSection} from '../../private/node/ui/components/Prompts/InfoTable.js'
 import React from 'react'
 import {Key as InkKey, RenderOptions} from 'ink'
+import { Spinner } from '../../private/node/ui/components/Spinner.js'
 
 type PartialBy<T, TKey extends keyof T> = Omit<T, TKey> & Partial<Pick<T, TKey>>
 
@@ -466,6 +467,10 @@ export const keypress = async () => {
     process.stdin.setRawMode(true)
     process.stdin.once('data', handler)
   })
+}
+
+export function renderSpinner() {
+  return render(<Spinner />)
 }
 
 export type Key = InkKey

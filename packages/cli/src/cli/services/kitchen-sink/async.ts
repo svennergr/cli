@@ -1,8 +1,10 @@
-import {renderConcurrent, renderTasks} from '@shopify/cli-kit/node/ui'
+import {renderConcurrent, renderSpinner, renderTasks} from '@shopify/cli-kit/node/ui'
 import {AbortSignal} from '@shopify/cli-kit/node/abort'
 import {Writable} from 'stream'
 
 export async function asyncTasks() {
+  await renderSpinner()
+  return
   // renderConcurrent
   let backendPromiseResolve: () => void
 
