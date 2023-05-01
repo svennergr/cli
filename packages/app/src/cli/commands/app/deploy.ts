@@ -14,9 +14,9 @@ export default class Deploy extends Command {
   static flags = {
     ...globalFlags,
     ...appFlags,
-    'api-key': Flags.string({
+    config: Flags.string({
       hidden: false,
-      description: 'The API key of your app.',
+      description: 'The configuration that is mapped to your remote Shopify app.',
       env: 'SHOPIFY_FLAG_APP_API_KEY',
     }),
     reset: Flags.boolean({
@@ -48,7 +48,13 @@ export default class Deploy extends Command {
     }))
 
     const specifications = await loadExtensionsSpecifications(this.config)
-    const app: AppInterface = await loadApp({specifications, directory: flags.path})
-    await deploy({app, apiKey: flags['api-key'], reset: flags.reset, force: flags.force, label: flags.label})
+    const app: AppInterface = await loadApp({specifications, directory: flags.path, appConfigName: flags.config})
+    await deploy({
+      app,
+      apiKey: app.configuration.remoteShopifyApp?.apiKey,
+      reset: flags.reset,
+      force: flags.force,
+      label: flags.label,
+    })
   }
 }

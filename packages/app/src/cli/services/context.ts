@@ -229,15 +229,15 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
   const store = await selectStore(allStores, organization, token)
 
   const appEnv = await renderTextPrompt({
-    message: 'What’s the config name? (this will be used in the file name)',
+    message: 'Configuration name:',
     allowEmpty: true,
   })
 
   const updateable = await renderConfirmationPrompt({
     message:
-      'Should this configuration be updated when running dev? (recommended: no for live apps installed on merchant stores)',
-    cancellationMessage: 'No, never update configuration when running dev',
-    confirmationMessage: 'Yes, always update app configuration when running dev',
+      'Should this configuration be updated when running shopify app dev? (recommended: no for live apps installed on merchant stores)',
+    cancellationMessage: 'No, never update configuration when running shopify app dev',
+    confirmationMessage: 'Yes, always update app configuration when running shopify app dev',
     confirmByDefault: false,
   })
 
