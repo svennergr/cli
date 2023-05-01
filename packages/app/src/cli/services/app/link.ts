@@ -9,12 +9,12 @@ import {renderSuccess} from '@shopify/cli-kit/node/ui'
 import {relativePath} from '@shopify/cli-kit/node/path'
 import {fileExists} from '@shopify/cli-kit/node/fs'
 
-export interface ConnectOptions {
+export interface LinkOptions {
   commandConfig: Config
   directory: string
 }
 
-export default async function connect(options: ConnectOptions): Promise<void> {
+export default async function link(options: LinkOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
   const {
     app: remoteApp,

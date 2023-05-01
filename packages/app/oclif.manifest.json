@@ -373,9 +373,9 @@
         }
       }
     },
-    "app:connect": {
-      "id": "app:connect",
-      "description": "Connect your shopify app configuration to this codebase.",
+    "app:link": {
+      "id": "app:link",
+      "description": "Link your shopify app configuration to this codebase.",
       "strict": true,
       "pluginName": "@shopify/app",
       "pluginAlias": "@shopify/app",

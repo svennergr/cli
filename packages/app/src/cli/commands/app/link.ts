@@ -1,9 +1,9 @@
 import Command from '../../utilities/app-command.js'
 import {appFlags} from '../../flags.js'
-import connect, {ConnectOptions} from '../../services/app/connect.js'
+import link, {LinkOptions} from '../../services/app/link.js'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 
-export default class Connect extends Command {
+export default class Link extends Command {
   static description = 'Connect your shopify app configuration to this codebase.'
 
   static flags = {
@@ -12,11 +12,11 @@ export default class Connect extends Command {
   }
 
   public async run(): Promise<void> {
-    const {flags, args} = await this.parse(Connect)
-    const options: ConnectOptions = {
+    const {flags, args} = await this.parse(Link)
+    const options: LinkOptions = {
       commandConfig: this.config,
       directory: flags.path,
     }
-    await connect(options)
+    await link(options)
   }
 }
