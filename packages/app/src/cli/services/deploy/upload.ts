@@ -34,6 +34,7 @@ import {fetch, formData} from '@shopify/cli-kit/node/http'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputToken} from '@shopify/cli-kit/node/output'
 import {createExtension} from '../dev/create-extension.js'
+import {outputInfo} from '@shopify/cli-kit/node/output'
 
 interface DeployThemeExtensionOptions {
   /** The application API key */
@@ -285,14 +286,14 @@ export async function registerFunctionExtensions(
   for (const extension of extensions) {
     // output.info("Identifiers " + JSON.stringify(identifiers))
     if (identifiers.extensions[extension.localIdentifier] === undefined) {
-      // output.info("registering")
+      outputInfo("registering")
       const registration = await createExtension(
         options.identifiers.app,
         'FUNCTION',
         extension.localIdentifier,
         options.token
       )
-      // output.info("registration " + JSON.stringify(registration))
+      outputInfo("registration " + JSON.stringify(registration))
       functionIds[extension.localIdentifier] = registration.uuid
     }
   }
@@ -328,14 +329,16 @@ async function functionConfiguration(
           singleJsonMetafield: extension.configuration.input.variables,
         }
       : undefined,
-    appBridge: extension.configuration.ui?.paths
-      ? {
-          detailsPath: extension.configuration.ui.paths.details,
-          createPath: extension.configuration.ui.paths.create,
-        }
-      : undefined,
+    ui: {
+      appBridge: extension.configuration.ui?.paths
+        ? {
+            detailsPath: extension.configuration.ui.paths.details,
+            createPath: extension.configuration.ui.paths.create,
+          }
+        : undefined,
+    },
     enableCreationUi: extension.configuration.ui?.enable_create ?? true,
-    moduleUploadUrl: moduleUploadUrl
+    moduleId: moduleUploadUrl
   }
 }
 

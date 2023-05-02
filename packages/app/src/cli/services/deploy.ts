@@ -48,6 +48,7 @@ interface TasksContext {
 
 export async function deploy(options: DeployOptions) {
   // eslint-disable-next-line prefer-const
+  // this registers the extensions immediatly
   let {app, identifiers, partnersApp, token} = await ensureDeployContext(options)
   const apiKey = identifiers.app
 
@@ -113,6 +114,7 @@ export async function deploy(options: DeployOptions) {
         bundlePath = joinPath(tmpDir, `bundle.zip`)
         await mkdir(dirname(bundlePath))
       }
+      // todo: upload wasm and compile in here
       await bundleAndBuildExtensions({app, bundlePath, identifiers})
 
       const tasks: Task<TasksContext>[] = [
@@ -125,6 +127,7 @@ export async function deploy(options: DeployOptions) {
         {
           title: partnersApp.betas?.unifiedAppDeployment ? 'Creating deployment' : 'Pushing your code to Shopify',
           task: async () => {
+            // App basis beta
             if (bundle || partnersApp.betas?.unifiedAppDeployment) {
               ;({validationErrors, deploymentId} = await uploadExtensionsBundle({
                 apiKey,
@@ -139,6 +142,10 @@ export async function deploy(options: DeployOptions) {
               await uploadThemeExtensions(options.app.extensions.theme, {apiKey, identifiers, token})
             }
 
+            // Registration is no longer required here. But we do need to ensure that:
+            // 1. Function extensions are registered on creation.
+            // 2. We have a way to associate functions with function extensions that were backfilled on the server
+            //
             outputInfo("Register extensions if required")
             identifiers = await registerFunctionExtensions(app.extensions.function, {identifiers, token})
             app = await updateAppIdentifiers({app, identifiers, command: 'deploy'})
