@@ -269,6 +269,16 @@
       },
       "args": {}
     },
+    "app:introspect": {
+      "id": "app:introspect",
+      "description": "Introspect the CLI schema.",
+      "strict": true,
+      "pluginName": "@shopify/app",
+      "pluginAlias": "@shopify/app",
+      "pluginType": "core",
+      "aliases": [],
+      "args": {}
+    },
     "app:info": {
       "id": "app:info",
       "description": "Print basic information about your app and extensions.",
