@@ -8,6 +8,7 @@ import {AppInterface} from '../../models/app/app.js'
 import {FunctionExtension, UIExtension} from '../../models/app/extensions.js'
 import {testApp} from '../../models/app/app.test-data.js'
 import {getExtensionsToMigrate, migrateExtensionsToUIExtension} from '../dev/migrate-to-ui-extension.js'
+import {OrganizationApp} from '../../models/organization.js'
 import {beforeEach, describe, expect, vi, test} from 'vitest'
 import {err, ok} from '@shopify/cli-kit/node/result'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
@@ -59,6 +60,7 @@ const EXTENSION_A: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -66,6 +68,7 @@ const EXTENSION_A: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_A_2: UIExtension = {
@@ -87,6 +90,7 @@ const EXTENSION_A_2: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -94,6 +98,7 @@ const EXTENSION_A_2: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_B: UIExtension = {
@@ -115,6 +120,7 @@ const EXTENSION_B: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -122,6 +128,7 @@ const EXTENSION_B: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const LOCAL_APP = (uiExtensions: UIExtension[], functionExtensions: FunctionExtension[] = []): AppInterface => {
@@ -134,6 +141,16 @@ const LOCAL_APP = (uiExtensions: UIExtension[], functionExtensions: FunctionExte
   })
 }
 
+const PARTNERS_APP: OrganizationApp = {
+  id: 'app-id',
+  organizationId: 'org-id',
+  title: 'app-title',
+  grantedScopes: [],
+  betas: {unifiedAppDeployment: true},
+  apiKey: 'api-key',
+  apiSecretKeys: [],
+}
+
 const options = (uiExtensions: UIExtension[], identifiers: any = {}) => {
   return {
     app: LOCAL_APP(uiExtensions),
@@ -142,6 +159,7 @@ const options = (uiExtensions: UIExtension[], identifiers: any = {}) => {
     appName: 'appName',
     envIdentifiers: {extensions: identifiers},
     force: false,
+    partnersApp: PARTNERS_APP,
   }
 }
 
@@ -405,15 +423,18 @@ describe('ensureExtensionsIds: asks user to confirm deploy', () => {
     const got = await ensureExtensionsIds(options([EXTENSION_A, EXTENSION_A_2]), [REGISTRATION_A, REGISTRATION_A_2])
 
     // Then
-    expect(deployConfirmationPrompt).toBeCalledWith({
-      question: 'Make the following changes to your extensions in Shopify Partners?',
-      identifiers: {
-        EXTENSION_A: 'UUID_A',
-        EXTENSION_A_2: 'UUID_A_2',
+    expect(deployConfirmationPrompt).toBeCalledWith(
+      {
+        question: 'Make the following changes to your extensions in Shopify Partners?',
+        identifiers: {
+          EXTENSION_A: 'UUID_A',
+          EXTENSION_A_2: 'UUID_A_2',
+        },
+        onlyRemote: [],
+        toCreate: [],
       },
-      onlyRemote: [],
-      toCreate: [],
-    })
+      PARTNERS_APP,
+    )
   })
 
   test('skips confirmation prompt if --force is passed', async () => {
@@ -421,7 +442,7 @@ describe('ensureExtensionsIds: asks user to confirm deploy', () => {
     vi.mocked(automaticMatchmaking).mockResolvedValueOnce({
       identifiers: {EXTENSION_A: 'UUID_A', EXTENSION_A_2: 'UUID_A_2'},
       toCreate: [],
-      toConfirm: [],
+      toConfirm: [{local: EXTENSION_B, remote: REGISTRATION_B}],
       toManualMatch: {
         local: [],
         remote: [],
@@ -436,6 +457,7 @@ describe('ensureExtensionsIds: asks user to confirm deploy', () => {
 
     // Then
     expect(deployConfirmationPrompt).not.toBeCalled()
+    expect(matchConfirmationPrompt).not.toBeCalled()
   })
 })
 

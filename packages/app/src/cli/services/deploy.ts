@@ -15,7 +15,7 @@ import {Extension} from '../models/app/extensions.js'
 import {OrganizationApp} from '../models/organization.js'
 import {validateExtensions} from '../validators/extensions.js'
 import {AllAppExtensionRegistrationsQuerySchema} from '../api/graphql/all_app_extension_registrations.js'
-import {renderInfo, renderSuccess, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderSuccess, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
 import {inTemporaryDirectory, mkdir} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {outputNewline, outputInfo} from '@shopify/cli-kit/node/output'
@@ -45,26 +45,29 @@ interface TasksContext {
 }
 
 export async function deploy(options: DeployOptions) {
-  if (!options.app.hasExtensions()) {
-    renderInfo({headline: 'No extensions to deploy to Shopify Partners yet.'})
-    return
-  }
-
   // eslint-disable-next-line prefer-const
-  let {app, identifiers, partnersApp, token, organization} = await ensureDeployContext(options)
+  let {app, identifiers, partnersApp, token} = await ensureDeployContext(options)
   const apiKey = identifiers.app
+
+  const remoteSpecifications = await fetchAppExtensionRegistrations({token, apiKey})
+
+  // if (!options.app.hasExtensions() && !partnersApp.betas?.unifiedAppDeployment) {
+  //   renderInfo({headline: 'No extensions to deploy to Shopify Partners yet.'})
+  //   return
+  // }
 
   let label: string | undefined
 
-  if (organization.betas.appUiDeployments) {
-    label =
-      options.label ??
-      (await renderTextPrompt({
-        message: 'Deployment label',
-        allowEmpty: true,
-      }))
+  if (partnersApp.betas?.unifiedAppDeployment) {
+    label = options.force
+      ? options.label
+      : options.label ??
+        (await renderTextPrompt({
+          message: 'Deployment label',
+          allowEmpty: true,
+        }))
 
-    if (label.length === 0) {
+    if (label?.length === 0) {
       label = undefined
     }
   }
@@ -95,18 +98,38 @@ export async function deploy(options: DeployOptions) {
     extensions.push(...themeExtensions)
   }
 
+  const extensionsUuid = extensions.map((extension) => extension.uuid)
+
+  const appModules = await Promise.all(
+    remoteSpecifications.app.extensionRegistrations
+      .filter((extension) => !extensionsUuid.includes(extension.uuid))
+      .map(async (extension) => {
+        return {
+          uuid: extension.uuid,
+          config: '{"application_url": "https://wow.com", "redirect_url": "https://wow.com/redirect"}',
+          context: '',
+        }
+      }),
+  )
+
+  extensions.push(...appModules)
+
   let registrations: AllAppExtensionRegistrationsQuerySchema
   let validationErrors: UploadExtensionValidationError[] = []
   let deploymentId: number
 
   await inTemporaryDirectory(async (tmpDir) => {
     try {
-      const bundlePath = joinPath(tmpDir, `bundle.zip`)
-      await mkdir(dirname(bundlePath))
       const bundleTheme = useThemebundling() && app.extensions.theme.length !== 0
       const bundleUI = app.extensions.ui.length !== 0
       const bundle = bundleTheme || bundleUI
-      await bundleAndBuildExtensions({app, bundlePath, identifiers, bundle})
+      let bundlePath: string | undefined
+
+      if (bundle) {
+        bundlePath = joinPath(tmpDir, `bundle.zip`)
+        await mkdir(dirname(bundlePath))
+        await bundleAndBuildExtensions({app, bundlePath, identifiers, bundle})
+      }
 
       const tasks: Task<TasksContext>[] = [
         {
@@ -116,17 +139,15 @@ export async function deploy(options: DeployOptions) {
           },
         },
         {
-          title: organization.betas.appUiDeployments ? 'Creating deployment' : 'Pushing your code to Shopify',
+          title: partnersApp.betas?.unifiedAppDeployment ? 'Creating deployment' : 'Pushing your code to Shopify',
           task: async () => {
-            if (bundle) {
-              ;({validationErrors, deploymentId} = await uploadExtensionsBundle({
-                apiKey,
-                bundlePath,
-                extensions,
-                token,
-                label,
-              }))
-            }
+            ;({validationErrors, deploymentId} = await uploadExtensionsBundle({
+              apiKey,
+              bundlePath,
+              extensions,
+              token,
+              label,
+            }))
 
             if (!useThemebundling()) {
               await uploadThemeExtensions(options.app.extensions.theme, {apiKey, identifiers, token})
@@ -144,12 +165,12 @@ export async function deploy(options: DeployOptions) {
       await outputCompletionMessage({
         app,
         partnersApp,
-        partnersOrganizationId: organization.id,
+        partnersOrganizationId: partnersApp.organizationId,
         identifiers,
         registrations,
         validationErrors,
         deploymentId,
-        unifiedDeployment: organization.betas.appUiDeployments ?? false,
+        unifiedDeployment: Boolean(partnersApp.betas?.unifiedAppDeployment),
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

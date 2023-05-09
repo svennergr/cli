@@ -35,7 +35,7 @@ export async function ensureExtensionsIds(
 
   for (const pending of matchExtensions.toConfirm) {
     // eslint-disable-next-line no-await-in-loop
-    const confirmed = await matchConfirmationPrompt(pending.local, pending.remote)
+    const confirmed = options.force || (await matchConfirmationPrompt(pending.local, pending.remote))
     if (!confirmed) return err('user-cancelled')
     validMatches[pending.local.localIdentifier] = pending.remote.uuid
   }
@@ -51,12 +51,15 @@ export async function ensureExtensionsIds(
   }
 
   if (!options.force) {
-    const confirmed = await deployConfirmationPrompt({
-      question: 'Make the following changes to your extensions in Shopify Partners?',
-      identifiers: validMatches,
-      toCreate: extensionsToCreate,
-      onlyRemote: onlyRemoteExtensions,
-    })
+    const confirmed = await deployConfirmationPrompt(
+      {
+        question: 'Make the following changes to your extensions in Shopify Partners?',
+        identifiers: validMatches,
+        toCreate: extensionsToCreate,
+        onlyRemote: onlyRemoteExtensions,
+      },
+      options.partnersApp,
+    )
     if (!confirmed) return err('user-cancelled')
   }
 

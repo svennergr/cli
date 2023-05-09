@@ -42,11 +42,13 @@ const EXTENSION_A: UIExtension = {
   surface: 'surface',
   validate: () => Promise.resolve({} as any),
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_A_2: UIExtension = {
@@ -68,6 +70,7 @@ const EXTENSION_A_2: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -75,6 +78,7 @@ const EXTENSION_A_2: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_B: UIExtension = {
@@ -96,6 +100,7 @@ const EXTENSION_B: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -103,6 +108,7 @@ const EXTENSION_B: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 describe('manualMatch: when all sources are matched', () => {

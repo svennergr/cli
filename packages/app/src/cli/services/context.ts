@@ -28,6 +28,7 @@ import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
 import {relativizePath} from '@shopify/cli-kit/node/path'
+import {getOrganization as theirgetOrganization} from '@shopify/cli-kit/node/environment'
 
 export const InvalidApiKeyErrorMessage = (apiKey: string) => {
   return {
@@ -153,11 +154,11 @@ export async function ensureDevContext(
     outputInfo(explanation)
   }
 
-  const orgId = cachedInfo?.orgId || (await selectOrg(token))
+  const orgId = theirgetOrganization() || cachedInfo?.orgId || (await selectOrg(token))
 
   let {app: selectedApp, store: selectedStore} = await fetchDevDataFromOptions(options, orgId, token)
   const organization = await fetchOrgFromId(orgId, token)
-  const useCloudflareTunnels = organization.betas.cliTunnelAlternative !== true
+  const useCloudflareTunnels = organization.betas?.cliTunnelAlternative !== true
 
   if (selectedApp && selectedStore) {
     setAppInfo({
@@ -310,7 +311,6 @@ interface DeployContextOutput {
   token: string
   partnersApp: Omit<OrganizationApp, 'apiSecretKeys' | 'apiKey'>
   identifiers: Identifiers
-  organization: Organization
 }
 
 /**
@@ -356,7 +356,7 @@ export async function ensureThemeExtensionDevContext(
 
 export async function ensureDeployContext(options: DeployContextOptions): Promise<DeployContextOutput> {
   const token = await ensureAuthenticatedPartners()
-  const [partnersApp, envIdentifiers, organization] = await fetchAppAndIdentifiers(options, token)
+  const [partnersApp, envIdentifiers] = await fetchAppAndIdentifiers(options, token)
 
   let identifiers: Identifiers = envIdentifiers as Identifiers
 
@@ -367,6 +367,7 @@ export async function ensureDeployContext(options: DeployContextOptions): Promis
     force: options.force,
     token,
     envIdentifiers,
+    partnersApp,
   })
 
   // eslint-disable-next-line no-param-reassign
@@ -384,24 +385,21 @@ export async function ensureDeployContext(options: DeployContextOptions): Promis
       grantedScopes: partnersApp.grantedScopes,
       applicationUrl: partnersApp.applicationUrl,
       redirectUrlWhitelist: partnersApp.redirectUrlWhitelist,
+      betas: partnersApp.betas,
     },
     identifiers,
     token,
-    organization,
   }
 
   await logMetadataForLoadedDeployContext(result)
   return result
 }
 
-export async function fetchOrganizationAndFetchOrCreateApp(
-  app: AppInterface,
-  token: string,
-): Promise<{partnersApp: OrganizationApp; organization: Organization}> {
+export async function fetchOrCreateOrganizationApp(app: AppInterface, token: string): Promise<OrganizationApp> {
   const orgId = await selectOrg(token)
   const {organization, apps} = await fetchOrgsAppsAndStores(orgId, token)
   const partnersApp = await selectOrCreateApp(app.name, apps, organization, token)
-  return {organization, partnersApp}
+  return partnersApp
 }
 
 export async function fetchAppAndIdentifiers(
@@ -412,10 +410,9 @@ export async function fetchAppAndIdentifiers(
     apiKey?: string
   },
   token: string,
-): Promise<[OrganizationApp, Partial<UuidOnlyIdentifiers>, Organization]> {
+): Promise<[OrganizationApp, Partial<UuidOnlyIdentifiers>]> {
   let envIdentifiers = getAppIdentifiers({app: options.app})
   let partnersApp: OrganizationApp | undefined
-  let organization: Organization | undefined
 
   if (options.reset) {
     envIdentifiers = {app: undefined, extensions: {}}
@@ -435,16 +432,10 @@ export async function fetchAppAndIdentifiers(
   }
 
   if (!partnersApp) {
-    const result = await fetchOrganizationAndFetchOrCreateApp(options.app, token)
-    partnersApp = result.partnersApp
-    organization = result.organization
+    partnersApp = await fetchOrCreateOrganizationApp(options.app, token)
   }
 
-  if (!organization) {
-    organization = await fetchOrgFromId(partnersApp.organizationId, token)
-  }
-
-  return [partnersApp, envIdentifiers, organization]
+  return [partnersApp, envIdentifiers]
 }
 
 async function fetchOrgsAppsAndStores(orgId: string, token: string): Promise<FetchResponse> {
@@ -626,7 +617,7 @@ async function logMetadataForLoadedDevContext(env: DevContextOutput) {
 
 async function logMetadataForLoadedDeployContext(env: DeployContextOutput) {
   await metadata.addPublicMetadata(() => ({
-    partner_id: tryParseInt(env.organization.id),
+    partner_id: tryParseInt(env.partnersApp.organizationId),
     api_key: env.identifiers.app,
   }))
 }

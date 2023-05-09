@@ -26,6 +26,9 @@ export const FindAppQuery = gql`
         subPath
         subPathPrefix
       }
+      betas {
+        unifiedAppDeployment
+      }
     }
   }
 `
@@ -54,6 +57,9 @@ export interface FindAppQuerySchema {
       url: string
       subPath: string
       subPathPrefix: string
+    }
+    betas?: {
+      unifiedAppDeployment?: boolean
     }
   }
 }

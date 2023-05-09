@@ -56,7 +56,7 @@ export enum WebType {
 }
 
 export const WebConfigurationSchema = zod.object({
-  type: zod.enum([WebType.Frontend, WebType.Backend]),
+  type: zod.enum([WebType.Frontend, WebType.Backend]).default(WebType.Frontend),
   webhooksPath: zod.preprocess(ensurePathStartsWithSlash, zod.string()).optional(),
   port: zod.number().max(65536).min(0).optional(),
   commands: zod.object({

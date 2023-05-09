@@ -50,12 +50,14 @@ const EXTENSION_A: UIExtension = {
   surface: 'surface',
   validate: () => Promise.resolve({} as any),
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_A_2: UIExtension = {
@@ -78,12 +80,14 @@ const EXTENSION_A_2: UIExtension = {
   surface: 'surface',
   validate: () => Promise.resolve({} as any),
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const FUNCTION_C: FunctionExtension = {

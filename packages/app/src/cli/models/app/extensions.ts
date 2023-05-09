@@ -66,10 +66,12 @@ export type UIExtension<TConfiguration extends BaseConfigContents = BaseConfigCo
   getBundleExtensionStdinContent(): string
   validate(): Promise<Result<unknown, string>>
   preDeployValidation(): Promise<void>
+  buildValidation(): Promise<void>
   deployConfig(): Promise<{[key: string]: unknown}>
   previewMessage(url: string, storeFqdn: string): TokenizedString | undefined
   shouldFetchCartUrl(): boolean
   hasExtensionPointTarget(target: string): boolean
+  isPreviewable: boolean
 }
 
 export function isUIExtension(spec: GenericSpecification): spec is UIExtensionSpec {

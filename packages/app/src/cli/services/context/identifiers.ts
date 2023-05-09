@@ -3,6 +3,7 @@ import {ensureExtensionsIds} from './identifiers-extensions.js'
 import {AppInterface} from '../../models/app/app.js'
 import {Identifiers, IdentifiersExtensions} from '../../models/app/identifiers.js'
 import {fetchAppExtensionRegistrations} from '../dev/fetch.js'
+import {OrganizationApp} from '../../models/organization.js'
 import {PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {AbortError, AbortSilentError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputToken} from '@shopify/cli-kit/node/output'
@@ -14,6 +15,7 @@ export interface EnsureDeploymentIdsPresenceOptions {
   appName: string
   envIdentifiers: Partial<Identifiers>
   force: boolean
+  partnersApp?: OrganizationApp
 }
 
 export interface RemoteSource {
@@ -34,7 +36,7 @@ export type MatchingError = 'pending-remote' | 'invalid-environment' | 'user-can
 
 export async function ensureDeploymentIdsPresence(options: EnsureDeploymentIdsPresenceOptions) {
   // We need local extensions to deploy
-  if (!options.app.hasExtensions()) return {app: options.appId, extensions: {}, extensionIds: {}}
+  // if (!options.app.hasExtensions()) return {app: options.appId, extensions: {}, extensionIds: {}}
 
   const remoteSpecifications = await fetchAppExtensionRegistrations({token: options.token, apiKey: options.appId})
 

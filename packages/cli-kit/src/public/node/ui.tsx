@@ -15,6 +15,7 @@ import {Tasks, Task} from '../../private/node/ui/components/Tasks.js'
 import {TextPrompt, TextPromptProps} from '../../private/node/ui/components/TextPrompt.js'
 import {AutocompletePromptProps, AutocompletePrompt} from '../../private/node/ui/components/AutocompletePrompt.js'
 import {InlineToken, LinkToken, TokenItem} from '../../private/node/ui/components/TokenizedText.js'
+import {InfoTableSection} from '../../private/node/ui/components/Prompts/InfoTable.js'
 import React from 'react'
 import {Key as InkKey, RenderOptions} from 'ink'
 
@@ -34,7 +35,7 @@ export interface RenderConcurrentOptions extends PartialBy<ConcurrentOutputProps
  * 0000-00-00 00:00:00 │ frontend │ second frontend message
  * 0000-00-00 00:00:00 │ frontend │ third frontend message
  *
- * › Press p │ open your browser
+ * › Press p │ preview in your browser
  * › Press q │ quit.
  *
  * Preview URL: https://shopify.com
@@ -250,6 +251,7 @@ export interface RenderConfirmationPromptOptions extends Pick<SelectPromptProps<
   cancellationMessage?: string
   renderOptions?: RenderOptions
   confirmByDefault?: boolean
+  defaultValue?: boolean
 }
 
 /**
@@ -273,6 +275,7 @@ export function renderConfirmationPrompt({
   cancellationMessage = 'No, cancel',
   renderOptions,
   confirmByDefault = true,
+  defaultValue = true,
 }: RenderConfirmationPromptOptions): Promise<boolean> {
   const choices = [
     {
@@ -297,6 +300,7 @@ export function renderConfirmationPrompt({
     infoTable,
     submitWithShortcuts: true,
     renderOptions,
+    defaultValue,
   })
 }
 
@@ -463,4 +467,4 @@ export const keypress = async () => {
 }
 
 export type Key = InkKey
-export {Task, TokenItem, InlineToken, LinkToken, TableColumn}
+export {Task, TokenItem, InlineToken, LinkToken, TableColumn, InfoTableSection}

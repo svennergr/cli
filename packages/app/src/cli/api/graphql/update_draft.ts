@@ -9,7 +9,6 @@ export const ExtensionUpdateDraftMutation = gql`
         registrationId
         context
         lastUserInteractionAt
-        location
         validationErrors {
           field
           message

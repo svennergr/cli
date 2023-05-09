@@ -81,6 +81,7 @@ const EXTENSION_A: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -88,6 +89,7 @@ const EXTENSION_A: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_A_2: UIExtension = {
@@ -109,6 +111,7 @@ const EXTENSION_A_2: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -116,6 +119,7 @@ const EXTENSION_A_2: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_B: UIExtension = {
@@ -139,11 +143,13 @@ const EXTENSION_B: UIExtension = {
   surface: 'surface',
   validate: () => Promise.resolve({} as any),
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_B_2: UIExtension = {
@@ -165,6 +171,7 @@ const EXTENSION_B_2: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -172,6 +179,7 @@ const EXTENSION_B_2: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_C: UIExtension = {
@@ -193,6 +201,7 @@ const EXTENSION_C: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -200,6 +209,7 @@ const EXTENSION_C: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: true,
 }
 
 const EXTENSION_D: UIExtension = {
@@ -221,6 +231,7 @@ const EXTENSION_D: UIExtension = {
   externalType: 'checkout_ui',
   surface: 'surface',
   preDeployValidation: () => Promise.resolve(),
+  buildValidation: () => Promise.resolve(),
   deployConfig: () => Promise.resolve({}),
   previewMessage: (_) => undefined,
   publishURL: (_) => Promise.resolve(''),
@@ -228,6 +239,7 @@ const EXTENSION_D: UIExtension = {
   getBundleExtensionStdinContent: () => '',
   shouldFetchCartUrl: () => true,
   hasExtensionPointTarget: (target: string) => true,
+  isPreviewable: false,
 }
 
 const FUNCTION_A: FunctionExtension = {
