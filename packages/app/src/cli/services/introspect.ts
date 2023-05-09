@@ -152,6 +152,8 @@ async function introspect(args: any) {
             const mutationDocument = getDocumentDefinition(definitions);
 
 
+            // ideally we could be smarter about which fields to put into the document, etc
+            // we'd then write these files to the api directory
             const printedDocument = print(mutationDocument);
             console.log({printedDocument})
 
