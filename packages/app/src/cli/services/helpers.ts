@@ -70,7 +70,7 @@ export function getTypeName(type: TypeNode): string {
     };
   }
 
-let isFirst = true;
+  // recurse through the ast and build the document
 export const generateFieldsAndVarsForMutation = ({
     node,
     parentNode = null,
@@ -118,10 +118,6 @@ export const generateFieldsAndVarsForMutation = ({
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
 
-      if (!field.name.value.includes("userErrors") && isFirst) return;
-
-      isFirst = false;
-
       // if (!isNonNullType(field.type)) return
 
       if (fieldTyping?.getFields) {
@@ -142,8 +138,6 @@ export const generateFieldsAndVarsForMutation = ({
         selectionSet.selections.push(selection);
       }
     });
-
-    isFirst = true;
 
     return { selections, variableDefinitionsMap };
   };
