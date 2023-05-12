@@ -230,4 +230,36 @@ describe('commandNotFound hook', () => {
     // Then
     expect(got).toBe('app:build')
   })
+
+  test.each([
+    {
+      input: 'switch',
+      cmds: ['kitchen-sink:async'],
+      out: undefined,
+    },
+    {
+      input: 'kitchen-sync:async',
+      cmds: ['kitchen-sink:async', 'kitchen-sink:other'],
+      out: 'kitchen-sink:async',
+    },
+  ])('given $input and searching $cmds, returns $out', ({input, cmds, out}) => {
+    // Given
+    const config: Config = buildConfig(
+      cmds.map((id) => ({
+        id,
+        hidden: false,
+        aliases: [],
+      })),
+    )
+
+    // When
+    const got = findAlternativeCommand({
+      id: input,
+      argv: [],
+      config: config as any,
+    })
+
+    // Then
+    expect(got).toBe(out)
+  })
 })

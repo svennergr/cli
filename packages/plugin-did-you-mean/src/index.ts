@@ -42,8 +42,8 @@ export function findAlternativeCommand(opts: Parameters<Hook.CommandNotFound>[0]
       const commandBigram = bigram(cmd)
       return {score: relativeScore(commandBigram, userCommandBigrams), cmd}
     })
-    // only choose commands that have at least two bigrams in common
-    .filter(({score}) => score >= 2)
+    // only choose commands that have a number of bigrams in common
+    .filter(({score}) => score >= 4)
     .sort((first, second) => {
       // highest score is better, so we sort descending
       const scoreDifference = second.score - first.score
