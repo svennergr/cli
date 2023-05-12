@@ -44,15 +44,21 @@ export async function bundleAndBuildExtensions(options: BundleOptions) {
             ...options.app,
             extensions: {
               ...options.app.extensions,
-              ui: options.app.extensions.ui.map((uiExtension) => {
-                const extensionId = options.identifiers.extensions[uiExtension.localIdentifier]!
-                uiExtension.outputBundlePath = joinPath(
-                  bundleDirectory,
-                  extensionId,
-                  basename(uiExtension.outputBundlePath),
-                )
-                return uiExtension
-              }),
+              ui: options.app.extensions.ui
+                .filter((uiExtension) => {
+                  // excluding flow action definition extensions from being built.
+                  return !['flow_template'].includes(uiExtension.type)
+                  // return uiExtension.type !== 'flow_action_definition'
+                })
+                .map((uiExtension) => {
+                  const extensionId = options.identifiers.extensions[uiExtension.localIdentifier]!
+                  uiExtension.outputBundlePath = joinPath(
+                    bundleDirectory,
+                    extensionId,
+                    basename(uiExtension.outputBundlePath),
+                  )
+                  return uiExtension
+                }),
             },
           },
         })),
