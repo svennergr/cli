@@ -1,7 +1,33 @@
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
-import {renderFatalError, renderInfo, renderSuccess, renderTable, renderWarning} from '@shopify/cli-kit/node/ui'
+import {renderButton, renderFatalError, renderInfo, renderSuccess, renderTable, renderWarning} from '@shopify/cli-kit/node/ui'
 
 export async function staticService() {
+  [true, false].forEach((active) => {
+    renderButton({
+      text: 'Accept',
+      role: 'primary',
+      active,
+    })
+
+    renderButton({
+      text: 'Review T&C',
+      role: 'secondary',
+      active,
+    })
+
+    renderButton({
+      text: 'Cancel',
+      role: 'cancel',
+      active,
+    })
+
+    renderButton({
+      text: 'Danger',
+      role: 'warning',
+      active,
+    })
+  })
+
   // Banners
   renderInfo({
     headline: 'CLI update available.',
