@@ -4,25 +4,25 @@ import {renderButton, renderFatalError, renderInfo, renderSuccess, renderTable, 
 export async function staticService() {
   [true, false].forEach((active) => {
     renderButton({
-      text: 'Accept',
+      label: 'Accept',
       role: 'primary',
       active,
     })
 
     renderButton({
-      text: 'Review T&C',
+      label: 'Review T&C',
       role: 'secondary',
       active,
     })
 
     renderButton({
-      text: 'Cancel',
+      label: 'Cancel',
       role: 'cancel',
       active,
     })
 
     renderButton({
-      text: 'Danger',
+      label: 'Danger',
       role: 'warning',
       active,
     })

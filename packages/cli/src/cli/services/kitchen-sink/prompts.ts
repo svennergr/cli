@@ -1,4 +1,5 @@
 import {
+  renderButtonSelectPrompt,
   renderAutocompletePrompt,
   renderConfirmationPrompt,
   renderSelectPrompt,
@@ -6,6 +7,19 @@ import {
 } from '@shopify/cli-kit/node/ui'
 
 export async function prompts() {
+  //renderButtonSelectPrompt
+  await renderButtonSelectPrompt({
+    message: 'What is your favourite ice cream?',
+    choices: [
+      {label: "I don't like ice cream", value: 'none', role: 'cancel'},
+      {label: 'Mint', value: 'mint', role: 'warning'},
+      {label: 'Strawberry', value: 'strawberry', role: 'secondary'},
+      {label: 'Vanilla', value: 'vanilla', role: 'primary'},
+      {label: 'Chocolate', value: 'chocolate', role: 'primary'},
+    ],
+    defaultValue: 'chocolate',
+  })
+
   // renderSelectPrompt
   await renderSelectPrompt({
     message: 'Associate your project with the org Castile Ventures?',
