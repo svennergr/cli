@@ -10,6 +10,7 @@ import {alert, AlertOptions} from '../../private/node/ui/alert.js'
 import {Alert, AlertProps, CustomSection} from '../../private/node/ui/components/Alert.js'
 import {FatalError} from '../../private/node/ui/components/FatalError.js'
 import {FullScreen} from '../../private/node/ui/components/FullScreen.js'
+import {Button, ButtonProps} from '../../private/node/ui/components/Button.js'
 import ScalarDict from '../../private/node/ui/components/Table/ScalarDict.js'
 import {Table, TableColumn, TableProps} from '../../private/node/ui/components/Table/Table.js'
 import {SelectPrompt, SelectPromptProps} from '../../private/node/ui/components/SelectPrompt.js'
@@ -535,6 +536,18 @@ export const keypress = async () => {
     process.stdin.setRawMode(true)
     process.stdin.once('data', handler)
   })
+}
+
+
+interface RenderButtonOptions extends ButtonProps {
+  renderOptions?: RenderOptions
+}
+
+export function renderButton({renderOptions, ...props}: RenderButtonOptions) {
+  return renderOnce(
+    <Button {...props} />,
+    {logLevel: 'error', logger: consoleError, renderOptions}
+  )
 }
 
 export type Key = InkKey
