@@ -4,7 +4,7 @@ import React, {FunctionComponent} from 'react'
 export type ButtonRole = 'primary' | 'secondary' | 'cancel' | 'warning'
 
 export interface ButtonProps {
-  text: string
+  label: string
   role: ButtonRole
   active?: boolean
 }
@@ -12,25 +12,25 @@ export interface ButtonProps {
 function roleToColors(type: ButtonProps['role']) {
   return {
     primary: {
-      foreground: 'white',
+      foreground: 'whiteBright',
       background: 'green',
     },
     secondary: {
-      foreground: 'white',
+      foreground: 'whiteBright',
       background: 'blue',
     },
     cancel: {
-      foreground: 'white',
+      foreground: 'whiteBright',
       background: 'gray',
     },
     warning: {
-      foreground: 'white',
+      foreground: 'whiteBright',
       background: 'red',
     }
   }[type]
 }
 
-const Button: FunctionComponent<ButtonProps> = ({text, role, active}) => {
+const Button: FunctionComponent<ButtonProps> = ({label, role, active}) => {
   const {foreground, background} = roleToColors(role)
   return (
     <Box
@@ -47,9 +47,9 @@ const Button: FunctionComponent<ButtonProps> = ({text, role, active}) => {
           color={foreground}
           backgroundColor={background}
         >
-          {`${''.padStart(text.length + 4)}\n`}
-          {` ${active ? '⏵' : ' '}${text}${active ? '⏴' : ' '} \n`}
-          {`${''.padStart(text.length + 4)}`}
+          {`${''.padStart(label.length + 4)}\n`}
+          {` ${active ? '⏵' : ' '}${label}${active ? '⏴' : ' '} \n`}
+          {`${''.padStart(label.length + 4)}`}
         </Text>
       </Box>
     </Box>

@@ -13,6 +13,7 @@ import {FullScreen} from '../../private/node/ui/components/FullScreen.js'
 import {Button, ButtonProps} from '../../private/node/ui/components/Button.js'
 import ScalarDict from '../../private/node/ui/components/Table/ScalarDict.js'
 import {Table, TableColumn, TableProps} from '../../private/node/ui/components/Table/Table.js'
+import {ButtonSelectPrompt, ButtonSelectPromptProps} from '../../private/node/ui/components/ButtonSelectPrompt.js'
 import {SelectPrompt, SelectPromptProps} from '../../private/node/ui/components/SelectPrompt.js'
 import {Tasks, Task} from '../../private/node/ui/components/Tasks.js'
 import {TextPrompt, TextPromptProps} from '../../private/node/ui/components/TextPrompt.js'
@@ -548,6 +549,21 @@ export function renderButton({renderOptions, ...props}: RenderButtonOptions) {
     <Button {...props} />,
     {logLevel: 'error', logger: consoleError, renderOptions}
   )
+}
+
+interface RenderButtonSelectPromptOptions<T> extends Omit<ButtonSelectPromptProps<T>, 'onSubmit'> {
+  renderOptions?: RenderOptions
+}
+
+export function renderButtonSelectPrompt<T>({renderOptions, ...props}: RenderButtonSelectPromptOptions<T>) {
+  return new Promise((resolve, reject) => {
+    render(<ButtonSelectPrompt {...props} onSubmit={(value: T) => resolve(value)} />, {
+      ...renderOptions,
+      exitOnCtrlC: false,
+    })
+      .catch(reject)
+      .finally(resetRecordedSleep)
+  })
 }
 
 export type Key = InkKey
