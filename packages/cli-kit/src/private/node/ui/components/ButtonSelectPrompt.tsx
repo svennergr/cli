@@ -12,6 +12,8 @@ interface Choice<T> {
   label: string
   value: T
   role: ButtonProps['role']
+  submittable?: boolean
+  callback?: () => void
 }
 
 export interface ButtonSelectPromptProps<T> {
@@ -45,9 +47,16 @@ function ButtonSelectPrompt<T>({
 
   const submitAnswer = useCallback(
     (answer: Choice<T>) => {
-      setSubmitted(true)
-      unmountInk()
-      onSubmit(answer.value)
+      if (answer.callback) {
+        answer.callback()
+      }
+      // If the answer is not submittable, we don't want to submit it.
+      // Only an explicit submittable: false will prevent submission.
+      if (answer.submittable !== false) {
+        setSubmitted(true)
+        unmountInk()
+        onSubmit(answer.value)
+      }
     },
     [stdout, unmountInk, onSubmit],
   )

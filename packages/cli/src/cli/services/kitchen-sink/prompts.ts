@@ -1,13 +1,44 @@
 import {
   renderButtonSelectPrompt,
+  renderButtonSelectModal,
   renderAutocompletePrompt,
   renderConfirmationPrompt,
   renderSelectPrompt,
   renderTextPrompt,
 } from '@shopify/cli-kit/node/ui'
+import {renderSuccess} from '@shopify/cli-kit/node/ui'
+import {AbortError} from '@shopify/cli-kit/node/error'
+import {openURL} from '@shopify/cli-kit/node/system'
 
 export async function prompts() {
   //renderButtonSelectPrompt
+  const agreed = await renderButtonSelectModal({
+    message: 'The Shopify Partner Program Agreement has changed.\n\nTo continue, accept the updated Partner Program Agreement',
+    choices: [
+      {label: "Decline", value: 'none', role: 'cancel'},
+      {
+        label: 'View updated agreement',
+        value: 'view',
+        role: 'secondary',
+        submittable: false,
+        callback: () => {
+          openURL('https://www.shopify.com/partners/terms')
+        },
+      },
+      {label: 'Accept', value: 'accept', role: 'primary'},
+    ],
+    defaultValue: 'view',
+  })
+  if (agreed === 'accept') {
+    renderSuccess({
+      body: 'You have accepted the Partner Program Agreement.',
+    })
+    return
+  } else {
+    throw new AbortError('You must accept the Partner Program Agreement to continue.')
+  }
+
+  renderButtonSelectPrompt
   await renderButtonSelectPrompt({
     message: 'What is your favourite ice cream?',
     choices: [

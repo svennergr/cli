@@ -3,7 +3,8 @@ import {Box, useApp, useInput, useStdout} from 'ink'
 import React, {FunctionComponent, useEffect, useRef, useState} from 'react'
 
 interface FullScreenProps {
-  closeOnKey: string
+  closeOnKey?: string
+  inputCallback?: (key: string) => boolean
 }
 
 /**
@@ -11,7 +12,7 @@ interface FullScreenProps {
  * - You want to preserve terminal history. `ink` [normally clears the terminal history](https://github.com/vadimdemedes/ink/issues/382) if the rendered output is taller than the terminal window. By rendering in a separate buffer history will be preserved and will be visible after pressing `Ctrl+C`.
  * - You want to respond to the resize event of the terminal. Whenever the user resizes their terminal window the output's height and width will be recalculated and re-rendered properly.
  */
-const FullScreen: FunctionComponent<FullScreenProps> = ({children, closeOnKey}): JSX.Element => {
+const FullScreen: FunctionComponent<FullScreenProps> = ({children, closeOnKey, inputCallback}): JSX.Element => {
   const {stdout} = useStdout()
   const {exit: unmount} = useApp()
   const isFirstRender = useRef(true)
@@ -25,7 +26,9 @@ const FullScreen: FunctionComponent<FullScreenProps> = ({children, closeOnKey}):
   useInput((input, key) => {
     handleCtrlC(input, key)
 
-    if (input === closeOnKey) {
+    if (inputCallback && inputCallback(input)) {
+      unmount()
+    } else if (closeOnKey && input === closeOnKey) {
       unmount()
     }
   })

@@ -8,6 +8,7 @@ import {ConcurrentOutput, ConcurrentOutputProps} from '../../private/node/ui/com
 import {render, renderOnce} from '../../private/node/ui.js'
 import {alert, AlertOptions} from '../../private/node/ui/alert.js'
 import {Alert, AlertProps, CustomSection} from '../../private/node/ui/components/Alert.js'
+import {Banner} from '../../private/node/ui/components/banner.js'
 import {FatalError} from '../../private/node/ui/components/FatalError.js'
 import {FullScreen} from '../../private/node/ui/components/FullScreen.js'
 import {Button, ButtonProps} from '../../private/node/ui/components/Button.js'
@@ -561,6 +562,21 @@ export function renderButtonSelectPrompt<T>({renderOptions, ...props}: RenderBut
       ...renderOptions,
       exitOnCtrlC: false,
     })
+      .catch(reject)
+      .finally(resetRecordedSleep)
+  })
+}
+
+export function renderButtonSelectModal<T>({renderOptions, ...props}: RenderButtonSelectPromptOptions<T>) {
+  return new Promise((resolve, reject) => {
+    render(
+      <FullScreen>
+        <Banner type="info">
+          <ButtonSelectPrompt {...props} onSubmit={(value: T) => resolve(value)} />
+        </Banner>
+      </FullScreen>,
+      renderOptions,
+    )
       .catch(reject)
       .finally(resetRecordedSleep)
   })
