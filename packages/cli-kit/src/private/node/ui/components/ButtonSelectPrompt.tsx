@@ -61,13 +61,13 @@ function ButtonSelectPrompt<T>({
       submitAnswer(answer)
     }
 
-    if (key.rightArrow || key.downArrow) {
+    if (key.rightArrow || key.downArrow || (key.tab && !key.shift)) {
       const currentIndex = choices.findIndex((c) => c.value === answer.value)
       const nextIndex = (currentIndex + 1) % choices.length
       setAnswer(choices[nextIndex]!)
     }
 
-    if (key.leftArrow || key.upArrow) {
+    if (key.leftArrow || key.upArrow || (key.tab && key.shift)) {
       const currentIndex = choices.findIndex((c) => c.value === answer.value)
       const nextIndex = (currentIndex - 1 + choices.length) % choices.length
       setAnswer(choices[nextIndex]!)
