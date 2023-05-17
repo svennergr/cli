@@ -1,13 +1,14 @@
-import Command from '../../utilities/app-command.js'
-import {appFlags} from '../../flags.js'
-import {clearAllInfo, getCurrentToml, setCurrentToml} from '../../services/local-storage.js'
-import {tomlFilePath} from '../../models/app/loader.js'
-import connect from '../../services/app/link.js'
+import Command from '../../../utilities/app-command.js'
+import {appFlags} from '../../../flags.js'
+import {clearAllInfo, getCurrentToml, setCurrentToml} from '../../../services/local-storage.js'
+import {tomlFilePath} from '../../../models/app/loader.js'
+import connect from '../../../services/app/config/link.js'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 import {Args, Config, Flags} from '@oclif/core'
 import {renderSelectPrompt, renderSuccess} from '@shopify/cli-kit/node/ui'
 import {relativePath} from '@shopify/cli-kit/node/path'
 import {promises, readFileSync} from 'fs'
+// eslint-disable-next-line no-restricted-imports
 import path from 'path'
 
 export default class Use extends Command {

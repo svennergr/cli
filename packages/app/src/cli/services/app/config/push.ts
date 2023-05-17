@@ -1,11 +1,15 @@
-import {fetchSpecifications} from '../generate/fetch-extension-specifications.js'
-import {load, writeConfigurationFile} from '../../models/app/loader.js'
-import {AppInterface} from '../../models/app/app.js'
-import {AppUpdateMutation, AppUpdateMutationSchema, AppUpdateMutationVariables} from '../../api/graphql/app_update.js'
-import {ensureDevContext} from '../context.js'
-import {mergeAppConfiguration} from '../merge-configuration.js'
-import {OrganizationApp} from '../../models/organization.js'
-import {generatePartnersURLs} from '../dev/urls.js'
+import {fetchSpecifications} from '../../generate/fetch-extension-specifications.js'
+import {load, writeConfigurationFile} from '../../../models/app/loader.js'
+import {AppInterface} from '../../../models/app/app.js'
+import {
+  AppUpdateMutation,
+  AppUpdateMutationSchema,
+  AppUpdateMutationVariables,
+} from '../../../api/graphql/app_update.js'
+import {ensureDevContext} from '../../context.js'
+import {mergeAppConfiguration} from '../../merge-configuration.js'
+import {OrganizationApp} from '../../../models/organization.js'
+import {generatePartnersURLs} from '../../dev/urls.js'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {Config} from '@oclif/core'
 import {AbortError} from '@shopify/cli-kit/node/error'

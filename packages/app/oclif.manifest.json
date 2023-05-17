@@ -343,8 +343,8 @@
       },
       "args": {}
     },
-    "app:update": {
-      "id": "app:update",
+    "app:config:push": {
+      "id": "app:config:push",
       "description": "Update your toml configuration to the Partners Dashboard.",
       "strict": true,
       "pluginName": "@shopify/app",
@@ -373,8 +373,8 @@
         }
       }
     },
-    "app:link": {
-      "id": "app:link",
+    "app:config:link": {
+      "id": "app:config:link",
       "description": "Link your shopify app configuration to this codebase.",
       "strict": true,
       "pluginName": "@shopify/app",
@@ -399,9 +399,9 @@
       },
       "args": {}
     },
-    "app:use": {
-      "id": "app:use",
-      "description": "Choose which toml file to use.",
+    "app:config:use": {
+      "id": "app:config:use",
+      "description": "Choose which configuration toml file to use.",
       "strict": true,
       "pluginName": "@shopify/app",
       "pluginAlias": "@shopify/app",

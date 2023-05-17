@@ -1,6 +1,6 @@
-import Command from '../../utilities/app-command.js'
-import {appFlags} from '../../flags.js'
-import link, {LinkOptions} from '../../services/app/link.js'
+import Command from '../../../utilities/app-command.js'
+import {appFlags} from '../../../flags.js'
+import link, {LinkOptions} from '../../../services/app/config/link.js'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 
 export default class Link extends Command {
