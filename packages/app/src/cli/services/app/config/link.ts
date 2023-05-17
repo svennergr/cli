@@ -16,13 +16,7 @@ export interface LinkOptions {
 
 export default async function link(options: LinkOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
-  const {
-    app: remoteApp,
-    appEnv,
-    organization,
-    store,
-    updateable,
-  } = await selectOrgStoreAppEnvUpdateable(token, options.directory)
+  const {app: remoteApp, appEnv} = await selectOrgStoreAppEnvUpdateable(token, options.directory)
 
   const fileAlreadyExists = await fileExists(tomlFilePath(options.directory, appEnv))
 
@@ -32,9 +26,6 @@ export default async function link(options: LinkOptions): Promise<void> {
   const app = await load({directory: options.directory, specifications, allowEmpty: true})
   app.configuration.remoteShopifyApp = {
     apiKey: remoteApp.apiKey,
-    organizationId: organization.id,
-    devStore: store.shopDomain,
-    noUpdate: !updateable,
   }
 
   const mergedLocalApp = mergeAppConfiguration(app, remoteApp)

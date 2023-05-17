@@ -14,9 +14,6 @@ export const AppConfigurationSchema = zod.object({
   remoteShopifyApp: zod
     .object({
       apiKey: zod.string(),
-      organizationId: zod.string(),
-      devStore: zod.string(),
-      noUpdate: zod.boolean(),
     })
     .optional(),
 

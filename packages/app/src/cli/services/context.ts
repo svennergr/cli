@@ -23,7 +23,7 @@ import {load, loadAppName, tomlFilePath} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {renderConfirmationPrompt, renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
@@ -141,9 +141,7 @@ export async function ensureDevContext(
   const cachedInfo: CachedAppInfo = {
     appId: localApp.configuration.remoteShopifyApp?.apiKey,
     directory: options.directory,
-    orgId: localApp.configuration.remoteShopifyApp?.organizationId,
     appEnv: options.appEnv || '',
-    storeFqdn: localApp.configuration.remoteShopifyApp?.devStore,
   }
 
   if (cachedInfo === undefined && !options.reset) {
@@ -202,13 +200,7 @@ export async function ensureDevContext(
 
   if (selectedApp.apiKey === cachedInfo?.appId && selectedStore.shopDomain === cachedInfo.storeFqdn) {
     const packageManager = await getPackageManager(options.directory)
-    showReusedValues(
-      organization.businessName,
-      {...cachedInfo, title: selectedApp.title},
-      packageManager,
-      silent,
-      localApp.configuration.remoteShopifyApp?.noUpdate ?? true,
-    )
+    showReusedValues(organization.businessName, {...cachedInfo, title: selectedApp.title}, packageManager, silent)
   }
 
   const result = buildOutput(selectedApp, selectedStore, useCloudflareTunnels, cachedInfo)
@@ -224,21 +216,9 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
 
   const app = await selectOrCreateApp('', apps, organization, token)
 
-  const allStores = await fetchAllDevStores(orgId, token)
-
-  const store = await selectStore(allStores, organization, token)
-
   const appEnv = await renderTextPrompt({
     message: 'Configuration name:',
     allowEmpty: true,
-  })
-
-  const updateable = await renderConfirmationPrompt({
-    message:
-      'Should this configuration be updated when running shopify app dev? (recommended: no for live apps installed on merchant stores)',
-    cancellationMessage: 'No, never update configuration when running shopify app dev',
-    confirmationMessage: 'Yes, always update app configuration when running shopify app dev',
-    confirmByDefault: false,
   })
 
   setOrgInfo({
@@ -250,10 +230,9 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
     appId: app.apiKey,
     directory,
     appEnv,
-    storeFqdn: store.shopDomain,
     orgId,
   })
-  return {organization, app, store, appEnv, updateable}
+  return {organization, app, appEnv}
 }
 
 const resetHelpMessage = 'You can pass `--reset` to your command to reset your config.'
@@ -552,7 +531,6 @@ function showReusedValues(
   cachedAppInfo: CachedAppInfo,
   packageManager: PackageManager,
   silent: boolean,
-  noUpdate?: boolean,
 ): void {
   if (silent) return
   let updateURLs = 'Not yet configured'
@@ -565,8 +543,7 @@ function showReusedValues(
     `Org:           ${org}`,
     `App:           ${cachedAppInfo.title}`,
     `Dev store:     ${cachedAppInfo.storeFqdn}`,
-    `Update config: ${noUpdate ? 'No' : 'Yes'}`,
-    `Update URLs:   ${noUpdate ? 'No' : updateURLs}`,
+    `Update URLs:   ${updateURLs}`,
   ]
 
   if (cachedAppInfo.tunnelPlugin) items.push(`Tunnel:       ${cachedAppInfo.tunnelPlugin}`)

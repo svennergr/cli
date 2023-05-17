@@ -104,7 +104,7 @@ async function dev(options: DevOptions) {
   //   outputInfo('Using a different app than last time, sending uninstall webhook to app server')
   // }
 
-  const shouldUpdate = options.update && !appConfig.remoteShopifyApp?.noUpdate
+  const shouldUpdate = options.update
 
   const initiateUpdateUrls = shouldUpdate
   let shouldUpdateURLs = false
@@ -149,7 +149,7 @@ async function dev(options: DevOptions) {
     await pushAndWriteConfig(localApp, apiKey, token)
     renderInfo({headline: 'Updated app configuration'})
   } else {
-    renderWarning({headline: 'Did not update app configuration because noUpdate = true'})
+    renderWarning({headline: 'Did not update app configuration'})
   }
 
   if (localApp.extensions.ui.length > 0) {
