@@ -12,7 +12,15 @@ import {
 import {convertToTestStoreIfNeeded, selectStore} from './dev/select-store.js'
 import {ensureDeploymentIdsPresence} from './context/identifiers.js'
 import {createExtension, ExtensionRegistration} from './dev/create-extension.js'
-import {CachedAppInfo, clearAppInfo, getAppInfo, getOrganization, setAppInfo, setOrgInfo} from './local-storage.js'
+import {
+  CachedAppInfo,
+  clearAppInfo,
+  getAppInfo,
+  getOrganization,
+  setAppInfo,
+  setCurrentToml,
+  setOrgInfo,
+} from './local-storage.js'
 import {reuseDevConfigPrompt, selectOrganizationPrompt} from '../prompts/dev.js'
 import {AppInterface} from '../models/app/app.js'
 import {Identifiers, UuidOnlyIdentifiers, updateAppIdentifiers, getAppIdentifiers} from '../models/app/identifiers.js'
@@ -23,11 +31,17 @@ import {load, loadAppName, tomlFilePath} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {renderInfo, renderTasks, renderTextPrompt, renderConfirmationPrompt} from '@shopify/cli-kit/node/ui'
+import {
+  renderInfo,
+  renderTasks,
+  renderTextPrompt,
+  renderConfirmationPrompt,
+  renderSuccess,
+} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
-import {relativizePath} from '@shopify/cli-kit/node/path'
+import {relativePath, relativizePath} from '@shopify/cli-kit/node/path'
 import {fileExists} from '@shopify/cli-kit/node/fs'
 
 export const InvalidApiKeyErrorMessage = (apiKey: string) => {
@@ -248,6 +262,25 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
 
   if (fileAlreadyExists && !overwriteFile) {
     await renderMessage()
+  }
+
+  const useAsActiveConfig = await renderConfirmationPrompt({
+    message: `shopify.app.${appEnv}.toml created. Use as current active configuration?`,
+    confirmationMessage: `Yes, use shopify.app.${appEnv}.toml`,
+    cancellationMessage: "No, I'll manage this myself",
+  })
+
+  if (useAsActiveConfig) {
+    setCurrentToml({
+      directory,
+      toml: appEnv,
+    })
+
+    const file = tomlFilePath(directory, appEnv)
+
+    renderSuccess({
+      headline: `Using file ${relativePath(directory, file)}`,
+    })
   }
 
   setOrgInfo({
