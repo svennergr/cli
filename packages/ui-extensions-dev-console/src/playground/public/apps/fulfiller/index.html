@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Fulfiller</title>
+  <link rel="stylesheet" href="https://unpkg.com/@shopify/polaris@10.13.0/build/esm/styles.css" />
+  <script type="module" src="/assets/appbridge.js" crossorigin></script>
+</head>
+
+<body>
+  <div class="Polaris-Page">
+    <div class="Polaris-Page-Header Polaris-Page-Header--isSingleRow Polaris-Page-Header--noBreadcrumbs Polaris-Page-Header--mediumTitle">
+    </div>
+    <div class="Polaris-Card">
+      <div class="Polaris-CalloutCard__Container">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-CalloutCard">
+            <div class="Polaris-CalloutCard__Content">
+              <div class="Polaris-CalloutCard__Title">
+                <h2 class="Polaris-Text--root Polaris-Text--headingMd Polaris-Text--semibold">Order Fulfiller</h2>
+              </div>
+              <div class="Polaris-TextContainer">
+                <p>Fulfill orders here.</p>
+              </div>
+              <div class="Polaris-CalloutCard__Buttons">
+                <button class="Polaris-Button" onclick="shopify.toast.show('Hello from Fulfiller')">
+                  <span class="Polaris-Button__Content">
+                    <span class="Polaris-Button__Text">Show a Toast</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <img src="https://cdn.shopify.com/s/assets/admin/checkout/settings-customizecart-705f57c725ac05be5a34ec20c05b94298cb8afd10aac7bd9c7ad02030f48cfa0.svg" class="Polaris-CalloutCard__Image">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

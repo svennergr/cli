@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Non-embedded Seller</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@shopify/polaris@10.13.0/build/esm/styles.css"
+    />
+    <script type="module" src="/assets/appbridge.js" crossorigin></script>
+  </head>
+  <body>
+    <div
+      class="Polaris-SkeletonPage__Page"
+      role="status"
+      aria-label="Page loading"
+    >
+      <div class="Polaris-SkeletonPage__Content">
+        <div class="Polaris-Layout">
+          <div class="Polaris-Layout__Section">
+            <div class="Polaris-Card">
+              <div class="Polaris-Card__Section">
+                <div class="Polaris-Text--headingMd">
+                  <button class="Polaris-Button Polaris-Button--primary" onclick="shopify.toast.show('Hello from a non-embedded app.')">
+                    <span class="Polaris-Button__Content">
+                      <span class="Polaris-Button__Text">Show a toast</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <script type="module"></script>
+  </body>
+</html>

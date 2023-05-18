@@ -28,7 +28,7 @@ export function PreviewLinks({extension}: Props) {
 
     return (
       <>
-        {titleMarkup}
+        {titleMarkup} - test -
         <span className={classNames(hasMultiple && styles.PreviewLinks)}>
           {extension.extensionPoints?.map((extensionPoint) => {
             if (typeof extensionPoint === 'string') {

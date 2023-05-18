@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Inbox</title>
+  <link rel="stylesheet" href="https://unpkg.com/@shopify/polaris@10.13.0/build/esm/styles.css" />
+  <!-- note: this app is not using "app bridge" (to verify loading termination still works) -->
+  <!-- <script type="module" src="/assets/appbridge.js" crossorigin></script> -->
+</head>
+
+<body>
+  <div class="Polaris-Page">
+    <div class="Polaris-Card">
+      <div class="Polaris-IndexTable">
+        <div class="Polaris-IndexTable__StickyTable" role="presentation">
+          <div>
+            <div></div>
+            <div>
+              <div class="Polaris-IndexTable__StickyTableHeader">
+                <div class="Polaris-IndexTable__StickyTableColumnHeader">
+                  <div class="Polaris-IndexTable__TableHeading" data-index-table-sticky-heading="true"
+                    style="min-width: 227px">
+                    <div
+                      class="Polaris-Stack Polaris-Stack--spacingNone Polaris-Stack--alignmentCenter Polaris-Stack--noWrap">
+                      <div class="Polaris-Stack__Item">
+                        <div class="Polaris-IndexTable__FirstStickyHeaderElement" style="min-width: calc(22px)">
+                          <div class="Polaris-IndexTable__ColumnHeaderCheckboxWrapper">
+                            <label class="Polaris-Choice Polaris-Choice--labelHidden" for="PolarisCheckbox2">
+                              <span class="Polaris-Choice__Control">
+                                <span class="Polaris-Checkbox">
+                                  <input id="PolarisCheckbox2" type="checkbox" class="Polaris-Checkbox__Input"
+                                    aria-invalid="false" role="checkbox" aria-checked="false" value="" />
+                                  <span class="Polaris-Checkbox__Backdrop">
+                                  </span>
+                                  <span class="Polaris-Checkbox__Icon">
+                                    <span class="Polaris-Icon">
+                                      <span
+                                        class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--regular Polaris-Text--visuallyHidden">
+                                      </span>
+                                      <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false"
+                                        aria-hidden="true">
+                                        <path
+                                          d="M14.723 6.237a.94.94 0 0 1 .053 1.277l-5.366 6.193a.834.834 0 0 1-.611.293.83.83 0 0 1-.622-.264l-2.927-3.097a.94.94 0 0 1 0-1.278.82.82 0 0 1 1.207 0l2.297 2.43 4.763-5.498a.821.821 0 0 1 1.206-.056Z">
+                                        </path>
+                                      </svg>
+                                    </span>
+                                  </span>
+                                </span>
+                              </span>
+                              <span class="Polaris-Choice__Label">
+                                <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Select all
+                                  customers</span>
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="Polaris-Stack__Item">
+                        <div class="Polaris-IndexTable--stickyTableHeadingSecondScrolling">
+                          Name
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="Polaris-IndexTable__StickyTableHeadings">
+                  <div class="Polaris-IndexTable__TableHeading Polaris-IndexTable__StickyTableHeading--second"
+                    data-index-table-sticky-heading="true" style="min-width: 173px">
+                    Name
+                  </div>
+                  <div class="Polaris-IndexTable__TableHeading" data-index-table-sticky-heading="true"
+                    style="min-width: 242px">
+                    Location
+                  </div>
+                  <div class="Polaris-IndexTable__TableHeading" data-index-table-sticky-heading="true"
+                    style="min-width: 164px">
+                    Order count
+                  </div>
+                  <div class="Polaris-IndexTable__TableHeading" data-index-table-sticky-heading="true"
+                    style="min-width: 183px">
+                    Amount spent
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="Polaris-IndexTable-ScrollContainer">
+          <table class="Polaris-IndexTable__Table Polaris-IndexTable__Table--sticky">
+            <thead>
+              <tr>
+                <th class="Polaris-IndexTable__TableHeading Polaris-IndexTable__TableHeading--first"
+                  data-index-table-heading="true">
+                  <div class="Polaris-IndexTable__ColumnHeaderCheckboxWrapper">
+                    <label class="Polaris-Choice Polaris-Choice--labelHidden" for="PolarisCheckbox1">
+                      <span class="Polaris-Choice__Control">
+                        <span class="Polaris-Checkbox">
+                          <input id="PolarisCheckbox1" type="checkbox" class="Polaris-Checkbox__Input"
+                            aria-invalid="false" role="checkbox" aria-checked="false" value="" />
+                          <span class="Polaris-Checkbox__Backdrop"> </span>
+                          <span class="Polaris-Checkbox__Icon">
+                            <span class="Polaris-Icon">
+                              <span
+                                class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--regular Polaris-Text--visuallyHidden">
+                              </span>
+                              <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                                <path
+                                  d="M14.723 6.237a.94.94 0 0 1 .053 1.277l-5.366 6.193a.834.834 0 0 1-.611.293.83.83 0 0 1-.622-.264l-2.927-3.097a.94.94 0 0 1 0-1.278.82.82 0 0 1 1.207 0l2.297 2.43 4.763-5.498a.821.821 0 0 1 1.206-.056Z">
+                                </path>
+                              </svg>
+                            </span>
+                          </span>
+                        </span>
+                      </span>
+                      <span class="Polaris-Choice__Label">
+                        <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Select all
+                          customers</span>
+                      </span>
+                    </label>
+                  </div>
+                </th>
+                <th class="Polaris-IndexTable__TableHeading Polaris-IndexTable__TableHeading--second"
+                  data-index-table-heading="true" style="left: 54px">
+                  Name
+                </th>
+                <th class="Polaris-IndexTable__TableHeading" data-index-table-heading="true">
+                  Location
+                </th>
+                <th class="Polaris-IndexTable__TableHeading" data-index-table-heading="true">
+                  Order count
+                </th>
+                <th class="Polaris-IndexTable__TableHeading Polaris-IndexTable__TableHeading--last"
+                  data-index-table-heading="true">
+                  Amount spent
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="Polaris-IndexTable__TableRow Polaris-IndexTable--statusSuccess">
+                <td class="Polaris-IndexTable__TableCell Polaris-IndexTable__TableCell--first">
+                  <div class="Polaris-IndexTable-Checkbox__TableCellContentContainer">
+                    <div class="Polaris-IndexTable-Checkbox__Wrapper Polaris-IndexTable-Checkbox--expanded">
+                      <label class="Polaris-Choice Polaris-Choice--labelHidden" for="3411">
+                        <span class="Polaris-Choice__Control">
+                          <span class="Polaris-Checkbox">
+                            <input id="3411" type="checkbox" class="Polaris-Checkbox__Input" aria-invalid="false"
+                              role="checkbox" aria-checked="false" value="" />
+                            <span class="Polaris-Checkbox__Backdrop"> </span>
+                            <span class="Polaris-Checkbox__Icon">
+                              <span class="Polaris-Icon">
+                                <span
+                                  class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--regular Polaris-Text--visuallyHidden">
+                                </span>
+                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                                  <path
+                                    d="M14.723 6.237a.94.94 0 0 1 .053 1.277l-5.366 6.193a.834.834 0 0 1-.611.293.83.83 0 0 1-.622-.264l-2.927-3.097a.94.94 0 0 1 0-1.278.82.82 0 0 1 1.207 0l2.297 2.43 4.763-5.498a.821.821 0 0 1 1.206-.056Z">
+                                  </path>
+                                </svg>
+                              </span>
+                            </span>
+                          </span>
+                        </span>
+                        <span class="Polaris-Choice__Label">
+                          <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Select
+                            customer</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </td>
+                <td class="Polaris-IndexTable__TableCell">
+                  <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--bold">Mae Jemison</span>
+                </td>
+                <td class="Polaris-IndexTable__TableCell">Decatur, USA</td>
+                <td class="Polaris-IndexTable__TableCell">20</td>
+                <td class="Polaris-IndexTable__TableCell">$2,400</td>
+              </tr>
+              <tr class="Polaris-IndexTable__TableRow Polaris-IndexTable--statusSubdued">
+                <td class="Polaris-IndexTable__TableCell Polaris-IndexTable__TableCell--first">
+                  <div class="Polaris-IndexTable-Checkbox__TableCellContentContainer">
+                    <div class="Polaris-IndexTable-Checkbox__Wrapper Polaris-IndexTable-Checkbox--expanded">
+                      <label class="Polaris-Choice Polaris-Choice--labelHidden" for="2561">
+                        <span class="Polaris-Choice__Control">
+                          <span class="Polaris-Checkbox">
+                            <input id="2561" type="checkbox" class="Polaris-Checkbox__Input" aria-invalid="false"
+                              role="checkbox" aria-checked="false" value="" />
+                            <span class="Polaris-Checkbox__Backdrop"> </span>
+                            <span class="Polaris-Checkbox__Icon">
+                              <span class="Polaris-Icon">
+                                <span
+                                  class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--regular Polaris-Text--visuallyHidden">
+                                </span>
+                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                                  <path
+                                    d="M14.723 6.237a.94.94 0 0 1 .053 1.277l-5.366 6.193a.834.834 0 0 1-.611.293.83.83 0 0 1-.622-.264l-2.927-3.097a.94.94 0 0 1 0-1.278.82.82 0 0 1 1.207 0l2.297 2.43 4.763-5.498a.821.821 0 0 1 1.206-.056Z">
+                                  </path>
+                                </svg>
+                              </span>
+                            </span>
+                          </span>
+                        </span>
+                        <span class="Polaris-Choice__Label">
+                          <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Select
+                            customer</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </td>
+                <td class="Polaris-IndexTable__TableCell">
+                  <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--bold">Ellen Ochoa</span>
+                </td>
+                <td class="Polaris-IndexTable__TableCell">
+                  Los Angeles, USA
+                </td>
+                <td class="Polaris-IndexTable__TableCell">30</td>
+                <td class="Polaris-IndexTable__TableCell">$140</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="Polaris-IndexTable__ScrollBarContainer Polaris-IndexTable--scrollBarContainerHidden">
+        <div class="Polaris-IndexTable__ScrollBar" style="--pc-index-table-scroll-bar-content-width: 812px">
+          <div class="Polaris-IndexTable__ScrollBarContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

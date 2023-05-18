@@ -1,0 +1,17 @@
+[
+  {
+    "id": "order-1",
+    "productIds": ["product-1"],
+    "total": "$100"
+  },
+  {
+    "id": "order-2",
+    "productIds": ["product-2"],
+    "total": "$110"
+  },
+  {
+    "id": "order-3",
+    "productIds": ["product-1", "product-2"],
+    "total": "$85"
+  }
+]

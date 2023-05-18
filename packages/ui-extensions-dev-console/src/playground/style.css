@@ -1,0 +1,168 @@
+/* :root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+ */
+
+.playground web-runtime {
+  display: contents;
+}
+.playground web-runtime > iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.playground #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.playground .Polaris-Frame__Content {
+  display: flex;
+  flex-direction: column;
+}
+
+.playground .apps {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.playground .app {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: block !important;
+}
+.playground .app:not([hidden]) {
+  animation: appOpen 150ms ease-out 1 forwards;
+  z-index: 1;
+}
+.playground .app[hidden] {
+  pointer-events: none;
+  animation: appClose 150ms ease-in 1 forwards;
+}
+@keyframes appOpen {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+@keyframes appClose {
+  to {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+.playground .appNavBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  height: 40px;
+  opacity: 1;
+  transition: all 100ms ease;
+}
+.playground .appNavBar img {
+  width: 24px;
+  height: 24px;
+}
+.playground .appNavBar h2 {
+  font-size: 16px;
+}
+.playground .appNavBar[hidden] {
+  height: 0;
+  opacity: 0;
+}
+
+.playground .modalLoadingOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.playground .devMode {
+  height: 200px;
+  background: var(--p-surface);
+  color: var(--p-text);
+  border-top: 1px solid var(--p-border-subdued);
+  /* background: var(--p-surface-dark); */
+  /* color: var(--p-text-on-dark); */
+  animation: devMode 150ms ease forwards 1;
+  display: flex;
+  flex-direction: column;
+}
+@keyframes devMode {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+body .playground .Polaris-Tabs__Tab {
+  --p-space-2: 3px;
+}
+.playground .devMode > .Polaris-Stack > .Polaris-Stack__Item:first-child {
+  flex: 1;
+}
+
+.playground .devModeToggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: var(--p-action-primary);
+  color: var(--p-text-on-primary);
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 250ms ease;
+  z-index: 999;
+}
+.playground .devModeToggle .Polaris-Icon {
+  fill: currentColor;
+}
+.playground .devModeToggle:hover {
+  background: var(--p-action-primary-hovered);
+}
+.playground .devModeToggle:active {
+  background: var(--p-action-primary-pressed);
+}
+.playground .devModeToggle[hidden] {
+  display: block;
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+}

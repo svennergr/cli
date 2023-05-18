@@ -84,16 +84,16 @@ program
         await execa("pnpm", ["build"])
 
         if (fs.existsSync(appPath)) {
-          const rl = readline.createInterface({ input, output })
+          log(`Removing app in '${appPath}'...`)
+          fs.rmSync(appPath, { recursive: true })
+          /* const rl = readline.createInterface({ input, output })
           const answer = await rl.question(`\r\n🙋‍♀️ I've found an app in ${appPath}. Should I remove it and keep going? (Y/n)`);
           rl.close();
 
           if (answer.toLowerCase() === 'y' || answer === '') {
-            log(`Removing app in '${appPath}'...`)
-            fs.rmSync(appPath, { recursive: true })
           } else {
             process.exit(0)
-          }
+          } */
         }
 
         log(`Creating new app in ${appPath}...`)
@@ -147,7 +147,7 @@ program
         "extension",
         "--type=subscription_ui",
         "--name=sub-ui-ext",
-        "--template=vanilla-js",
+        "--template=typescript-react",
       ])
       await pnpmDev()
     }

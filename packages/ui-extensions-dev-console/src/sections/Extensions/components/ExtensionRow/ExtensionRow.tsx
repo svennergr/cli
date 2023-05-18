@@ -4,10 +4,11 @@ import en from './translations/en.json'
 import {PreviewLinks} from './components'
 import {QRCodeModal, Row, Status, View} from '..'
 import {useExtension} from '../../hooks/useExtension'
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {useI18n} from '@shopify/react-i18n'
 import {ExtensionPayload} from '@shopify/ui-extensions-server-kit'
 import {Button} from '@/components/Button'
+import {renderedExtensionContext} from '@/context/constants.js'
 
 interface Props {
   uuid: ExtensionPayload['uuid']
@@ -19,7 +20,7 @@ export function ExtensionRow({uuid}: Props) {
     id: 'ExtensionRow',
     fallback: en,
   })
-
+  const {setRenderedExtension} = useContext(renderedExtensionContext)
   const {focus, unfocus, extension, show, hide} = useExtension(uuid)
 
   if (!extension) {
@@ -33,6 +34,10 @@ export function ExtensionRow({uuid}: Props) {
       </td>
       <td>
         <PreviewLinks extension={extension} />
+
+        <Button type="button" onClick={() => setRenderedExtension(extension)}>
+          Preview here
+        </Button>
       </td>
       <td>
         <Button type="button" onClick={() => setShowModal(true)}>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cookie Tester</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@shopify/polaris@10.13.0/build/esm/styles.css"
+    />
+    <script type="module" src="/assets/appbridge.js" crossorigin></script>
+  </head>
+  <body>
+    <div style="display:flex; gap:1rem; padding:1rem;">
+      <label>
+        <input id="crossorigin" type="checkbox">
+        Cross-origin fetch <em>(http://x.localtest.me:12345)</em>
+      </label>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:1rem; padding:1rem;">
+      <button id="getcookie" class="Polaris-Button Polaris-Button--primary">
+        Check for cookie
+      </button>
+      <button id="setcookie" class="Polaris-Button Polaris-Button--primary">
+        Set server-side cookie
+      </button>
+      <label>
+        Expire cookie after:
+        <div class="Polaris-TextField Polaris-TextField--hasValue">
+          <input id="ttl" type="number" min="0" max="60" size="3" value="3" style="padding:2px; border:none;">
+          <div class="Polaris-TextField__Suffix">seconds</div>
+        </div>
+      </label>
+    </div>
+
+    <pre id="logarea" style="margin:1rem; padding:1rem; background:#eee;"></pre>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

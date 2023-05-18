@@ -1,0 +1,434 @@
+[
+  {
+    "id": "0",
+    "name": "Home Extension",
+    "app": {
+      "id": "1",
+      "handle": "home",
+      "name": "Home",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/HomeMinor.svg",
+      "modality": "builtin",
+      "path": "/"
+    },
+    "extensionPoints": [
+      {
+        "id": "0",
+        "type": "module",
+        "target": "Admin::Apps::Home",
+        "url": "Home"
+      }
+    ]
+  },
+  {
+    "id": "1",
+    "name": "Orders Extension",
+    "app": {
+      "id": "2",
+      "handle": "orders",
+      "name": "Orders",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/OrdersMinor.svg",
+      "modality": "builtin",
+      "path": "/orders"
+    },
+    "extensionPoints": [
+      {
+        "id": "1",
+        "type": "module",
+        "target": "Admin::Apps::Home",
+        "url": "Orders"
+      }
+    ]
+  },
+  {
+    "id": "1.1",
+    "name": "Order Details Extension",
+    "app": {
+      "id": "2.1",
+      "handle": "order",
+      "name": "Order",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/OrdersMinor.svg",
+      "modality": "builtin",
+      "hideFromNav": true,
+      "path": "/order"
+    },
+    "extensionPoints": [
+      {
+        "id": "1.2",
+        "type": "module",
+        "target": "Admin::Apps::Home",
+        "url": "Order-Details"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Products Extension",
+    "app": {
+      "id": "3",
+      "handle": "products",
+      "name": "Products",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/ProductsMinor.svg",
+      "modality": "builtin",
+      "path": "/products"
+    },
+    "extensionPoints": [
+      {
+        "id": "2",
+        "type": "module",
+        "target": "Admin::Apps::Home",
+        "url": "Products"
+      }
+    ]
+  },
+  {
+    "id": "product-details-extension",
+    "name": "Product Details Extension",
+    "app": {
+      "id": "product-details-app",
+      "handle": "product",
+      "name": "Product",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/OrdersMinor.svg",
+      "modality": "builtin",
+      "hideFromNav": true,
+      "path": "/product"
+    },
+    "extensionPoints": [
+      {
+        "id": "product-details-extension-point-0",
+        "type": "module",
+        "target": "Admin::Apps::Home",
+        "url": "Product-Details"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Online Store Extension",
+    "app": {
+      "id": "4",
+      "handle": "online-store",
+      "name": "Online Store",
+      "icon": "/apps/online-store/icon.svg",
+      "modality": "channel"
+    },
+    "extensionPoints": [
+      {
+        "id": "3",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/online-store/index.html"
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Inbox Extension",
+    "app": {
+      "id": "5",
+      "handle": "inbox",
+      "name": "Inbox",
+      "icon": "/apps/inbox/icon.svg",
+      "modality": "channel"
+    },
+    "extensionPoints": [
+      {
+        "id": "4",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/inbox/index.html"
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Local Delivery Extension",
+    "app": {
+      "id": "6",
+      "handle": "local-delivery",
+      "name": "Local Delivery",
+      "icon": "/apps/local-delivery/icon-color.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "5",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/local-delivery/index.html"
+      }
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Local Delivery Link Extension",
+    "app": {
+      "id": "6",
+      "handle": "local-delivery",
+      "name": "Local Delivery",
+      "icon": "/apps/local-delivery/icon-color.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "6",
+        "type": "link",
+        "target": "Admin::Order::Action",
+        "label": "Edit Delivery Instructions",
+        "url": "/",
+        "intents": [
+          {
+            "action": "action",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Fancy Reviews Extension",
+    "app": {
+      "id": "7",
+      "handle": "fancy-reviews",
+      "name": "Fancy Reviews",
+      "icon": "/apps/fancy-reviews/icon.png",
+      "iconLarge": "/apps/fancy-reviews/icon-color.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "7",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/fancy-reviews/index.html",
+        "intents": [
+          {
+            "label": "Reviews for this order",
+            "action": "action",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "8",
+    "name": "Judge.me Extension",
+    "app": {
+      "id": "8",
+      "handle": "judge-me",
+      "name": "Judge.me",
+      "icon": "/apps/ui-extension/icon.png",
+      "iconLarge": "/apps/ui-extension/icon.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "8",
+        "type": "ui-extension",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/ui-extension/extension.js",
+        "intents": [
+          {
+            "action": "action",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "9",
+    "name": "Order Printer Extension",
+    "app": {
+      "id": "9",
+      "handle": "order-printer",
+      "name": "Order Printer",
+      "icon": "https://cdn.shopify.com/s/files/applications/86ba59615730a0f83ddd94b8d96d470c_200x200.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "9",
+        "type": "link",
+        "target": "Admin::Order::Action",
+        "label": "Print Order",
+        "url": "https://orderprinter.shopifyapps.com/",
+        "intents": [
+          {
+            "action": "print",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "name": "internal: Disambiguation UI Extension",
+    "app": {
+      "id": "10",
+      "handle": "disambiguation-ui",
+      "name": "internal: Disambiguation UI",
+      "modality": "internal",
+      "icon": ""
+    },
+    "extensionPoints": [
+      {
+        "id": "10",
+        "type": "module",
+        "target": "global",
+        "url": "disambiguation-ui"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "name": "Cookie Tester",
+    "app": {
+      "id": "11",
+      "name": "Cookie Tester",
+      "handle": "cookietester",
+      "icon": "/apps/cookietester/icon.png",
+      "iconLarge": "/apps/cookietester/icon-color.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "11",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "url": "/apps/cookietester/index.html",
+        "intents": []
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "name": "Order fulfiller app",
+    "app": {
+      "id": "12",
+      "handle": "fullest-filler",
+      "name": "Fullest Filler",
+      "icon": "/apps/fulfiller/icon.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "12.1",
+        "type": "appbridge",
+        "target": "Admin::OrderDetails::Action",
+        "label": "Fulfill Order",
+        "url": "/apps/fulfiller/index.html",
+        "intents": [
+          {
+            "action": "fulfill",
+            "type": "orders"
+          }
+        ]
+      },
+      {
+        "id": "12.2",
+        "type": "appbridge",
+        "target": "Admin::Apps::Home",
+        "label": "Fulfill Order",
+        "url": "/apps/fulfiller/index.html"
+      },
+      {
+        "id": "12.3",
+        "type": "link",
+        "target": "Admin::OrderDetails::Link",
+        "label": "Full Fulfillment Details",
+        "url": "/{type}/{id}",
+        "intents": [
+          {
+            "action": "fulfill",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "name": "Trackist",
+    "app": {
+      "id": "13",
+      "handle": "trackist",
+      "name": "Trackist",
+      "icon": "/apps/trackist/icon.jpeg"
+    },
+    "extensionPoints": [
+      {
+        "id": "13",
+        "type": "appbridge",
+        "target": "Admin::OrderDetails::Action",
+        "label": "Add Order Tracking",
+        "url": "/apps/trackist/index.html",
+        "intents": [
+          {
+            "action": "tracking",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "name": "Informed Seller",
+    "app": {
+      "id": "14",
+      "handle": "informed-seller",
+      "name": "Informed Seller",
+      "icon": "/apps/informed-seller/icon.png",
+      "url": "https://example.com"
+    },
+    "extensionPoints": [
+      {
+        "id": "14",
+        "type": "link",
+        "target": "Admin::OrderDetails::Link",
+        "label": "Make recommendations",
+        "url": "/order/{id}",
+        "intents": [
+          {
+            "action": "upsell",
+            "type": "orders"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "name": "Non Embedded Seller",
+    "app": {
+      "id": "15",
+      "handle": "non-embedded-seller",
+      "name": "Non Embedded Seller",
+      "icon": "/apps/non-embedded-seller/icon.png",
+      "iconLarge": "/apps/non-embedded-seller/icon-color.png"
+    },
+    "extensionPoints": [
+      {
+        "id": "15",
+        "type": "pop-up",
+        "target": "Admin::Apps::Home",
+        "label": "",
+        "url": "/apps/non-embedded-seller/index.html"
+      }
+    ]
+  },
+  {
+    "id": "orders-by-product-extension",
+    "name": "Orders by Product",
+    "app": {
+      "id": "orders-by-product-app",
+      "handle": "orders-by-product",
+      "name": "Orders by Product",
+      "icon": "https://unpkg.com/@shopify/polaris-icons@6.5.0/dist/svg/OrdersMinor.svg"
+    },
+    "extensionPoints": [
+      {
+        "id": "orders-by-product-extension-point-0",
+        "type": "module",
+        "target": "Admin::ProductDetails::Card",
+        "url": "Orders-by-Product"
+      }
+    ]
+  }
+]
