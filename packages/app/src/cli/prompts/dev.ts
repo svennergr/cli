@@ -105,9 +105,9 @@ export async function reloadStoreListPrompt(org: Organization): Promise<boolean>
 
 export async function createAsNewAppPrompt(): Promise<boolean> {
   return renderConfirmationPrompt({
-    message: 'Create this project as a new app on Shopify?',
-    confirmationMessage: 'No, connect it to an existing app',
-    cancellationMessage: 'Yes, create it as a new app',
+    message: 'Link to an existing app on Shopify?',
+    confirmationMessage: 'Yes, link to an existing app',
+    cancellationMessage: 'No, create a new app',
   })
 }
 

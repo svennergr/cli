@@ -23,11 +23,12 @@ import {load, loadAppName, tomlFilePath} from '../models/app/loader.js'
 import {getPackageManager, PackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {tryParseInt} from '@shopify/cli-kit/common/string'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
-import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderInfo, renderTasks, renderTextPrompt, renderConfirmationPrompt} from '@shopify/cli-kit/node/ui'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {AbortError, BugError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputToken, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
 import {relativizePath} from '@shopify/cli-kit/node/path'
+import {fileExists} from '@shopify/cli-kit/node/fs'
 
 export const InvalidApiKeyErrorMessage = (apiKey: string) => {
   return {
@@ -216,10 +217,36 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
 
   const app = await selectOrCreateApp('', apps, organization, token)
 
-  const appEnv = await renderTextPrompt({
-    message: 'Configuration name:',
-    allowEmpty: true,
+  let appEnv = await renderTextPrompt({
+    message: 'Configuration file name:',
   })
+
+  let overwriteFile = false
+  let fileAlreadyExists = await fileExists(tomlFilePath(directory, appEnv))
+
+  const renderMessage = async () => {
+    const answer = await renderConfirmationPrompt({
+      message: 'Configuration file {file} already exists. Do you want to regenerate your config for app {app}?',
+      confirmationMessage: 'Yes, overwrite my existing configuration file',
+      cancellationMessage: "No, I'll choose a different name",
+    })
+
+    if (answer === true) {
+      overwriteFile = true
+    } else {
+      appEnv = await renderTextPrompt({
+        message: 'Configuration file name:',
+      })
+
+      fileAlreadyExists = await fileExists(tomlFilePath(directory, appEnv))
+
+      if (fileAlreadyExists) await renderMessage()
+    }
+  }
+
+  if (fileAlreadyExists && !overwriteFile) {
+    await renderMessage()
+  }
 
   setOrgInfo({
     directory,
