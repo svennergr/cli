@@ -1,24 +1,34 @@
 import {createUIExtensionSpecification} from '../ui.js'
 import {BaseUIExtensionSchema} from '../schemas.js'
-
+import {joinPath} from '@shopify/cli-kit/node/path'
 import {zod} from '@shopify/cli-kit/node/schema'
+import fs from 'fs'
 
 export default createUIExtensionSpecification({
   identifier: 'flow_template',
   schema: BaseUIExtensionSchema.extend({
-    title: zod.string(),
+    // Override
+    name: zod.string(),
     description: zod.string(),
-    workflow_id: zod.string(),
-    workflow_definition_version: zod.string(),
   }),
   supportedFlavors: [],
   singleEntryPath: false,
-  deployConfig: async (config, _) => {
+  deployConfig: async (config, directory) => {
     return {
-      title: config.title,
+      name: config.name,
       description: config.description,
-      workflow_id: config.workflow_id,
-      workflow_definition_version: config.workflow_definition_version,
+      definition: await loadWorkflow(directory),
+
+      // Unused
+      // Hardcoded so we don't have to write them in the toml file
+      api_version: 'internal',
+      extension_points: [{target: 'Admin::Apps::Home', module: './index.js'}],
+      script_path: '../foo',
     }
   },
 })
+
+async function loadWorkflow(path: string) {
+  const flowFilePath = joinPath(path, '.flow')
+  return fs.readFileSync(flowFilePath, 'base64')
+}
