@@ -226,14 +226,16 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
 
   const renderMessage = async () => {
     const answer = await renderConfirmationPrompt({
-      message: 'Configuration file {file} already exists. Do you want to regenerate your config for app {app}?',
-      confirmationMessage: 'Yes, overwrite my existing configuration file',
-      cancellationMessage: "No, I'll choose a different name",
+      message: `Configuration file shopify.app.${appEnv}.toml already exists. Do you want to choose a different configuration name?`,
+      confirmationMessage: "Yes, I'll choose a different name",
+      cancellationMessage: 'No, overwrite my existing configuration file',
     })
 
-    if (answer === true) {
+    // eslint-disable-next-line no-negated-condition
+    if (!answer) {
       overwriteFile = true
     } else {
+      // eslint-disable-next-line require-atomic-updates
       appEnv = await renderTextPrompt({
         message: 'Configuration file name:',
       })
