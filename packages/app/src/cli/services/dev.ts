@@ -5,7 +5,6 @@ import {devUIExtensions} from './dev/extension.js'
 import {outputExtensionsMessages, outputUpdateURLsResult} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
-import {pushAndWriteConfig} from './app/config/push.js'
 import {mergeAppUrls} from './merge-configuration.js'
 import {getCurrentToml} from './local-storage.js'
 import {
@@ -25,7 +24,7 @@ import {use} from '../commands/app/config/use.js'
 import {Config} from '@oclif/core'
 import {reportAnalyticsEvent} from '@shopify/cli-kit/node/analytics'
 import {execCLI2} from '@shopify/cli-kit/node/ruby'
-import {renderConcurrent, renderInfo, renderWarning} from '@shopify/cli-kit/node/ui'
+import {renderConcurrent} from '@shopify/cli-kit/node/ui'
 import {checkPortAvailability, getAvailableTCPPort} from '@shopify/cli-kit/node/tcp'
 import {AbortSignal} from '@shopify/cli-kit/node/abort'
 import {hashString} from '@shopify/cli-kit/node/crypto'
@@ -145,12 +144,12 @@ async function dev(options: DevOptions) {
     previewUrl = buildAppURLForWeb(storeFqdn, exposedUrl)
   }
 
-  if (shouldUpdate) {
-    await pushAndWriteConfig(localApp, apiKey, token)
-    renderInfo({headline: 'Updated app configuration'})
-  } else {
-    renderWarning({headline: 'Did not update app configuration'})
-  }
+  // if (shouldUpdate) {
+  //   await pushAndWriteConfig(localApp, apiKey, token)
+  //   renderInfo({headline: 'Updated app configuration'})
+  // } else {
+  //   renderWarning({headline: 'Did not update app configuration'})
+  // }
 
   if (localApp.extensions.ui.length > 0) {
     previewUrl = `${proxyUrl}/extensions/dev-console`
