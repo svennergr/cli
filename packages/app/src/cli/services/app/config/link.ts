@@ -16,7 +16,7 @@ export interface LinkOptions {
 
 export default async function link(options: LinkOptions): Promise<void> {
   const token = await ensureAuthenticatedPartners()
-  const {app: remoteApp, appEnv} = await selectOrgStoreAppEnvUpdateable(token, options.directory)
+  const {app: remoteApp, appEnv, useAsActiveConfig} = await selectOrgStoreAppEnvUpdateable(token, options.directory)
 
   const fileAlreadyExists = await fileExists(tomlFilePath(options.directory, appEnv))
 
@@ -42,6 +42,6 @@ export default async function link(options: LinkOptions): Promise<void> {
       mergedLocalApp.directory,
       file,
     )} ${fileAlreadyExists ? 'updated' : 'created'}`,
-    body: 'Now using this configuration.',
+    body: useAsActiveConfig ? 'Now using this configuration.' : undefined,
   })
 }

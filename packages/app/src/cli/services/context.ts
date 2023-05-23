@@ -294,7 +294,7 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
     appEnv,
     orgId,
   })
-  return {organization, app, appEnv}
+  return {organization, app, appEnv, useAsActiveConfig}
 }
 
 const resetHelpMessage = 'You can pass `--reset` to your command to reset your config.'
