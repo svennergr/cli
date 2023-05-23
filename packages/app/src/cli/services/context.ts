@@ -275,12 +275,6 @@ export async function selectOrgStoreAppEnvUpdateable(token: string, directory: s
       directory,
       toml: appEnv,
     })
-
-    const file = tomlFilePath(directory, appEnv)
-
-    renderSuccess({
-      headline: `Using file ${relativePath(directory, file)}`,
-    })
   }
 
   setOrgInfo({
