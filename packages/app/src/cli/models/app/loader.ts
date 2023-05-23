@@ -203,7 +203,7 @@ class AppLoader {
     const packageJSONPath = joinPath(this.appDirectory, 'package.json')
     const name = await loadAppName(this.appDirectory)
     const nodeDependencies = await getDependencies(packageJSONPath)
-    const packageManager = await getPackageManager(this.appDirectory)
+    const packageManager = await getPackageManager()
     const {webs, usedCustomLayout: usedCustomLayoutForWeb} = await this.loadWebs(configuration.webDirectories)
     const usesWorkspaces = await appUsesWorkspaces(this.appDirectory)
 

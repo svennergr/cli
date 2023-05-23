@@ -146,7 +146,7 @@ async function installJsonDependencies(
 
   if (packagesToUpdate.length > 0) {
     await addNPMDependencies(packagesToUpdate, {
-      packageManager: await getPackageManager(directory),
+      packageManager: await getPackageManager(),
       type: depsEnv,
       directory,
       stdout: process.stdout,

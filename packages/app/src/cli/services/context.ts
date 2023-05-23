@@ -91,7 +91,7 @@ export async function ensureGenerateContext(options: {
       const errorMessage = InvalidApiKeyErrorMessage(cachedInfo.appId)
       throw new AbortError(errorMessage.message, errorMessage.tryMessage)
     }
-    const packageManager = await getPackageManager(options.directory)
+    const packageManager = await getPackageManager()
     showGenerateReusedValues(org.businessName, cachedInfo, packageManager)
     return app.apiKey
   } else {
@@ -182,7 +182,7 @@ export async function ensureDevContext(options: DevContextOptions, token: string
   })
 
   if (selectedApp.apiKey === cachedInfo?.appId && selectedStore.shopDomain === cachedInfo.storeFqdn) {
-    const packageManager = await getPackageManager(options.directory)
+    const packageManager = await getPackageManager()
     showReusedValues(organization.businessName, cachedInfo, packageManager)
   }
 

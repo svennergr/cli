@@ -1,10 +1,6 @@
 import {versionService} from './version.js'
 import {afterEach, describe, expect, vi, test} from 'vitest'
-import {
-  checkForNewVersion,
-  PackageManager,
-  packageManagerUsedForCreating,
-} from '@shopify/cli-kit/node/node-package-manager'
+import {checkForNewVersion, PackageManager, getPackageManager} from '@shopify/cli-kit/node/node-package-manager'
 import {mockAndCaptureOutput} from '@shopify/cli-kit/node/testing/output'
 
 vi.mock('@shopify/cli-kit/node/node-package-manager')
@@ -21,7 +17,7 @@ describe('check CLI version', () => {
       // Given
       const outputMock = mockAndCaptureOutput()
       vi.mocked(checkForNewVersion).mockResolvedValue('3.0.10')
-      vi.mocked(packageManagerUsedForCreating).mockReturnValue(packageManager as PackageManager)
+      vi.mocked(getPackageManager).mockReturnValue(packageManager as PackageManager)
 
       // When
       await versionService()

@@ -62,38 +62,15 @@ export const FindUpAndReadPackageJsonNotFoundError = (directory: string): BugErr
 }
 
 /**
- * Returns the dependency manager used to run the create workflow.
- * @param env - The environment variables of the process in which the CLI runs.
- * @returns The dependency manager
- */
-export function packageManagerUsedForCreating(env = process.env): PackageManager | 'unknown' {
-  if (env.npm_config_user_agent?.includes('yarn')) {
-    return 'yarn'
-  } else if (env.npm_config_user_agent?.includes('pnpm')) {
-    return 'pnpm'
-  } else if (env.npm_config_user_agent?.includes('npm')) {
-    return 'npm'
-  }
-  return 'unknown'
-}
-
-/**
  * Returns the dependency manager used by an existing project.
  * @param fromDirectory - The starting directory
  * @returns The dependency manager
  */
-export async function getPackageManager(fromDirectory: string): Promise<PackageManager> {
-  const packageJson = await findPathUp('package.json', {cwd: fromDirectory, type: 'file'})
-  if (!packageJson) {
-    throw FindUpAndReadPackageJsonNotFoundError(fromDirectory)
-  }
-  const directory = dirname(packageJson)
-  outputDebug(outputContent`Obtaining the dependency manager in directory ${outputToken.path(directory)}...`)
-  const yarnLockPath = joinPath(directory, yarnLockfile)
-  const pnpmLockPath = joinPath(directory, pnpmLockfile)
-  if (await fileExists(yarnLockPath)) {
+export async function getPackageManager(env = process.env): Promise<PackageManager> {
+  const parsed = process.env.npm_config_user_agent
+  if (parsed?.includes('yarn')) {
     return 'yarn'
-  } else if (await fileExists(pnpmLockPath)) {
+  } else if (parsed?.includes('pnpm')) {
     return 'pnpm'
   } else {
     return 'npm'
@@ -538,7 +515,7 @@ export async function findUpAndReadPackageJson(fromDirectory: string): Promise<{
 }
 
 export async function addResolutionOrOverride(directory: string, dependencies: {[key: string]: string}): Promise<void> {
-  const packageManager = await getPackageManager(directory)
+  const packageManager = await getPackageManager()
   const packageJsonPath = joinPath(directory, 'package.json')
   const packageJsonContent = await readAndParsePackageJson(packageJsonPath)
 
