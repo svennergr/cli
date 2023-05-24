@@ -1,0 +1,97 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ npm init @shopify/app@latest\n"
+      }
+    },
+   {
+      "type": "output",
+      "properties": {
+        "content": "Welcome. Let’s get started by naming your app project. You can change it later.\n"
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "Your app project name?",
+        "defaultValue": "dropshipping-app"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which template would you like to use?",
+        "choices": [
+          {
+            "label": "node",
+            "value": "node"
+          },
+          {
+            "label": "rails",
+            "value": "rails"
+          },
+          {
+            "label": "php",
+            "value": "php"
+          }
+        ]
+      }
+    },
+    {
+      "type": "taskbar",
+      "properties": {
+        "steps": [
+          {
+            "title": "Fetching node dependencies",
+            "duration": 1
+          },
+          {
+            "title": "Packaging node dependencies",
+            "duration": 3
+          },
+          {
+            "title": "Wrapping up",
+            "duration": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`dropshipping-app` is ready for you to build!",
+        "body": [],
+        "nextSteps": [
+          [
+            "Run",
+            {
+              "command": "cd dropshipping-app"
+            }
+          ],
+          [
+            "To connect your app with Shopify, run",
+            {
+              "command": "npm run config link"
+            }
+          ]
+        ],
+        "reference": [
+          [
+            "Run",
+            {
+              "command": "npm shopify help"
+            }
+          ],
+          {
+            "link": {
+              "label": "Dev docs",
+              "url": "https://shopify.dev"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

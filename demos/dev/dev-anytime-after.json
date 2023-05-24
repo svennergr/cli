@@ -1,0 +1,123 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ shopify app dev\n"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Have Shopify automatically update your app’s URL in order to create a preview experience?",
+        "choices": [
+          {
+            "label": "Always by default",
+            "value": "Always by default"
+          },
+          {
+            "label": "Yes, this time",
+            "value": "Yes, this time"
+          },
+          {
+            "label": "No, not now",
+            "value": "No, not now"
+          },
+          {
+            "label": "Never, don’t ask again",
+            "value": "Never, don’t ask again"
+          }
+        ]
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Have Shopify automatically update the app URL in shopify.app.development.toml?",
+        "choices": [
+          {
+            "label": "Always by default",
+            "value": "Always by default"
+          },
+          {
+            "label": "Yes, this time",
+            "value": "Yes, this time"
+          },
+          {
+            "label": "No, not now",
+            "value": "No, not now"
+          },
+          {
+            "label": "Never, don’t ask again",
+            "value": "Never, don’t ask again"
+          }
+        ]
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "✔ Using your default dev store (shop1) to preview your project.\n"
+      }
+    },
+    {
+      "type": "info",
+      "properties": {
+        "headline": "For your convenience, we've given your app a default URL: https://congress-concerned-halifax-spiritual.trycloudflare.com.",
+        "body": [
+          "You can update your app's URL anytime in shopify.app.development.toml. But once your app is live, updating its URL will disrupt user access."
+        ],
+        "nextSteps": []
+      }
+    },
+    {
+      "type": "concurrent",
+      "properties": {
+        "processes": [
+          {
+            "prefix": "backend",
+            "steps": [
+              {
+                "startMessage": "> shopify-app-template-node@1.0.0 dev",
+                "duration": 1,
+                "endMessage": "cross-env NODE_ENV=development nodemon index.js --ignore ./frontend"
+              }
+            ]
+          },
+          {
+            "prefix": "frontend",
+            "steps": [
+              {
+                "startMessage": "shopify-frontend-template-react@1.0.0 dev",
+                "duration": 1.5,
+                "endMessage": "> Local:    http://localhost:59565/"
+              },
+              {
+                "startMessage": "watching extensions: js,mjs,json",
+                "duration": 2,
+                "endMessage": "Kick landed!"
+              },
+              {
+                "startMessage": "starting `node index.js",
+                "duration": 3,
+                "endMessage": "Too late! KO'ed!"
+              }
+            ]
+          }
+        ],
+        "footer": {
+          "shortcuts": [
+            {
+              "key": "p",
+              "action": "View the fight in your browser!"
+            },
+            {
+              "key": "q",
+              "action": "Quite fighting! Stop the violence!"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

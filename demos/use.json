@@ -1,0 +1,47 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ shopify app config use\n"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which Partners organization is this work for?",
+        "choices": [
+          {
+            "label": "shopify.app.development.toml",
+            "value": "shopify.app.development.toml"
+          },
+          {
+            "label": "shopify.app.production.toml",
+            "value": "shopify.app.production.toml"
+          }
+        ]
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "shopify.app.development.toml is now the active configuration.",
+        "body": [],
+        "nextSteps": [
+          [
+            "For extensions, run",
+            {
+              "command": "generate extension"
+            }
+          ],
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

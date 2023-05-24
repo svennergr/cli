@@ -1,0 +1,104 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ shopify app config link\n"
+      }
+    },
+    {
+      "type": "warning",
+      "properties": {
+        "headline": "This operation will delete the existing shopify.app.toml file.",
+        "body": ["In order to link your app's configuration to Shopify, a new file will be generated."]
+      }
+    },
+   {
+      "type": "output",
+      "properties": {
+        "content": "To run this command, log in to Shopify Partners."
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "👉 Press any key to open the login page on your browser"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "✅ Logged in.\n"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to link an existing app on Shopify to a config?",
+        "confirmationMessage": "Yes, link to an existing app",
+        "cancellationMessage": "No, create a new app"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which Partners organization is this work for?",
+        "choices": [
+          {
+            "label": "Ellen's org",
+            "value": "Ellen's org"
+          },
+          {
+            "label": "test partners org",
+            "value": "test partners org"
+          }
+        ]
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "App name",
+        "defaultValue": "Dropshipping (development)"
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "What would you like to name your configuration file?",
+        "defaultValue": "shopify.app.development.toml"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to set the active configuration to shopify.app.development.toml?",
+        "confirmationMessage": "Yes, use shopify.app.development.toml",
+        "cancellationMessage": "No, I'll manage this myself"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`Dropshipping (development)` connected to this codebase.",
+        "body": [
+          "shopify.app.development.toml is now the active configuration."
+        ],
+        "nextSteps": [
+          [
+            "For extensions, run",
+            {
+              "command": "generate extension"
+            }
+          ],
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
