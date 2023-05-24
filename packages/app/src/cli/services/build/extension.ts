@@ -72,14 +72,16 @@ export async function buildUIExtensions(options: BuildUIExtensionsOptions): Prom
     return []
   }
 
-  return options.app.extensions.ui.map((uiExtension) => {
-    return {
-      prefix: uiExtension.localIdentifier,
-      action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {
-        await buildUIExtension(uiExtension, {stdout, stderr, signal, app: options.app})
-      },
-    }
-  })
+  return options.app.extensions.ui
+    .filter((uiExtension) => uiExtension.features.includes('bundling'))
+    .map((uiExtension) => {
+      return {
+        prefix: uiExtension.localIdentifier,
+        action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {
+          await buildUIExtension(uiExtension, {stdout, stderr, signal, app: options.app})
+        },
+      }
+    })
 }
 
 /**
@@ -88,7 +90,7 @@ export async function buildUIExtensions(options: BuildUIExtensionsOptions): Prom
  */
 export async function buildUIExtension(extension: UIExtension, options: ExtensionBuildOptions): Promise<void> {
   options.stdout.write(`Bundling UI extension ${extension.localIdentifier}...`)
-
+  if (!extension.features.includes('bundling')) return
   await bundleExtension({
     minify: true,
     outputBundlePath: extension.outputBundlePath,

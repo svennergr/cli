@@ -27,9 +27,14 @@ export async function updateExtensionDraft({
   registrationId,
   stderr,
 }: UpdateExtensionDraftOptions) {
-  const content = await readFile(extension.outputBundlePath)
-  if (!content) return
-  const encodedFile = Buffer.from(content).toString('base64')
+  console.log('updateExtensionDraft')
+  let encodedFile: string | undefined = 'Y29uc29sZS5sb2coInRlc3QiKQ=='
+  if (extension.features.includes('bundling')) {
+    const content = await readFile(extension.outputBundlePath)
+    console.log('content', content)
+    if (!content) return
+    encodedFile = Buffer.from(content).toString('base64')
+  }
 
   const extensionInput: ExtensionUpdateDraftInput = {
     apiKey,
@@ -40,6 +45,7 @@ export async function updateExtensionDraft({
     context: undefined,
     registrationId,
   }
+  console.log('extensionInput', extensionInput)
   const mutation = ExtensionUpdateDraftMutation
 
   const mutationResult: ExtensionUpdateSchema = await partnersRequest(mutation, token, extensionInput)
@@ -68,6 +74,7 @@ export async function updateExtensionConfig({
   stderr,
   specifications,
 }: UpdateExtensionConfigOptions) {
+  console.log('updateExtensionConfig')
   const abort = (errorMessage: OutputMessage) => {
     throw new AbortError(errorMessage)
   }
@@ -79,6 +86,7 @@ export async function updateExtensionConfig({
   }
 
   const configuration = await parseConfigurationFile(specification.schema, extension.configurationPath, abort)
+  console.log('configuration', configuration)
   // eslint-disable-next-line require-atomic-updates
   extension.configuration = configuration
   return updateExtensionDraft({extension, token, apiKey, registrationId, stderr})

@@ -465,20 +465,24 @@ export function devNonPreviewableExtensionTarget({
             const registrationId = remoteExtensions[extension.localIdentifier]
             if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)
 
-            return [
-              setupNonPreviewableExtensionBundler({
-                extension,
-                app,
-                url,
-                token,
-                apiKey,
-                registrationId,
-                stderr,
-                stdout,
-                signal,
-              }),
+            const tasks = [
               setupConfigWatcher({extension, token, apiKey, registrationId, stdout, stderr, signal, specifications}),
             ]
+            if (extension.features.includes('bundling')) {
+              tasks.push(
+                setupNonPreviewableExtensionBundler({
+                  extension,
+                  app,
+                  url,
+                  token,
+                  apiKey,
+                  registrationId,
+                  stderr,
+                  stdout,
+                  signal,
+                }),
+              )
+            }
           })
           .flat(),
       )
