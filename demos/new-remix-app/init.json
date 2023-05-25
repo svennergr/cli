@@ -1,11 +1,6 @@
 {
+  "command": "npm init @shopify/app@latest",
   "steps": [
-    {
-      "type": "output",
-      "properties": {
-        "content": "$ npm init @shopify/app@latest\n"
-      }
-    },
    {
       "type": "output",
       "properties": {
@@ -75,9 +70,15 @@
             }
           ],
           [
-            "To connect your app with Shopify, run",
+            "For extensions, run",
             {
-              "command": "npm run config link"
+              "command": "npm run generate extension"
+            }
+          ],
+          [
+            "To see your app, run",
+            {
+              "command": "npm run dev"
             }
           ]
         ],

@@ -4,9 +4,9 @@
     {
       "type": "success",
       "properties": {
-        "headline": "Updated app configuration for `Dropshipping Dev`",
+        "headline": "Updated app configuration for `Dropshipping`",
         "body": [
-          "shopify.app.dropshipping-dev.toml configuration is now live on Shopify."
+          "shopify.app.production.toml configuration is now live on Shopify."
         ]
       }
     }

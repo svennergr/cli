@@ -1,0 +1,56 @@
+{
+  "command": "shopify app config link",
+  "steps": [
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to link to an existing app on Shopify?",
+        "confirmationMessage": "Yes, link to an existing app",
+        "cancellationMessage": "No, create a new app"
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "App name",
+        "defaultValue": "Dropshipping"
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "What would you like to name your configuration file?",
+        "defaultValue": "shopify.app.dropshipping.toml"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`Dropshipping` connected to this codebase.",
+        "body": [
+          "Using shopify.app.production.toml as the current configuration."
+        ],
+        "nextSteps": [
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ],
+          [
+            "To push configuration changes from shopify.app.production.toml, run",
+            {
+              "command": "shopify app config push"
+            }
+          ],
+          [
+            "To switch configurations, run",
+            {
+              "command": "shopify app config use {config_name}"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

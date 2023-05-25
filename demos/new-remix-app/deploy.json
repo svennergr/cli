@@ -3,16 +3,31 @@
     {
       "type": "output",
       "properties": {
-        "content": "$ npm run config deploy --config=production\n"
+        "content": "$ npm run config deploy\n"
       }
     },
     {
       "type": "success",
       "properties": {
-        "headline": "Updated app configuration for Dropshipping (development)`",
+        "headline": "Your configs are:",
         "body": [
-          "Changes to shopify.app.development.toml are now reflected on Shopify."
+          {
+            "list": {
+              "items": [
+                "Org:                 Ellen's org",
+                "App:                 Dropshipping",
+                "Configuration file:  shopify.app.production.toml"
+              ]
+            }
+          }
         ]
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "Deployed Dropshipping app",
+        "body": []
       }
     }
   ]

@@ -1,0 +1,48 @@
+{
+  "command": "npm install @shopify/cli",
+  "steps": [
+    {
+      "type": "taskbar",
+      "properties": {
+        "steps": [
+          {
+            "title": "Fetching node dependencies",
+            "duration": 1
+          },
+          {
+            "title": "Packaging node dependencies",
+            "duration": 3
+          },
+          {
+            "title": "Wrapping up",
+            "duration": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "added 441 packages, and audited 442 packages in 15s\n"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "99 packages are looking for funding"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "      run `npm fund` for details"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "found 0 vulnerabilities"
+      }
+    }
+  ]
+}

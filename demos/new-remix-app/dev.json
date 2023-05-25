@@ -1,75 +1,57 @@
 {
+  "command": "shopify app run dev",
   "steps": [
     {
       "type": "output",
       "properties": {
-        "content": "$ npm run dev\n"
+        "content": "Looks like this is the first time you're running dev for this project."
       }
     },
     {
       "type": "output",
       "properties": {
-        "content": "✔ Using your default dev store (shop1) to preview your project.\n"
+        "content": "Configure your preferences by answering a few questions.\n\n"
       }
     },
     {
-      "type": "selectPrompt",
+      "type": "output",
       "properties": {
-        "message": "Which Partners organization is this work for?",
-        "choices": [
-          {
-            "label": "Ellen's org",
-            "value": "Ellen's org"
-          },
-          {
-            "label": "test partners org",
-            "value": "test partners org"
-          }
-        ]
+        "content": "Before you preview your work, it needs to be associated with an app.\n"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Create this project as a new app on Shopify?",
+        "confirmationMessage": "Yes, create it as a new app",
+        "cancellationMessage": "No, connect it to an existing app"
       }
     },
     {
       "type": "textPrompt",
       "properties": {
         "message": "App name",
-        "defaultValue": "Dropshipping (development)"
+        "defaultValue": "Dropshipping Dev"
       }
     },
     {
-      "type": "confirmationPrompt",
+      "type": "selectPrompt",
       "properties": {
-        "message": "Would you like Shopify to automatically update this app's URL?",
-        "confirmationMessage": "Yes, update this app's URL automatically",
-        "cancellationMessage": "No, I'll manage it myself"
-      }
-    },
-    {
-      "type": "textPrompt",
-      "properties": {
-        "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.development.toml"
-      }
-    },
-    {
-      "type": "info",
-      "properties": {
-        "headline": "Using your previous dev settings",
-        "body": [
+        "message": "Which store would you like to use to view your project?",
+        "choices": [
           {
-            "list": {
-
-              "items": [
-                "Org:                 Ellen's org",
-                "App:                 Dropshipping (development)",
-                "Configuration file:  shopify.app.development.toml [TODO: is this the right way to highlight this config's being used?]",
-                "Dev store:           ellens-store.myshopify.com",
-                "Update URLs:         Yes, this app's URL is updated automatically"
-              ]
-            }
+            "label": "rainforest-plants-store",
+            "value": "rainforest-plants-store"
           },
-          "\n [TODO: What does this mean?] To reset your default dev config, run `npm run dev -- --reset`"
-        ],
-        "nextSteps": []
+          {
+            "label": "chocolates-and-cookies-store",
+            "value": "chocolates-and-cookies-store"
+          },
+          {
+            "label": "fruits-and-veggies-store",
+            "value": "fruits-and-veggies-store"
+          }
+        ]
       }
     },
     {
@@ -77,7 +59,7 @@
       "properties": {
         "headline": "For your convenience, we've given your app a default URL: https://congress-concerned-halifax-spiritual.trycloudflare.com.",
         "body": [
-          "You can update your app's URL anytime in shopify.app.development.toml. But once your app is live, updating its URL will disrupt user access."
+          "You can update your app's URL anytime in shopify.app.dropshipping-dev.toml. But once your app is live, updating its URL will disrupt user access."
         ],
         "nextSteps": []
       }
@@ -107,12 +89,12 @@
               {
                 "startMessage": "watching extensions: js,mjs,json",
                 "duration": 2,
-                "endMessage": "Kick landed!"
+                "endMessage": "running proccess 1"
               },
               {
                 "startMessage": "starting `node index.js",
                 "duration": 3,
-                "endMessage": "Too late! KO'ed!"
+                "endMessage": "running process 2"
               }
             ]
           }

@@ -27,7 +27,7 @@
     {
       "type": "confirmationPrompt",
       "properties": {
-        "message": "Would you like to link an existing app on Shopify to a config?",
+        "message": "Would you like to link to an existing app on Shopify?",
         "confirmationMessage": "Yes, link to an existing app",
         "cancellationMessage": "No, create a new app"
       }
@@ -51,68 +51,58 @@
     {
       "type": "selectPrompt",
       "properties": {
-        "message": "Which app would you like to link this config to?",
+        "message": "Which app would you like to link to?",
         "choices": [
           {
-            "label": "Dropshipping App",
-            "value": "dropshipping"
+            "label": "Printful App",
+            "value": "printful"
           },
           {
-            "label": "Dropshipping (development)",
+            "label": "Printful Dev",
             "value": "development"
           },
           {
-            "label": "Dropshipping (Staging)",
-            "value": "alice"
+            "label": "Printful Staging",
+            "value": "staging"
           },
           {
-            "label": "Dropshipping (Bob)",
-            "value": "bob"
+            "label": "Printful (Alice)",
+            "value": "alice"
           }
         ]
-      }
-    },
-    {
-      "type": "confirmationPrompt",
-      "properties": {
-        "message": "Would you like Shopify to automatically update this app's URL when you run `dev`?",
-        "confirmationMessage": "Yes, update this app's URL automatically",
-        "cancellationMessage": "No, I'll manage it myself"
       }
     },
     {
       "type": "textPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.staging.toml"
-      }
-    },
-    {
-      "type": "confirmationPrompt",
-      "properties": {
-        "message": "Would you like to set the active configuration to shopify.app.development.toml?",
-        "confirmationMessage": "Yes, use shopify.app.staging.toml",
-        "cancellationMessage": "No, I'll manage this myself"
+        "defaultValue": "shopify.app.printful-staging.toml"
       }
     },
     {
       "type": "success",
       "properties": {
-        "headline": "`Dropshipping App (Staging)` connected to this codebase.",
+        "headline": "`Printful Staging` connected to this codebase.",
         "body": [
-          "shopify.app.development.toml is still the active configuration."
+          "Using shopify.app.production.toml as the current configuration."
         ],
         "nextSteps": [
-          [
-            "For extensions, run",
-            {
-              "command": "generate extension"
-            }
-          ],
           [
             "To see your app, run",
             {
               "command": "shopify app dev"
+            }
+          ],
+          [
+            "To push configuration changes from shopify.app.staging.toml, run",
+            {
+              "command": "shopify app config push"
+            }
+          ],
+          [
+            "To switch configurations, run",
+            {
+              "command": "shopify app config use {config_name}"
             }
           ]
         ]
