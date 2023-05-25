@@ -25,6 +25,10 @@
         "message": "Which template would you like to use?",
         "choices": [
           {
+            "label": "Remix",
+            "value": "Remix"
+          },
+          {
             "label": "node",
             "value": "node"
           },

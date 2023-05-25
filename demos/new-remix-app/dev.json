@@ -7,57 +7,31 @@
       }
     },
     {
-      "type": "selectPrompt",
-      "properties": {
-        "message": "Have Shopify automatically update your app’s URL in order to create a preview experience?",
-        "choices": [
-          {
-            "label": "Always by default",
-            "value": "Always by default"
-          },
-          {
-            "label": "Yes, this time",
-            "value": "Yes, this time"
-          },
-          {
-            "label": "No, not now",
-            "value": "No, not now"
-          },
-          {
-            "label": "Never, don’t ask again",
-            "value": "Never, don’t ask again"
-          }
-        ]
-      }
-    },
-    {
-      "type": "selectPrompt",
-      "properties": {
-        "message": "Have Shopify automatically update the app URL in shopify.app.development.toml?",
-        "choices": [
-          {
-            "label": "Always by default",
-            "value": "Always by default"
-          },
-          {
-            "label": "Yes, this time",
-            "value": "Yes, this time"
-          },
-          {
-            "label": "No, not now",
-            "value": "No, not now"
-          },
-          {
-            "label": "Never, don’t ask again",
-            "value": "Never, don’t ask again"
-          }
-        ]
-      }
-    },
-    {
       "type": "output",
       "properties": {
         "content": "✔ Using your default dev store (shop1) to preview your project.\n"
+      }
+    },
+    {
+      "type": "info",
+      "properties": {
+        "headline": "Using your previous dev settings",
+        "body": [
+          {
+            "list": {
+
+              "items": [
+                "Org:                 Ellen's org",
+                "App:                 Dropshipping (development)",
+                "Configuration file:  shopify.app.development.toml [TODO: is this the right way to highlight this config's being used?]",
+                "Dev store:           ellens-store.myshopify.com",
+                "Update URLs:         Yes, this app's URL is updated automatically"
+              ]
+            }
+          },
+          "\n [TODO: What does this mean?] To reset your default dev config, run `npm run dev -- --reset`"
+        ],
+        "nextSteps": []
       }
     },
     {
@@ -104,19 +78,7 @@
               }
             ]
           }
-        ],
-        "footer": {
-          "shortcuts": [
-            {
-              "key": "p",
-              "action": "View the fight in your browser!"
-            },
-            {
-              "key": "q",
-              "action": "Quite fighting! Stop the violence!"
-            }
-          ]
-        }
+        ]
       }
     }
   ]
