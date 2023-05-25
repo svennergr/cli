@@ -7,13 +7,6 @@
       }
     },
     {
-      "type": "warning",
-      "properties": {
-        "headline": "This operation will delete the existing shopify.app.toml file.",
-        "body": ["In order to link your app's configuration to Shopify, a new file will be generated."]
-      }
-    },
-   {
       "type": "output",
       "properties": {
         "content": "To run this command, log in to Shopify Partners."
@@ -63,6 +56,14 @@
       }
     },
     {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like Shopify to automatically update this app's URL when you run `dev`?",
+        "confirmationMessage": "Yes, update this app's URL automatically",
+        "cancellationMessage": "No, I'll manage it myself"
+      }
+    },
+    {
       "type": "textPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
@@ -72,9 +73,9 @@
     {
       "type": "confirmationPrompt",
       "properties": {
-        "message": "Would you like to set the active configuration to shopify.app.development.toml?",
+        "message": "Would you like to use this as the default?",
         "confirmationMessage": "Yes, use shopify.app.development.toml",
-        "cancellationMessage": "No, I'll manage this myself"
+        "cancellationMessage": "No, I'll manage it myself"
       }
     },
     {

@@ -56,6 +56,14 @@
       }
     },
     {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like Shopify to automatically update this app's URL when you run `dev`?",
+        "confirmationMessage": "Yes, update this app's URL automatically",
+        "cancellationMessage": "No, I'll manage it myself"
+      }
+    },
+    {
       "type": "textPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
