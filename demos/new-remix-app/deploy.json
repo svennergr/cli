@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ npm run config deploy --config=production\n"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "Updated app configuration for Dropshipping (development)`",
+        "body": [
+          "Changes to shopify.app.development.toml are now reflected on Shopify."
+        ]
+      }
+    }
+  ]
+}

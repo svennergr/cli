@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ npm run config use staging\n"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "shopify.app.staging.toml is now the active configuration.",
+        "body": [
+          ""
+        ]
+      }
+    }
+  ]
+}
