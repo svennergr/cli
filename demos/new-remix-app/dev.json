@@ -13,6 +13,44 @@
       }
     },
     {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which Partners organization is this work for?",
+        "choices": [
+          {
+            "label": "Ellen's org",
+            "value": "Ellen's org"
+          },
+          {
+            "label": "test partners org",
+            "value": "test partners org"
+          }
+        ]
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "App name",
+        "defaultValue": "Dropshipping (development)"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like Shopify to automatically update this app's URL?",
+        "confirmationMessage": "Yes, update this app's URL automatically",
+        "cancellationMessage": "No, I'll manage it myself"
+      }
+    },
+    {
+      "type": "textPrompt",
+      "properties": {
+        "message": "What would you like to name your configuration file?",
+        "defaultValue": "shopify.app.development.toml"
+      }
+    },
+    {
       "type": "info",
       "properties": {
         "headline": "Using your previous dev settings",
