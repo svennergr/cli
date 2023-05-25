@@ -3,7 +3,7 @@
     {
       "type": "output",
       "properties": {
-        "content": "$ shopify app dev\n"
+        "content": "$ npm run dev\n"
       }
     },
     {
