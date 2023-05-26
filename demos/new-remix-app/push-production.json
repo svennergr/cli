@@ -1,12 +1,12 @@
 {
-  "command": "shopify app config push",
+  "command": "npm run shopify app config push",
   "steps": [
     {
       "type": "success",
       "properties": {
         "headline": "Updated app configuration for `Dropshipping`",
         "body": [
-          "shopify.app.production.toml configuration is now live on Shopify."
+          "shopify.app.dropshipping.toml configuration is now live on Shopify."
         ]
       }
     }

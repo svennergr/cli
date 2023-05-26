@@ -1,5 +1,5 @@
 {
-  "command": "shopify app config link",
+  "command": "npm run shopify app config link",
   "steps": [
     {
       "type": "confirmationPrompt",
@@ -28,7 +28,7 @@
       "properties": {
         "headline": "`Dropshipping` connected to this codebase.",
         "body": [
-          "Using shopify.app.production.toml as the current configuration."
+          "Using shopify.app.dropshipping.toml as the current configuration."
         ],
         "nextSteps": [
           [
@@ -38,7 +38,7 @@
             }
           ],
           [
-            "To push configuration changes from shopify.app.production.toml, run",
+            "To push configuration changes from shopify.app.dropshipping.toml, run",
             {
               "command": "shopify app config push"
             }

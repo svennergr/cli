@@ -1,5 +1,5 @@
 {
-  "command": "shopify app config push",
+  "command": "npm run shopify app config push",
   "steps": [
     {
       "type": "success",

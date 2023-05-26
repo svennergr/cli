@@ -1,5 +1,5 @@
 {
-  "command": "shopify app run dev",
+  "command": "npm run shopify app dev",
   "steps": [
     {
       "type": "output",
