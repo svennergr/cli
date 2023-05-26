@@ -17,18 +17,11 @@
       }
     },
     {
-      "type": "textPrompt",
-      "properties": {
-        "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.drops-magic.toml"
-      }
-    },
-    {
       "type": "success",
       "properties": {
         "headline": "`Drops Magic` connected to this codebase.",
         "body": [
-          "Using shopify.app.drops-magic-prod.toml as the current configuration."
+          "Using shopify.app.drops-magic.toml as the current configuration."
         ],
         "nextSteps": [
           [

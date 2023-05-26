@@ -6,7 +6,7 @@
       "properties": {
         "headline": "Updated app configuration for `Drops Magic`",
         "body": [
-          "shopify.app.drops-magic-prod.toml configuration is now live on Shopify."
+          "shopify.app.drops-magic.toml configuration is now live on Shopify."
         ]
       }
     }

@@ -13,16 +13,17 @@ run_demo new-remix-app/dev.json
 
 step "Here is how that shopify.app.drops-magic-dev.toml would look like"
 ORIGINAL_TOML=$(cat << 'EOL'
-scopes = "write_products"
-
 [settings]
 api_key = "384f1ddba5120d2622af435ebbabacbe"
 automatically_update_urls_on_dev = true
 
-[config]
+[app_config]
+scopes = "write_products"
+
+[app_config.event_subscriptions]
 webhook_event_version = "2023-01"
 
-[config.urls]
+[app_config.urls]
 app_url = "https://congress-concerned-halifax-spiritual.trycloudflare.com"
 redirect_url_allowlist = ["/auth/callback"]
 
@@ -34,20 +35,21 @@ echo "--------------------------shopify.app.drops-magic-dev.toml----------------
 
 step "We can now make a change to the shopify.app.drops-magic-dev.toml"
 MODIFIED_TOML=$(cat << 'EOL'
-scopes = "write_products"
-
 [settings]
 api_key = "384f1ddba5120d2622af435ebbabacbe"
 automatically_update_urls_on_dev = true
 
-[config]
+[app_config]
+scopes = "write_products"
+
+[app_config.event_subscriptions]
 webhook_event_version = "2023-04"
 
-[config.urls]
+[app_config.urls]
 app_url = "https://congress-concerned-halifax-spiritual.trycloudflare.com"
 redirect_url_allowlist = ["/auth/callback"]
 
-[config.app_proxy]
+[app_config.proxy]
 url = "https://congress-concerned-halifax-spiritual.trycloudflare.com/proxy"
 subpath = "drop-proxy"
 subpathPrefix = "apps"
@@ -64,41 +66,43 @@ run_demo new-remix-app/link-production.json
 
 step "Here is how that shopify.app.drops-magic-prod.toml would look like"
 PRODUCTION_TOML=$(cat << 'EOL'
-scopes = "write_products"
-
 [settings]
 api_key = "8614c837eefe0236fc3d2eb6c9841206"
 automatically_update_urls_on_dev = false
 
-[config]
+[app_config]
+scopes = "write_products"
+
+[app_config.event_subscriptions]
 webhook_event_version = "2023-01"
 
-[config.urls]
+[app_config.urls]
 app_url = "https://example.com"
 
 EOL
 )
-echo "--------------------------shopify.app.drops-magic-prod.toml---------------------------------"
+echo "--------------------------shopify.app.drops-magic.toml---------------------------------"
 echo "$PRODUCTION_TOML"
-echo "--------------------------shopify.app.drops-magic-prod.toml---------------------------------"
+echo "--------------------------shopify.app.drops-magic.toml---------------------------------"
 
 
 step "We can make a change to it"
 MODIFIED_PRODUCTION_TOML=$(cat << 'EOL'
-scopes = "write_products"
-
 [settings]
 api_key = "8614c837eefe0236fc3d2eb6c9841206"
 automatically_update_urls_on_dev = false
 
-[config]
+[app_config]
+scopes = "write_products"
+
+[app_config.event_subscriptions]
 webhook_event_version = "2023-04"
 
-[config.urls]
+[app_config.urls]
 app_url = "https://wwww.drops-magic.io"
 redirect_url_allowlist = ["/auth/callback"]
 
-[config.app_proxy]
+[app_config.proxy]
 url = "https://wwww.drops-magic.io/proxy"
 subpath = "drop-proxy"
 subpathPrefix = "apps"
