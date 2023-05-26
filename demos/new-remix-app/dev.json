@@ -1,5 +1,5 @@
 {
-  "command": "npm run shopify app dev",
+  "command": "cd drops-magic && npm run dev",
   "steps": [
     {
       "type": "output",
@@ -31,7 +31,7 @@
       "type": "textPrompt",
       "properties": {
         "message": "App name",
-        "defaultValue": "Dropshipping Dev"
+        "defaultValue": "Drops Magic Dev"
       }
     },
     {
@@ -59,7 +59,7 @@
       "properties": {
         "headline": "For your convenience, we've given your app a default URL: https://congress-concerned-halifax-spiritual.trycloudflare.com.",
         "body": [
-          "You can update your app's URL anytime in shopify.app.dropshipping-dev.toml. But once your app is live, updating its URL will disrupt user access."
+          "You can update your app's URL anytime in shopify.app.drops-magic-dev.toml\nBut once your app is live, updating its URL will disrupt user access."
         ],
         "nextSteps": []
       }

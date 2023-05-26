@@ -1,10 +1,21 @@
 {
-  "command": "npm run shopify app config use printful-staging",
+  "command": "npm run config use staging",
   "steps": [
     {
       "type": "success",
       "properties": {
-        "headline": "shopify.app.printful-staging.toml is now the active configuration."
+        "headline": "Using staging as the current configuration.",
+        "body": [
+          {
+            "list": {
+              "items": [
+                "Org:                 Printful Inc.",
+                "App:                 Printful Staging",
+                "Configuration file:  shopify.app.staging.toml"
+              ]
+            }
+          }
+        ]
       }
     }
   ]

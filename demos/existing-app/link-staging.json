@@ -1,5 +1,5 @@
 {
-  "command": "npm run shopify app config link",
+  "command": "npm run config link",
   "steps": [
    {
       "type": "output",
@@ -33,12 +33,12 @@
         "message": "Which Partners organization is this work for?",
         "choices": [
           {
-            "label": "Ellen's org",
-            "value": "Ellen's org"
+            "label": "Printful Inc.",
+            "value": "printful-inc"
           },
           {
-            "label": "test partners org",
-            "value": "test partners org"
+            "label": "Printful Intl",
+            "value": "printful-intl"
           }
         ]
       }
@@ -79,7 +79,7 @@
       "properties": {
         "headline": "`Printful Staging` connected to this codebase.",
         "body": [
-          "Using shopify.app.printful-staging.toml as the current configuration."
+          "Using shopify.app.staging.toml as the current configuration."
         ],
         "nextSteps": [
           [
@@ -89,7 +89,7 @@
             }
           ],
           [
-            "To push configuration changes from shopify.app.printful-staging.toml, run",
+            "To push configuration changes, run",
             {
               "command": "shopify app config push"
             }

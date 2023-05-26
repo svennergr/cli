@@ -24,5 +24,5 @@ function run_demo() {
 
 # helper to diff two variables
 function fake_diff() {
-  diff -U10 <(echo "$1") <(echo "$2") | tail -n +3
+  delta <(echo "$1") <(echo "$2") | tail -n +3
 }

@@ -1,12 +1,12 @@
 {
-  "command": "npm run shopify app config push -c printful-app",
+  "command": "npm run config push --config production",
   "steps": [
     {
       "type": "success",
       "properties": {
-        "headline": "Updated app configuration for `Printful App`",
+        "headline": "Updated app configuration for `Printful`",
         "body": [
-          "shopify.app.printful-app.toml configuration is now live on Shopify."
+          "shopify.app.production.toml configuration is now live on Shopify."
         ]
       }
     }

@@ -1,5 +1,5 @@
 {
-  "command": "npm run shopify app config link",
+  "command": "npm run config link",
   "steps": [
     {
       "type": "confirmationPrompt",
@@ -13,22 +13,22 @@
       "type": "textPrompt",
       "properties": {
         "message": "App name",
-        "defaultValue": "Dropshipping"
+        "defaultValue": "Drops Magic"
       }
     },
     {
       "type": "textPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.dropshipping.toml"
+        "defaultValue": "shopify.app.drops-magic.toml"
       }
     },
     {
       "type": "success",
       "properties": {
-        "headline": "`Dropshipping` connected to this codebase.",
+        "headline": "`Drops Magic` connected to this codebase.",
         "body": [
-          "Using shopify.app.dropshipping.toml as the current configuration."
+          "Using shopify.app.drops-magic-prod.toml as the current configuration."
         ],
         "nextSteps": [
           [
@@ -38,7 +38,7 @@
             }
           ],
           [
-            "To push configuration changes from shopify.app.dropshipping.toml, run",
+            "To push configuration changes, run",
             {
               "command": "shopify app config push"
             }

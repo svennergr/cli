@@ -11,7 +11,7 @@
       "type": "textPrompt",
       "properties": {
         "message": "Your app project name?",
-        "defaultValue": "dropshipping-app"
+        "defaultValue": "drops-magic"
       }
     },
     {
@@ -20,8 +20,8 @@
         "message": "Which template would you like to use?",
         "choices": [
           {
-            "label": "Remix",
-            "value": "Remix"
+            "label": "remix",
+            "value": "remix"
           },
           {
             "label": "node",
@@ -60,13 +60,12 @@
     {
       "type": "success",
       "properties": {
-        "headline": "`dropshipping-app` is ready for you to build!",
-        "body": [],
+        "headline": "`drops-magic` is ready for you to build!",
         "nextSteps": [
           [
             "Run",
             {
-              "command": "cd dropshipping-app"
+              "command": "cd drops-magic"
             }
           ],
           [

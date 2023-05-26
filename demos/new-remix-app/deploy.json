@@ -1,17 +1,17 @@
 {
-  "command": "npm run shopify app deploy",
+  "command": "npm run deploy",
   "steps": [
     {
-      "type": "success",
+      "type": "info",
       "properties": {
-        "headline": "Your configs are:",
+        "headline": "Your settings are:",
         "body": [
           {
             "list": {
               "items": [
                 "Org:                 Ellen's org",
-                "App:                 Dropshipping",
-                "Configuration file:  shopify.app.dropshipping.toml"
+                "App:                 Drops Magic",
+                "Configuration file:  shopify.app.drops-magic-prod.toml"
               ]
             }
           }
@@ -19,9 +19,20 @@
       }
     },
     {
+      "type": "taskbar",
+      "properties": {
+        "steps": [
+          {
+            "title": "Pushing your changes to Shopify",
+            "duration": 2
+          }
+        ]
+      }
+    },
+    {
       "type": "success",
       "properties": {
-        "headline": "Deployed Dropshipping app"
+        "headline": "Successfully deployed `Drops Magic`"
       }
     }
   ]

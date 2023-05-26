@@ -5,25 +5,25 @@ DIR_PATH="$(dirname "$0")"
 source $DIR_PATH/helpers.sh
 
 clear
-print_and_wait "Let's enable config in code in your dashboard managed app"
+print_and_wait "Let's enable config in code for an existing dashboard managed app"
 clear
 
 print_and_wait "$ cd printful"
 clear
 
-print_and_wait "Let's install the Shopify CLI"
+print_and_wait "Let's add the Shopify CLI as a dependency"
 run_demo existing-app/install-cli.json
 
 step "We can now link an existing staging app"
 run_demo existing-app/link-staging.json
 
-step "And a production app too"
+step "And link a production app too"
 run_demo existing-app/link-production.json
 
-step "We might prefer to use the staging config as our default"
+step "We might prefer to use the staging config"
 run_demo existing-app/use-staging.json
 
-step "Now we can make a change in shopify.app.printful-staging.toml"
+step "Now we can make a change in shopify.app.staging.toml"
 ORIGINAL_TOML=$(cat << 'EOL'
 scopes = "write_products"
 

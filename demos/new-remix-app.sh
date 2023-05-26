@@ -11,7 +11,7 @@ run_demo new-remix-app/init.json
 step "Now we can start developing our app"
 run_demo new-remix-app/dev.json
 
-step "We can now make a change to the shopify.app.dropshipping-dev.toml"
+step "We can now make a change to the shopify.app.drops-magic-dev.toml"
 ORIGINAL_TOML=$(cat << 'EOL'
 scopes = "write_products"
 
@@ -20,6 +20,10 @@ api_key = "384f1ddba5120d2622af435ebbabacbe"
 
 [config]
 webhook_event_version = "2023-01"
+
+[config.urls]
+app_url = "https://congress-concerned-halifax-spiritual.trycloudflare.com"
+redirect_url_allowlist = ["/auth/callback"]
 EOL
 )
 MODIFIED_TOML=$(cat << 'EOL'
@@ -30,6 +34,10 @@ api_key = "384f1ddba5120d2622af435ebbabacbe"
 
 [config]
 webhook_event_version = "2023-04"
+
+[config.urls]
+app_url = "https://congress-concerned-halifax-spiritual.trycloudflare.com"
+redirect_url_allowlist = ["/auth/callback"]
 EOL
 )
 fake_diff "$ORIGINAL_TOML" "$MODIFIED_TOML"
@@ -37,10 +45,10 @@ fake_diff "$ORIGINAL_TOML" "$MODIFIED_TOML"
 step "And push the config change to Shopify"
 run_demo new-remix-app/push.json
 
-step "What if we wanted to link an existing app to this codebase?"
+step "What if we wanted to create a production app?"
 run_demo new-remix-app/link-production.json
 
-step "Here is how that shopify.app.dropshipping.toml would look like"
+step "Here is how that shopify.app.drops-magic-prod.toml would look like"
 PRODUCTION_TOML=$(cat << 'EOL'
 scopes = "write_products"
 
@@ -51,7 +59,7 @@ api_key = "8614c837eefe0236fc3d2eb6c9841206"
 webhook_event_version = "2023-01"
 
 [config.urls]
-app_url = "https://my-cool-dropshipping-app.fly.io"
+app_url = "https://drops-magic.fly.io"
 EOL
 )
 echo "$PRODUCTION_TOML"
@@ -67,7 +75,7 @@ api_key = "8614c837eefe0236fc3d2eb6c9841206"
 webhook_event_version = "2023-04"
 
 [config.urls]
-app_url = "https://my-cool-dropshipping-app-v2.fly.io"
+app_url = "https://drops-magic-v2.fly.io"
 EOL
 )
 fake_diff "$PRODUCTION_TOML" "$MODIFIED_PRODUCTION_TOML"
