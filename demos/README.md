@@ -1,5 +1,8 @@
 ### Step by step flow
+
+##### WARNING! Please run `brew install git-delta` before running any of the demos
 #### New Remix app
+
 `./demos/new-remix-app.sh`
 
 1. Generate new Remix app template (npm init @shopify/app@latest) -> init.json
