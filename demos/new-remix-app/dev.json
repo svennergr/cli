@@ -28,7 +28,7 @@
       }
     },
     {
-      "type": "textPrompt",
+      "type": "maskedInputPrompt",
       "properties": {
         "message": "App name",
         "defaultValue": "Drops Magic Dev"

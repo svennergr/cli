@@ -52,10 +52,10 @@
       }
     },
     {
-      "type": "textPrompt",
+      "type": "maskedInputPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.printful.toml"
+        "defaultValue": "printful"
       }
     },
     {

@@ -114,7 +114,7 @@ fake_diff "$PRODUCTION_TOML" "$MODIFIED_PRODUCTION_TOML"
 step "And push the change to Shopify"
 run_demo new-remix-app/push-production.json
 
-step "What happens when we deploy?"
-run_demo new-remix-app/deploy.json
+# step "What happens when we deploy?"
+# run_demo new-remix-app/deploy.json
 
 step "Fin"

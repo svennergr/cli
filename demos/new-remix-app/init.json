@@ -10,7 +10,7 @@
     {
       "type": "textPrompt",
       "properties": {
-        "message": "Your app project name?",
+        "message": "Your project name?",
         "defaultValue": "drops-magic"
       }
     },
