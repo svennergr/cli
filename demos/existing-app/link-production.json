@@ -30,22 +30,6 @@
     {
       "type": "selectPrompt",
       "properties": {
-        "message": "Which Partners organization is this work for?",
-        "choices": [
-          {
-            "label": "Ellen's org",
-            "value": "Ellen's org"
-          },
-          {
-            "label": "test partners org",
-            "value": "test partners org"
-          }
-        ]
-      }
-    },
-    {
-      "type": "selectPrompt",
-      "properties": {
         "message": "Which app would you like to link to?",
         "choices": [
           {
@@ -71,15 +55,15 @@
       "type": "textPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.printful-staging.toml"
+        "defaultValue": "shopify.app.printful-app.toml"
       }
     },
     {
       "type": "success",
       "properties": {
-        "headline": "`Printful Staging` connected to this codebase.",
+        "headline": "`Printful` connected to this codebase.",
         "body": [
-          "Using shopify.app.printful-staging.toml as the current configuration."
+          "Using shopify.app.printful-app.toml as the current configuration."
         ],
         "nextSteps": [
           [
@@ -89,7 +73,7 @@
             }
           ],
           [
-            "To push configuration changes from shopify.app.printful-staging.toml, run",
+            "To push configuration changes from shopify.app.printful-app.toml, run",
             {
               "command": "shopify app config push"
             }

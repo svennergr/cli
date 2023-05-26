@@ -5,13 +5,25 @@ DIR_PATH="$(dirname "$0")"
 source $DIR_PATH/helpers.sh
 
 clear
-print_and_wait "Let's generate a new remix app"
-run_demo new-remix-app/init.json
+print_and_wait "Let's enable config in code in your dashboard managed app"
+clear
 
-step "Now we can start developing our app"
-run_demo new-remix-app/dev.json
+print_and_wait "$ cd printful"
+clear
 
-step "We can now make a change to the shopify.app.dropshipping-dev.toml"
+print_and_wait "Let's install the Shopify CLI"
+run_demo existing-app/install-cli.json
+
+step "We can now link an existing staging app"
+run_demo existing-app/link-staging.json
+
+step "And a production app too"
+run_demo existing-app/link-production.json
+
+step "We might prefer to use the staging config as our default"
+run_demo existing-app/use-staging.json
+
+step "Now we can make a change in shopify.app.printful-staging.toml"
 ORIGINAL_TOML=$(cat << 'EOL'
 scopes = "write_products"
 
@@ -34,13 +46,10 @@ EOL
 )
 fake_diff "$ORIGINAL_TOML" "$MODIFIED_TOML"
 
-step "And push the config change to Shopify"
-run_demo new-remix-app/push.json
+step "And push it to Shopify"
+run_demo existing-app/push-staging.json
 
-step "What if we wanted to link an existing app to this codebase?"
-run_demo new-remix-app/link-production.json
-
-step "Here is how that shopify.app.dropshipping.toml would look like"
+step "We can also make changes to the production config"
 PRODUCTION_TOML=$(cat << 'EOL'
 scopes = "write_products"
 
@@ -51,12 +60,9 @@ api_key = "8614c837eefe0236fc3d2eb6c9841206"
 webhook_event_version = "2023-01"
 
 [config.urls]
-app_url = "https://my-cool-dropshipping-app.fly.io"
+app_url = "https://printful.fly.io"
 EOL
 )
-echo "$PRODUCTION_TOML"
-
-step "We can make a change to it"
 MODIFIED_PRODUCTION_TOML=$(cat << 'EOL'
 scopes = "write_products"
 
@@ -67,15 +73,12 @@ api_key = "8614c837eefe0236fc3d2eb6c9841206"
 webhook_event_version = "2023-04"
 
 [config.urls]
-app_url = "https://my-cool-dropshipping-app-v2.fly.io"
+app_url = "https://printful-v2.fly.io"
 EOL
 )
 fake_diff "$PRODUCTION_TOML" "$MODIFIED_PRODUCTION_TOML"
 
-step "And push the change to Shopify"
-run_demo new-remix-app/push-production.json
-
-step "What happens when we deploy?"
-run_demo new-remix-app/deploy.json
+step "And push it to Shopify"
+run_demo existing-app/push-production.json
 
 step "Fin"

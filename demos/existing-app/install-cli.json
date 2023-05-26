@@ -1,5 +1,5 @@
 {
-  "command": "npm install @shopify/cli",
+  "command": "npm install @shopify/cli @shopify/app",
   "steps": [
     {
       "type": "taskbar",
