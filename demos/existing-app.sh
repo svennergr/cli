@@ -39,6 +39,7 @@ scopes = "write_products"
 
 [settings]
 api_key = "384f1ddba5120d2622af435ebbabacbe"
+automatically_update_urls_on_dev = false
 
 [config]
 webhook_event_version = "2023-04"
@@ -68,6 +69,7 @@ scopes = "write_products"
 
 [settings]
 api_key = "8614c837eefe0236fc3d2eb6c9841206"
+automatically_update_urls_on_dev = false
 
 [config]
 webhook_event_version = "2023-04"
