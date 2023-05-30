@@ -61,10 +61,12 @@ fake_diff "$ORIGINAL_TOML" "$MODIFIED_TOML"
 step "And push the config change to Shopify"
 run_demo new-remix-app/push.json
 
+step "Let's take a look at the changes reflected on Partners"
+
 step "What if we wanted to create a production app?"
 run_demo new-remix-app/link-production.json
 
-step "Here is how that shopify.app.drops-magic-prod.toml would look like"
+step "Here is how that shopify.app.drops-magic.toml would look like"
 PRODUCTION_TOML=$(cat << 'EOL'
 [settings]
 api_key = "8614c837eefe0236fc3d2eb6c9841206"
@@ -90,7 +92,6 @@ step "We can make a change to it"
 MODIFIED_PRODUCTION_TOML=$(cat << 'EOL'
 [settings]
 api_key = "8614c837eefe0236fc3d2eb6c9841206"
-automatically_update_urls_on_dev = false
 
 [app_config]
 scopes = "write_products"
@@ -113,6 +114,8 @@ fake_diff "$PRODUCTION_TOML" "$MODIFIED_PRODUCTION_TOML"
 
 step "And push the change to Shopify"
 run_demo new-remix-app/push-production.json
+
+step "Let's take a look at the changes reflected on Partners"
 
 # step "What happens when we deploy?"
 # run_demo new-remix-app/deploy.json
