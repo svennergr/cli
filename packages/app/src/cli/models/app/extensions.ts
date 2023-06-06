@@ -53,6 +53,5 @@ export type UIExtension<TConfiguration extends BaseConfigType = BaseConfigType> 
   preDeployValidation(): Promise<void>
   buildValidation(): Promise<void>
   previewMessage(url: string, storeFqdn: string): TokenizedString | undefined
-  shouldFetchCartUrl(): boolean
   hasExtensionPointTarget(target: string): boolean
 }

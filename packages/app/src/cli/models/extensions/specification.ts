@@ -44,7 +44,6 @@ export interface ExtensionSpecification<TConfiguration extends BaseConfigType = 
     config: TConfiguration,
     storeFqdn: string,
   ) => TokenizedString | undefined
-  shouldFetchCartUrl?(config: TConfiguration): boolean
   hasExtensionPointTarget?(config: TConfiguration, target: string): boolean
   appModuleFeatures: (config: TConfiguration) => ExtensionFeature[]
 }
@@ -86,7 +85,6 @@ export interface CreateExtensionSpecType<TConfiguration extends BaseConfigType =
  * preDeployValidation?: (configuration: TConfiguration) => Promise<void> // function to validate the extension's configuration before deploying it
  * deployConfig?: (configuration: TConfiguration, directory: string) => Promise<{[key: string]: unknown}> // function to generate the extensions configuration payload to be deployed
  * previewMessage?: (url: string, devUUID: string, configuration: TConfiguration, storeFqdn: string) => string | undefined // function to generate the preview message shown to the user during `dev`
- * shouldFetchCartUrl?: (configuration: TConfiguration) => boolean // function to determine if the extension should fetch the cart url
  * hasExtensionPointTarget?: (configuration: TConfiguration, target: string) => boolean // function to determine if the extension has a given extension point target
  * ```
  */
