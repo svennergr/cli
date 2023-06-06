@@ -411,7 +411,7 @@ interface DevUIExtensionsTargetOptions {
   id?: string
   subscriptionProductUrl?: string
   checkoutCartUrl?: string
-  extensions: UIExtension[]
+  extensions: ExtensionInstance[]
 }
 
 async function devUIExtensionsTarget({
