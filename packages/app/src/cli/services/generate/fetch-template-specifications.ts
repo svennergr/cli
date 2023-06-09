@@ -14,6 +14,7 @@ import productSubscriptionUIExtension from '../../models/templates/ui-specificat
 import taxCalculationUIExtension from '../../models/templates/ui-specifications/tax_calculation.js'
 import UIExtension from '../../models/templates/ui-specifications/ui_extension.js'
 import webPixelUIExtension from '../../models/templates/ui-specifications/web_pixel_extension.js'
+import flowTemplateExtension from '../../models/templates/generic-specifications/flow_template.js'
 import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
 
 export async function fetchExtensionTemplates(
@@ -45,7 +46,11 @@ export function localExtensionTemplates(): ExtensionTemplate[] {
     taxCalculationUIExtension,
     UIExtension,
     webPixelUIExtension,
+<<<<<<< HEAD
     flowTriggerExtension,
     flowActionExtension,
+=======
+    flowTemplateExtension,
+>>>>>>> 400311f2a (wip flow template extension in cli)
   ]
 }
