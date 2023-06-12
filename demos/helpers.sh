@@ -6,7 +6,7 @@ DIR_PATH="$(dirname "$0")"
 # helper to read any key and continue
 function print_and_wait() {
   local message="$1"
-  read -p "🦀 ${message} "
+  read -p "${message} "
 }
 
 function step() {

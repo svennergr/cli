@@ -14,6 +14,7 @@ import {Table, TableColumn, TableProps} from '../../private/node/ui/components/T
 import {SelectPrompt, SelectPromptProps} from '../../private/node/ui/components/SelectPrompt.js'
 import {Tasks, Task} from '../../private/node/ui/components/Tasks.js'
 import {TextPrompt, TextPromptProps} from '../../private/node/ui/components/TextPrompt.js'
+import {MaskedInputPrompt, MaskedInputPromptProps} from '../../private/node/ui/components/MaskedInputPrompt.js'
 import {AutocompletePromptProps, AutocompletePrompt} from '../../private/node/ui/components/AutocompletePrompt.js'
 import {InlineToken, LinkToken, ListToken, TokenItem} from '../../private/node/ui/components/TokenizedText.js'
 import {InfoTableSection} from '../../private/node/ui/components/Prompts/InfoTable.js'
@@ -471,6 +472,26 @@ export async function renderTextPrompt({renderOptions, ...props}: RenderTextProm
   // eslint-disable-next-line max-params
   return new Promise((resolve, reject) => {
     render(<TextPrompt {...props} onSubmit={(value: string) => resolve(value)} />, {
+      ...renderOptions,
+      exitOnCtrlC: false,
+    })
+      .catch(reject)
+      .finally(resetRecordedSleep)
+  })
+}
+
+export interface RenderTextPromptOptions extends Omit<TextPromptProps, 'onSubmit'> {
+  renderOptions?: RenderOptions
+}
+
+
+export async function renderMaskedInputPrompt({renderOptions, ...props}: RenderTextPromptOptions): Promise<string> {
+  // eslint-disable-next-line prefer-rest-params
+  recordUIEvent({type: 'maskedInputPrompt', properties: arguments[0]})
+
+  // eslint-disable-next-line max-params
+  return new Promise((resolve, reject) => {
+    render(<MaskedInputPrompt {...props} onSubmit={(value: string) => resolve(value)} />, {
       ...renderOptions,
       exitOnCtrlC: false,
     })

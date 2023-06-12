@@ -7,28 +7,10 @@
         "color": "cyan"
       }
     },
-   {
-      "type": "output",
-      "properties": {
-        "content": "To run this command, log in to Shopify Partners."
-      }
-    },
-    {
-      "type": "output",
-      "properties": {
-        "content": "👉 Press any key to open the login page on your browser"
-      }
-    },
-    {
-      "type": "output",
-      "properties": {
-        "content": "✅ Logged in.\n"
-      }
-    },
     {
       "type": "confirmationPrompt",
       "properties": {
-        "message": "Would you like to link an existing app on Shopify to a config?",
+        "message": "Would you like to link to an existing app on Shopify?",
         "confirmationMessage": "Yes, link to an existing app",
         "cancellationMessage": "No, create a new app"
       }
@@ -36,62 +18,38 @@
     {
       "type": "selectPrompt",
       "properties": {
-        "message": "Which Partners organization is this work for?",
+        "message": "Which app would you like to link to?",
         "choices": [
           {
-            "label": "Ellen's org",
-            "value": "Ellen's org"
+            "label": "Printful App",
+            "value": "printful"
           },
           {
-            "label": "test partners org",
-            "value": "test partners org"
-          }
-        ]
-      }
-    },
-    {
-      "type": "selectPrompt",
-      "properties": {
-        "message": "Which app would you like to link this config to?",
-        "choices": [
-          {
-            "label": "Dropshipping App",
-            "value": "dropshipping"
-          },
-          {
-            "label": "Dropshipping (development)",
+            "label": "Printful Dev",
             "value": "development"
           },
           {
-            "label": "Dropshipping (Alice)",
-            "value": "alice"
+            "label": "Printful Staging",
+            "value": "staging"
           },
           {
-            "label": "Dropshipping (Bob)",
-            "value": "bob"
+            "label": "Printful (Alice)",
+            "value": "alice"
           }
         ]
       }
     },
     {
-      "type": "confirmationPrompt",
-      "properties": {
-        "message": "Would you like Shopify to automatically update this app's URL when you run `dev`?",
-        "confirmationMessage": "Yes, update this app's URL automatically",
-        "cancellationMessage": "No, I'll manage it myself"
-      }
-    },
-    {
-      "type": "textPrompt",
+      "type": "maskedInputPrompt",
       "properties": {
         "message": "What would you like to name your configuration file?",
-        "defaultValue": "shopify.app.development.toml"
+        "defaultValue": "staging"
       }
     },
     {
       "type": "warning",
       "properties": {
-        "headline": "shopify.app.development.toml already exists.",
+        "headline": "shopify.app.staging.toml already exists.",
         "body": []
       }
     },
@@ -100,13 +58,13 @@
       "properties": {
         "message": "Would you like to choose another configuration file name?",
         "confirmationMessage": "Yes, choose a new configuration file name",
-        "cancellationMessage": "No, overwrite and link Dropshipping (Alice) to shopify.app.development.toml"
+        "cancellationMessage": "No, overwrite and link Printful Staging to shopify.app.staging.toml"
       }
     },
     {
       "type": "success",
       "properties": {
-        "headline": "`Dropshipping (Alice)` connected to this codebase.",
+        "headline": "`Printful Dev (Bob)` connected to this codebase.",
         "body": [
           "shopify.app.development.toml is now the active configuration."
         ],

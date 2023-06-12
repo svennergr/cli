@@ -83,17 +83,17 @@
             "steps": [
               {
                 "startMessage": "shopify-frontend-template-react@1.0.0 dev",
-                "duration": 1.5,
+                "duration": 1,
                 "endMessage": "> Local:    http://localhost:59565/"
               },
               {
                 "startMessage": "watching extensions: js,mjs,json",
-                "duration": 2,
+                "duration": 1,
                 "endMessage": "running proccess 1"
               },
               {
                 "startMessage": "starting `node index.js",
-                "duration": 3,
+                "duration": 1.5,
                 "endMessage": "running process 2"
               }
             ]

@@ -13,6 +13,7 @@ import {
   renderConfirmationPrompt,
   renderSelectPrompt,
   renderTextPrompt,
+  renderMaskedInputPrompt,
 } from '@shopify/cli-kit/node/ui'
 import {zod} from '@shopify/cli-kit/node/schema'
 import {Writable} from 'stream'
@@ -195,6 +196,17 @@ const renderTextPromptStepSchema = abstractDemoStepSchema.extend({
 })
 type RenderTextPromptStep = zod.infer<typeof renderTextPromptStepSchema>
 
+const renderMaskedInputPromptStepSchema = abstractDemoStepSchema.extend({
+  type: zod.literal('maskedInputPrompt'),
+  properties: zod.object({
+    message: zod.string(),
+    defaultValue: zod.string().optional(),
+    password: zod.boolean().optional(),
+    allowEmpty: zod.boolean().optional(),
+  }),
+})
+type RenderMaskedInputPromptStep = zod.infer<typeof renderMaskedInputPromptStepSchema>
+
 const sleepStepSchema = abstractDemoStepSchema.extend({
   type: zod.literal('sleep'),
   properties: zod.object({
@@ -262,6 +274,7 @@ export type DemoStep =
   | SleepStep
   | TaskbarStep
   | RenderConcurrentStep
+  | RenderMaskedInputPromptStep
 
 const demoStepSchema = zod.discriminatedUnion('type', [
   outputStepSchema,
@@ -274,6 +287,7 @@ const demoStepSchema = zod.discriminatedUnion('type', [
   renderConfirmationPromptStepSchema,
   renderSelectPromptStepSchema,
   renderTextPromptStepSchema,
+  renderMaskedInputPromptStepSchema,
   sleepStepSchema,
   taskbarStepSchema,
   renderConcurrentStepSchema,
@@ -367,6 +381,10 @@ function executorForStep(step: DemoStep): () => Promise<void> {
     case 'textPrompt':
       return async () => {
         await renderTextPrompt(step.properties)
+      }
+    case 'maskedInputPrompt':
+      return async () => {
+        await renderMaskedInputPrompt(step.properties)
       }
     default:
       throw new Error(`Unknown step type: ${(step as DemoStep).type}`)
