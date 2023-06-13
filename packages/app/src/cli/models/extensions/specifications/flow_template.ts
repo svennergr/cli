@@ -48,7 +48,7 @@ async function loadWorkflow(path: string) {
     )
   } else if (flowFilePaths.length > 1) {
     throw new AbortError(
-      `Momre than one .flow file found in ${path} `,
+      `More than one .flow file found in ${path} `,
       'Make sure you have only one .flow file in your extension folder.',
     )
   }
