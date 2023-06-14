@@ -17,7 +17,7 @@ const flowTemplateExtension: ExtensionTemplate = {
         {
           name: 'Config only',
           value: 'config-only',
-          path: 'templates/generic-extensions/projects/flow_template',
+          path: 'templates/extensions/projects/flow_template',
         },
       ],
     },
