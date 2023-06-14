@@ -20,6 +20,7 @@ export const templateURLMap = {
   node: 'https://github.com/Shopify/shopify-app-template-node',
   php: 'https://github.com/Shopify/shopify-app-template-php',
   ruby: 'https://github.com/Shopify/shopify-app-template-ruby',
+  remix: 'https://github.com/Shopify/shopify-app-template-remix',
 } as const
 
 const init = async (options: InitOptions): Promise<InitOutput> => {
@@ -61,7 +62,7 @@ const init = async (options: InitOptions): Promise<InitOutput> => {
       }),
       message: 'Which template would you like to use?',
       defaultValue: Object.keys(templateURLMap).find(
-        (key) => templateURLMap[key as 'node' | 'php' | 'ruby'] === defaults.template,
+        (key) => templateURLMap[key as keyof typeof templateURLMap] === defaults.template,
       ),
     })
   }
