@@ -32,7 +32,7 @@ const spec = createExtensionSpecification({
       categories: config.template.categories,
       pre_install_note: config.template.pre_install_note,
       post_install_note: config.template.post_install_note,
-      localization: await loadLocalesConfig(directory, 'checkout_ui'),
+      localization: await loadLocalesConfig(directory, 'flow_template'),
       definition: await loadWorkflow(directory),
     }
   },

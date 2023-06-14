@@ -1,4 +1,4 @@
-import {ExtensionTemplate} from '../../app/template.js'
+import {ExtensionTemplate} from '../app/template.js'
 
 /**
  * Flow Template extension template specification.
