@@ -104,7 +104,7 @@ function SelectPrompt<T>({
         <TokenizedText item={messageWithPunctuation(message)} />
       </Box>
       {infoTable && !submitted ? (
-        <Box marginLeft={7} marginTop={1}>
+        <Box marginLeft={7}>
           <InfoTable table={infoTable} />
         </Box>
       ) : null}

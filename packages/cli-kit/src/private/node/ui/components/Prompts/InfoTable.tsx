@@ -37,16 +37,16 @@ const InfoTable: FunctionComponent<InfoTableProps> = ({table}) => {
   )
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginTop={1}>
       {sections.map((section, index) => (
-        <Box key={index} marginBottom={index === sections.length - 1 ? 0 : 1}>
+        <Box key={index} marginBottom={index === sections.length - 1 ? 0 : 1} flexDirection="row" alignItems="flex-start">
           {section.header.length > 0 && (
-            <Box width={headerColumnWidth + 1}>
-              <Text color={section.color}>{capitalize(section.header)}:</Text>
+            <Box width={headerColumnWidth} flexDirection="row-reverse" alignItems="flex-end">
+              <Text color={section.color}>{capitalize(section.header)}</Text>
             </Box>
           )}
-          <Box marginLeft={section.header.length > 0 ? 2 : 0} flexGrow={1} flexDirection="column" gap={1}>
-            <List margin={false} items={section.items} color={section.color} />
+          <Box marginLeft={section.header.length > 0 ? 1 : 0} flexGrow={1} flexDirection="column" gap={1}>
+            <List margin={false} items={section.items} color={section.color} bullet="├" />
             {section.helperText ? <Text color={section.color}>{section.helperText}</Text> : null}
           </Box>
         </Box>
