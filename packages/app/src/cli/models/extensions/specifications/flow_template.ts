@@ -10,14 +10,18 @@ import fs from 'fs'
 
 const FlowTemplateExtensionSchema = BaseSchema.extend({
   name: zod.string(),
-  type: zod.literal('flow_template'),
-  template: zod.object({
-    title: zod.string(),
-    description: zod.string(),
-    categories: zod.array(zod.string()),
-    pre_install_note: zod.string().optional(),
-    post_install_note: zod.string().optional(),
-  }),
+  description: zod.string(),
+  extensions: zod.array(
+    zod.object({
+      handle: zod.string(),
+      type: zod.literal('flow_template'),
+      title: zod.string(),
+      description: zod.string(),
+      categories: zod.array(zod.string()),
+      pre_install_note: zod.string().optional(),
+      post_install_note: zod.string().optional(),
+    }),
+  ),
 })
 
 const spec = createExtensionSpecification({
@@ -26,15 +30,29 @@ const spec = createExtensionSpecification({
   singleEntryPath: false,
   appModuleFeatures: (_) => [],
   deployConfig: async (config, directory) => {
-    return {
-      title: config.template.title,
-      description: config.template.description,
-      categories: config.template.categories,
-      pre_install_note: config.template.pre_install_note,
-      post_install_note: config.template.post_install_note,
+    // supporting one extension for now in implementation
+    const extension = config.extensions[0]
+    if (!extension) {
+      throw new AbortError(`Missing extension in ${directory} `, 'Make sure you have defined at least one extension.')
+    }
+    if (config.extensions.length > 1) {
+      throw new AbortError(
+        `More than one extension found in ${directory} `,
+        'Make sure you have only one extension defined. This will be expanded to support more in the future.',
+      )
+    }
+    const c = {
+      handle: extension.handle,
+      title: extension.title,
+      description: extension.description,
+      categories: extension.categories,
+      pre_install_note: extension.pre_install_note,
+      post_install_note: extension.post_install_note,
       localization: await loadLocalesConfig(directory, 'flow_template'),
       definition: await loadWorkflow(directory),
     }
+    console.log(c)
+    return c
   },
 })
 
