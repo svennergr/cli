@@ -1,4 +1,3 @@
-import {selectApp} from '../select-app.js'
 import {PushConfig, PushConfigSchema} from '../../../api/graphql/push_config.js'
 import {parseConfigurationFile} from '../../../models/app/loader.js'
 import {AppConfigurationSchema, AppInterface} from '../../../models/app/app.js'
@@ -15,11 +14,11 @@ export interface Options {
 
 export async function pushConfig(options: Options) {
   const token = await ensureAuthenticatedPartners()
-  const apiKey = options.apiKey || (await selectApp()).apiKey
+  // const apiKey = options.apiKey || (await selectApp()).apiKey
   const mutation = PushConfig
 
   const configuration = await parseConfigurationFile(AppConfigurationSchema, options.app.configurationPath, abort)
-  const variables = {apiKey, ...configuration}
+  const variables = {apiKey: configuration.clientId, ...configuration}
   const result: PushConfigSchema = await partnersRequest(mutation, token, variables)
 
   if (result.appUpdate.userErrors.length > 0) {

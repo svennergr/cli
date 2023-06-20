@@ -29,7 +29,7 @@ export default class ConfigPush extends Command {
   public async run(): Promise<void> {
     const {flags} = await this.parse(ConfigPush)
     const specifications = await loadExtensionsSpecifications(this.config)
-    const app = await loadApp({specifications, directory: flags.path, mode: 'report'})
+    const app = await loadApp({specifications, configName: flags.config, directory: flags.path, mode: 'report'})
 
     await pushConfig({app, apiKey: flags['api-key']!})
   }

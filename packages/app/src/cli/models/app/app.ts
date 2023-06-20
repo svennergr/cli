@@ -7,9 +7,10 @@ import {fileRealPath, findPathUp} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 
 export const AppConfigurationSchema = zod.object({
+  clientId: zod.string().optional(),
   scopes: zod.string().default(''),
   applicationUrl: zod.string().optional(),
-  redirectUrl: zod.array(zod.string()).optional(),
+  redirectUrlAllowlist: zod.array(zod.string()).optional(),
   extensionDirectories: zod.array(zod.string()).optional(),
   webDirectories: zod.array(zod.string()).optional(),
 })
