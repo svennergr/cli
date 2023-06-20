@@ -6,6 +6,7 @@ import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {renderSuccess} from '@shopify/cli-kit/node/ui'
 import {OutputMessage} from '@shopify/cli-kit/node/output'
+import {relativePath} from '@shopify/cli-kit/node/path'
 
 export interface Options {
   apiKey: string
@@ -26,7 +27,12 @@ export async function pushConfig(options: Options) {
     abort(errors)
   }
 
-  renderSuccess({headline: `Updated app configuration for ${options.app.name}`})
+  const configFileName = relativePath(options.app.directory, options.app.configurationPath)
+
+  renderSuccess({
+    headline: `Updated app configuration for ${options.app.configuration.name}`,
+    body: [`${configFileName} configuration is now live on Shopify.`],
+  })
 }
 
 const abort = (errorMessage: OutputMessage) => {
