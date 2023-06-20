@@ -24,7 +24,7 @@ export async function pushConfig(options: Options) {
 
   if (result.appUpdate.userErrors.length > 0) {
     const errors = result.appUpdate.userErrors.map((error) => error.message).join(', ')
-    throw new AbortError(errors)
+    abort(errors)
   }
 
   renderSuccess({headline: `Updated app configuration for ${options.app.name}`})

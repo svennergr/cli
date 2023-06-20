@@ -19,6 +19,11 @@ export default class ConfigPush extends Command {
       description: 'The API key of your app.',
       env: 'SHOPIFY_FLAG_APP_API_KEY',
     }),
+    config: Flags.string({
+      hidden: false,
+      description: 'The API key of your app.',
+      env: 'SHOPIFY_FLAG_APP_CONFIG',
+    }),
   }
 
   public async run(): Promise<void> {

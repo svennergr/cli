@@ -531,6 +531,13 @@
           "description": "The API key of your app.",
           "hidden": false,
           "multiple": false
+        },
+        "config": {
+          "name": "config",
+          "type": "option",
+          "description": "Name for the config file.",
+          "hidden": false,
+          "multiple": false
         }
       },
       "args": {}

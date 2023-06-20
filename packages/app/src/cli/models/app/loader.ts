@@ -148,6 +148,7 @@ export class AppErrors {
 interface AppLoaderConstructorArgs {
   directory: string
   mode?: AppLoaderMode
+  configName?: string
   specifications: ExtensionSpecification[]
 }
 
@@ -163,15 +164,17 @@ export async function load(options: AppLoaderConstructorArgs): Promise<AppInterf
 class AppLoader {
   private directory: string
   private mode: AppLoaderMode
+  private configName?: string
   private appDirectory = ''
   private configurationPath = ''
   private errors: AppErrors = new AppErrors()
   private specifications: ExtensionSpecification[]
 
-  constructor({directory, mode, specifications}: AppLoaderConstructorArgs) {
+  constructor({directory, configName, mode, specifications}: AppLoaderConstructorArgs) {
     this.mode = mode ?? 'strict'
     this.directory = directory
     this.specifications = specifications
+    this.configName = configName
   }
 
   findSpecificationForType(type: string) {
@@ -245,7 +248,8 @@ class AppLoader {
   async getConfigurationPath() {
     if (this.configurationPath) return this.configurationPath
 
-    const configurationPath = await findPathUp(configurationFileNames.app, {
+    const configurationFileName = getAppConfigurationFileName(this.configName)
+    const configurationPath = await findPathUp(configurationFileName, {
       cwd: this.directory,
       type: 'file',
     })
@@ -468,4 +472,17 @@ async function logMetadataForLoadedApp(
       app_name: app.name,
     }
   })
+}
+
+function getAppConfigurationFileName(config?: string) {
+  if (config) {
+    const validFileRegex = /^shopify\.app(\.\w+)?\.toml$/g
+    if (validFileRegex.test(config)) {
+      return config
+    }
+
+    return `shopify.app.${config}.toml`
+  }
+
+  return configurationFileNames.app
 }
