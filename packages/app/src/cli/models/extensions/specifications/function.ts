@@ -1,6 +1,7 @@
 import {createExtensionSpecification} from '../specification.js'
 import {BaseSchema} from '../schemas.js'
 import {defaultFunctionsFlavors} from '../../../constants.js'
+import {Identifiers} from '../../app/identifiers.js'
 import {zod} from '@shopify/cli-kit/node/schema'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {fileExists, readFile} from '@shopify/cli-kit/node/fs'
@@ -70,7 +71,7 @@ const spec = createExtensionSpecification({
   partnersWebIdentifier: 'function',
   graphQLType: 'function',
   appModuleFeatures: (_) => ['function'],
-  deployConfig: async (config, directory, apiKey, moduleId) => {
+  deployConfig: async (config, directory, apiKey, moduleId, identifiers?) => {
     let inputQuery: string | undefined
     const inputQueryPath = joinPath(directory, 'input.graphql')
     if (await fileExists(inputQueryPath)) {
@@ -91,6 +92,8 @@ const spec = createExtensionSpecification({
         }),
       ))
 
+    const uiExtensionProperties = getUiExtension(config, identifiers)
+
     return {
       title: config.name,
       module_id: moduleId,
@@ -104,12 +107,20 @@ const spec = createExtensionSpecification({
             single_json_metafield: config.input.variables,
           }
         : undefined,
-      ui: config.ui?.paths
+      ui: config.ui
         ? {
             app_bridge: {
-              details_path: config.ui.paths.details,
-              create_path: config.ui.paths.create,
+              details_path: config.ui.paths?.details,
+              create_path: config.ui.paths?.create,
             },
+            ...(uiExtensionProperties.handle
+              ? {
+                  extension: {
+                    handle: uiExtensionProperties.handle,
+                    uuid: uiExtensionProperties.uuid,
+                  },
+                }
+              : {}),
           }
         : undefined,
       enable_creation_ui: config.ui?.enable_create ?? true,
@@ -136,6 +147,27 @@ async function readInputQuery(path: string): Promise<string> {
       `Create the file or remove the line referencing it in the extension's TOML.`,
     )
   }
+}
+
+interface UiExtensionProperties {
+  handle?: string
+  uuid?: string
+}
+
+function getUiExtension(config: FunctionConfigType, identifiers?: Identifiers): UiExtensionProperties {
+  const checkoutUiExtension = config.extensions?.find((extension) => extension.type === 'checkout_ui_extension')
+
+  if (checkoutUiExtension && identifiers) {
+    const identifier = identifiers.extensions[checkoutUiExtension.handle]
+    if (identifier) {
+      return {
+        handle: checkoutUiExtension.handle,
+        uuid: identifier,
+      }
+    }
+  }
+
+  return {}
 }
 
 export default spec

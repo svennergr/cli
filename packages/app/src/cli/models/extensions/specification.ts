@@ -3,6 +3,7 @@ import {ExtensionInstance} from './extension-instance.js'
 import {blocks, defaultExtensionFlavors} from '../../constants.js'
 
 import {ExtensionFlavor} from '../app/template.js'
+import {Identifiers} from '../app/identifiers.js'
 import {Result} from '@shopify/cli-kit/node/result'
 import {capitalize} from '@shopify/cli-kit/common/string'
 
@@ -33,6 +34,7 @@ export interface ExtensionSpecification<TConfiguration extends BaseConfigType = 
     directory: string,
     apiKey: string,
     moduleId?: string,
+    identifiers?: Identifiers,
   ) => Promise<{[key: string]: unknown} | undefined>
   validate?: (config: TConfiguration, directory: string) => Promise<Result<unknown, string>>
   preDeployValidation?: (extension: ExtensionInstance<TConfiguration>) => Promise<void>
