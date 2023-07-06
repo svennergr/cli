@@ -27,6 +27,7 @@ describe('extension-to-toml', () => {
     const parsed = FlowActionExtensionSchema.parse(decodedToml)
     expect(parsed.type).toEqual('flow_action')
     expect(got).toEqual(`name = "action title"
+handle = "ad9947a9-bc0b-4855-82da-008aefbc1c71"
 type = "flow_action"
 description = "action description"
 
@@ -94,6 +95,7 @@ required = true
     const parsed = FlowTriggerExtensionSchema.parse(decodedToml)
     expect(parsed.type).toEqual('flow_trigger')
     expect(got).toEqual(`name = "trigger title"
+handle = "e1cb40b1-2af2-4292-91a9-0824e0157bb2"
 type = "flow_trigger"
 description = "trigger description"
 
