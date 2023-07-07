@@ -28,7 +28,7 @@ describe('init', () => {
 
   test('when name is passed', async () => {
     const answers = {
-      template: 'https://github.com/Shopify/shopify-app-template-remix',
+      template: 'https://github.com/Shopify/shopify-app-template-remix#add_login_page',
     }
     const options = {name: 'app', directory: '/'}
 

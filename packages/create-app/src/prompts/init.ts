@@ -17,7 +17,7 @@ interface InitOutput {
 // Eventually this list should be taken from a remote location
 // That way we don't have to update the CLI every time we add a template
 export const templateURLMap = {
-  remix: 'https://github.com/Shopify/shopify-app-template-remix',
+  remix: 'https://github.com/Shopify/shopify-app-template-remix#add_login_page',
   node: 'https://github.com/Shopify/shopify-app-template-node',
   php: 'https://github.com/Shopify/shopify-app-template-php',
   ruby: 'https://github.com/Shopify/shopify-app-template-ruby',
