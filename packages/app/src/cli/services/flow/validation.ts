@@ -106,7 +106,7 @@ export const validateHandle = (handle: string) => {
       {
         code: zod.ZodIssueCode.custom,
         path: ['handle'],
-        message: 'Handle can only contain a-z, A-Z, 0-9, period, hyphen, and underscore',
+        message: 'Handle can only contain alphanumeric characters, periods, hyphens, and underscores',
       },
     ])
   }
