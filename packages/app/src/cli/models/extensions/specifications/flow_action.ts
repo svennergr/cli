@@ -13,12 +13,12 @@ import {zod} from '@shopify/cli-kit/node/schema'
 
 export const FlowActionExtensionSchema = BaseSchema.extend({
   name: zod.string(),
-  handle: zod.string().refine(validateHandle),
   description: zod.string().optional(),
   type: zod.literal('flow_action'),
   extensions: zod
     .array(
       zod.object({
+        handle: zod.string().refine(validateHandle),
         type: zod.literal('flow_action'),
         runtime_url: zod.string().url().refine(startsWithHttps),
         validation_url: zod.string().url().refine(startsWithHttps).optional(),
@@ -94,7 +94,7 @@ const flowActionSpecification = createExtensionSpecification({
 
     return {
       title: config.name,
-      handle: config.handle,
+      handle: extension.handle,
       description: config.description,
       url: extension.runtime_url,
       fields: serializeFields('flow_action', config.settings?.fields),

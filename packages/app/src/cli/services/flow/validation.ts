@@ -75,7 +75,7 @@ export const validateHandle = (handle: string) => {
     throw new zod.ZodError([
       {
         code: zod.ZodIssueCode.custom,
-        path: ['handle'],
+        path: ['extensions[0].handle'],
         message: 'Handle must not be empty',
       },
     ])
@@ -85,7 +85,7 @@ export const validateHandle = (handle: string) => {
     throw new zod.ZodError([
       {
         code: zod.ZodIssueCode.custom,
-        path: ['handle'],
+        path: ['extensions[0].handle'],
         message: "Handle can't be just . or ..",
       },
     ])
@@ -95,7 +95,7 @@ export const validateHandle = (handle: string) => {
     throw new zod.ZodError([
       {
         code: zod.ZodIssueCode.custom,
-        path: ['handle'],
+        path: ['extensions[0].handle'],
         message: "Handle can't exceed 100 characters",
       },
     ])
@@ -105,7 +105,7 @@ export const validateHandle = (handle: string) => {
     throw new zod.ZodError([
       {
         code: zod.ZodIssueCode.custom,
-        path: ['handle'],
+        path: ['extensions[0].handle'],
         message: 'Handle can only contain alphanumeric characters, periods, hyphens, and underscores',
       },
     ])
