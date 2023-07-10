@@ -101,12 +101,12 @@ export const validateHandle = (handle: string) => {
     ])
   }
 
-  if (!/^[a-zA-Z0-9.\-/_]*$/.test(handle)) {
+  if (!/^[a-zA-Z0-9.\-_]*$/.test(handle)) {
     throw new zod.ZodError([
       {
         code: zod.ZodIssueCode.custom,
         path: ['handle'],
-        message: 'Handle can only contain a-z, A-Z, 0-9, period, hyphen, underscore, and forward slash',
+        message: 'Handle can only contain a-z, A-Z, 0-9, period, hyphen, and underscore',
       },
     ])
   }
