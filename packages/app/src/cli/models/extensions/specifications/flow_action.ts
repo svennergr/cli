@@ -4,6 +4,7 @@ import {
   validateNonCommerceObjectShape,
   startsWithHttps,
   validateCustomConfigurationPageConfig,
+  validateHandle,
 } from '../../../services/flow/validation.js'
 import {serializeFields} from '../../../services/flow/serialize-fields.js'
 import {joinPath} from '@shopify/cli-kit/node/path'
@@ -12,7 +13,7 @@ import {zod} from '@shopify/cli-kit/node/schema'
 
 export const FlowActionExtensionSchema = BaseSchema.extend({
   name: zod.string(),
-  handle: zod.string(),
+  handle: zod.string().refine(validateHandle),
   description: zod.string().optional(),
   type: zod.literal('flow_action'),
   extensions: zod

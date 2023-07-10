@@ -69,3 +69,47 @@ export const validateCustomConfigurationPageConfig = (
 
   return true
 }
+
+export const validateHandle = (handle: string) => {
+  if (!handle) {
+    throw new zod.ZodError([
+      {
+        code: zod.ZodIssueCode.custom,
+        path: ['handle'],
+        message: 'Handle must not be empty',
+      },
+    ])
+  }
+
+  if (handle === '.' || handle === '..') {
+    throw new zod.ZodError([
+      {
+        code: zod.ZodIssueCode.custom,
+        path: ['handle'],
+        message: "Handle can't be just . or ..",
+      },
+    ])
+  }
+
+  if (handle.length > 100) {
+    throw new zod.ZodError([
+      {
+        code: zod.ZodIssueCode.custom,
+        path: ['handle'],
+        message: "Handle can't exceed 100 characters",
+      },
+    ])
+  }
+
+  if (!/^[a-zA-Z0-9.\-/_]*$/.test(handle)) {
+    throw new zod.ZodError([
+      {
+        code: zod.ZodIssueCode.custom,
+        path: ['handle'],
+        message: 'Handle can only contain a-z, A-Z, 0-9, period, hyphen, underscore, and forward slash',
+      },
+    ])
+  }
+
+  return true
+}
