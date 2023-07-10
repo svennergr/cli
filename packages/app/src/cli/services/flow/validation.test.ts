@@ -1,4 +1,4 @@
-import {validateNonCommerceObjectShape, validateCustomConfigurationPageConfig} from './validation.js'
+import {validateNonCommerceObjectShape, validateCustomConfigurationPageConfig, validateHandle} from './validation.js'
 import {ConfigField} from './types.js'
 import {describe, expect, test} from 'vitest'
 import {zod} from '@shopify/cli-kit/node/schema'
@@ -163,5 +163,75 @@ describe('validateCustomConfigurationPageConfig', () => {
 
     // then
     expect(result).toBe(true)
+  })
+})
+
+describe('validateHandle', () => {
+  test('should return true when handle has is valid', () => {
+    expect(validateHandle('a-valid-handle')).toBe(true)
+  })
+
+  test('should throw an error if handle is empty', () => {
+    expect(() => validateHandle('')).toThrowError(
+      new zod.ZodError([
+        {
+          code: zod.ZodIssueCode.custom,
+          path: ['extensions[0].handle'],
+          message: 'Handle must not be empty',
+        },
+      ]),
+    )
+  })
+
+  test('should throw an error if handle is .', () => {
+    expect(() => validateHandle('.')).toThrowError(
+      new zod.ZodError([
+        {
+          code: zod.ZodIssueCode.custom,
+          path: ['extensions[0].handle'],
+          message: "Handle can't be just . or ..",
+        },
+      ]),
+    )
+  })
+
+  test('should throw an error if handle is ..', () => {
+    expect(() => validateHandle('..')).toThrowError(
+      new zod.ZodError([
+        {
+          code: zod.ZodIssueCode.custom,
+          path: ['extensions[0].handle'],
+          message: "Handle can't be just . or ..",
+        },
+      ]),
+    )
+  })
+
+  test('should throw an error if handle is too long', () => {
+    expect(() =>
+      validateHandle(
+        'some-really-long-handle-over-100-characters-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      ),
+    ).toThrowError(
+      new zod.ZodError([
+        {
+          code: zod.ZodIssueCode.custom,
+          path: ['extensions[0].handle'],
+          message: "Handle can't exceed 100 characters",
+        },
+      ]),
+    )
+  })
+
+  test('should throw an error if handle contains invalid characters', () => {
+    expect(() => validateHandle('!@#$%^')).toThrowError(
+      new zod.ZodError([
+        {
+          code: zod.ZodIssueCode.custom,
+          path: ['extensions[0].handle'],
+          message: 'Handle can only contain alphanumeric characters, periods, hyphens, and underscores',
+        },
+      ]),
+    )
   })
 })
