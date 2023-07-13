@@ -7,7 +7,11 @@ import {getDependencies, PackageManager, readAndParsePackageJson} from '@shopify
 import {fileRealPath, findPathUp} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 
-const LegacyAppSchema = zod
+export const WithClientIdSchema = zod.object({
+  client_id: zod.string().optional(),
+})
+
+export const LegacyAppSchema = zod
   .object({
     name: zod.string().optional(),
     scopes: zod.string().default(''),
@@ -16,7 +20,7 @@ const LegacyAppSchema = zod
   })
   .strict()
 
-const AppSchema = zod
+export const AppSchema = zod
   .object({
     name: zod.string(),
     api_contact_email: zod.string(),

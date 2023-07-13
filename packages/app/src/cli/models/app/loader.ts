@@ -1,5 +1,4 @@
 import {
-  AppConfigurationSchema,
   Web,
   WebConfigurationSchema,
   App,
@@ -8,6 +7,9 @@ import {
   AppConfiguration,
   isCurrentAppSchema,
   getAppScopesArray,
+  WithClientIdSchema,
+  LegacyAppSchema,
+  AppSchema,
 } from './app.js'
 import {configurationFileNames, dotEnvFileNames} from '../../constants.js'
 import metadata from '../../metadata.js'
@@ -40,7 +42,6 @@ const defaultExtensionDirectory = 'extensions/*'
 export type AppLoaderMode = 'strict' | 'report'
 
 type AbortOrReport = <T>(errorMessage: OutputMessage, fallback: T, configurationPath: string) => T
-const noopAbortOrReport: AbortOrReport = (errorMessage, fallback, configurationPath) => fallback
 
 async function loadConfigurationFile(
   filepath: string,
@@ -489,7 +490,8 @@ class AppConfigurationLoader {
     }
 
     const {configurationPath, configurationFileName} = await this.getConfigurationPath(appDirectory)
-    const configuration = await parseConfigurationFile(AppConfigurationSchema, configurationPath, this.abort)
+    const configurationSchemaType = (await parseConfigurationClientId(configurationPath)) ? AppSchema : LegacyAppSchema
+    const configuration = await parseConfigurationFile(configurationSchemaType, configurationPath, this.abort)
 
     const allClientIdsByConfigName = await this.getAllLinkedConfigClientIds(appDirectory)
 
@@ -577,21 +579,10 @@ class AppConfigurationLoader {
     const entries = (
       await Promise.all(
         candidates.map(async (candidateFile) => {
-          try {
-            const configuration = await parseConfigurationFile(
-              // we only care about the client ID, so no need to parse the entire file
-              zod.object({client_id: zod.string().optional()}),
-              candidateFile,
-              // we're not interested in error reporting at all
-              noopAbortOrReport,
-            )
-            if (configuration.client_id !== undefined) {
-              configNamesToClientId[basename(candidateFile)] = configuration.client_id
-              return [basename(candidateFile), configuration.client_id] as [string, string]
-            }
-            // eslint-disable-next-line no-catch-all/no-catch-all
-          } catch {
-            // can ignore errors in parsing
+          const clientId = await parseConfigurationClientId(candidateFile)
+          if (clientId) {
+            configNamesToClientId[basename(candidateFile)] = clientId
+            return [basename(candidateFile), clientId]
           }
         }),
       )
@@ -735,4 +726,22 @@ export function getAppConfigurationFileName(configName?: string) {
 export function getAppConfigurationShorthand(path: string) {
   const match = basename(path).match(appConfigurationFileNameRegex)
   return match?.[1]?.slice(1)
+}
+
+const noopAbortOrReport: AbortOrReport = (errorMessage, fallback, configurationPath) => fallback
+
+async function parseConfigurationClientId(candidateFile: string) {
+  try {
+    const configuration = await parseConfigurationFile(
+      // we only care about the client ID, so no need to parse the entire file
+      WithClientIdSchema,
+      candidateFile,
+      // we're not interested in error reporting at all
+      noopAbortOrReport,
+    )
+    return configuration.client_id
+    // eslint-disable-next-line no-catch-all/no-catch-all
+  } catch {
+    // can ignore errors in parsing
+  }
 }
