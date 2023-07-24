@@ -4,12 +4,14 @@ import Command from '../../../utilities/app-command.js'
 import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
 
+const {config, ...appFlagsWithoutConfig} = appFlags
+
 export default class ConfigLink extends Command {
   static description = 'Fetch your app configuration from the Partner Dashboard.'
 
   static flags = {
     ...globalFlags,
-    ...appFlags,
+    ...appFlagsWithoutConfig,
     'client-id': Flags.string({
       hidden: false,
       description: 'The Client ID of your app.',
@@ -24,7 +26,6 @@ export default class ConfigLink extends Command {
       commandConfig: this.config,
       directory: flags.path,
       apiKey: flags['client-id'],
-      configName: flags.config,
     }
     await link(options)
   }

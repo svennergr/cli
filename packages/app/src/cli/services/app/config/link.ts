@@ -9,7 +9,7 @@ import {
 import {OrganizationApp} from '../../../models/organization.js'
 import {selectConfigName} from '../../../prompts/config.js'
 import {loadLocalExtensionsSpecifications} from '../../../models/extensions/load-specifications.js'
-import {getAppConfigurationFileName, loadApp} from '../../../models/app/loader.js'
+import {loadApp} from '../../../models/app/loader.js'
 import {InvalidApiKeyErrorMessage, fetchOrCreateOrganizationApp} from '../../context.js'
 import {fetchAppFromApiKey} from '../../dev/fetch.js'
 import {configurationFileNames} from '../../../constants.js'
@@ -25,7 +25,6 @@ export interface LinkOptions {
   commandConfig: Config
   directory: string
   apiKey?: string
-  configName?: string
 }
 
 export default async function link(options: LinkOptions, shouldRenderSuccess = true): Promise<AppConfiguration> {
@@ -103,10 +102,6 @@ async function loadConfigurationFileName(
   const cache = getCachedCommandInfo()
 
   if (!cache?.askConfigName && cache?.selectedToml) return cache.selectedToml as string
-
-  if (options.configName) {
-    return getAppConfigurationFileName(options.configName)
-  }
 
   if (!localApp?.configuration || (localApp && isLegacyAppSchema(localApp.configuration))) {
     return configurationFileNames.app

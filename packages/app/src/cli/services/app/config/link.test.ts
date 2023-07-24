@@ -8,7 +8,7 @@ import {fetchAppFromApiKey} from '../../dev/fetch.js'
 import {getCachedCommandInfo} from '../../local-storage.js'
 import {describe, expect, test, vi} from 'vitest'
 import {Config} from '@oclif/core'
-import {fileExistsSync, inTemporaryDirectory, readFile, writeFileSync} from '@shopify/cli-kit/node/fs'
+import {inTemporaryDirectory, readFile, writeFileSync} from '@shopify/cli-kit/node/fs'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {renderSuccess} from '@shopify/cli-kit/node/ui'
 import {ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
@@ -38,26 +38,6 @@ vi.mock('../../context.js', async () => {
 })
 
 describe('link', () => {
-  test('does not ask for a name when it is provided as a flag', async () => {
-    await inTemporaryDirectory(async (tmp) => {
-      // Given
-      const options: LinkOptions = {
-        directory: tmp,
-        commandConfig: {runHook: vi.fn(() => Promise.resolve({successes: []}))} as unknown as Config,
-        configName: 'Default value',
-      }
-      vi.mocked(loadApp).mockResolvedValue(LOCAL_APP)
-      vi.mocked(fetchOrCreateOrganizationApp).mockResolvedValue(REMOTE_APP)
-
-      // When
-      await link(options)
-
-      // Then
-      expect(selectConfigName).not.toHaveBeenCalled()
-      expect(fileExistsSync(joinPath(tmp, 'shopify.app.default-value.toml'))).toBeTruthy()
-    })
-  })
-
   test('creates a new shopify.app.toml file when it does not exist', async () => {
     await inTemporaryDirectory(async (tmp) => {
       // Given
