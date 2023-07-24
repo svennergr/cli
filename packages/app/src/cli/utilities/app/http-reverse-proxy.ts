@@ -41,6 +41,7 @@ export interface ReverseHTTPProxyTarget {
 
 interface Options {
   previewUrl: string
+  graphiqlUrl: string
   portNumber: number
   proxyTargets: ReverseHTTPProxyTarget[]
   additionalProcesses: OutputProcess[]
@@ -57,6 +58,7 @@ interface Options {
  */
 export async function runConcurrentHTTPProcessesAndPathForwardTraffic({
   previewUrl,
+  graphiqlUrl,
   portNumber,
   proxyTargets,
   additionalProcesses,
@@ -132,7 +134,7 @@ ${outputToken.json(JSON.stringify(rules))}
     abortSignal: abortController.signal,
   }
 
-  await Promise.all([renderDev(renderConcurrentOptions, previewUrl), server.listen(portNumber)])
+  await Promise.all([renderDev(renderConcurrentOptions, previewUrl, graphiqlUrl), server.listen(portNumber)])
 }
 
 function match(rules: {[key: string]: string}, req: http.IncomingMessage, websocket = false) {

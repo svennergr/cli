@@ -137,6 +137,7 @@ export function generatePartnersURLs(baseURL: string, authCallbackPath?: string 
       `${baseURL}/auth/callback`,
       `${baseURL}/auth/shopify/callback`,
       `${baseURL}/api/auth/callback`,
+      `${baseURL}/graphiql/auth/callback`,
     ]
   }
 

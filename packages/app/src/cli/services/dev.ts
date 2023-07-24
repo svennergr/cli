@@ -9,6 +9,7 @@ import {
 } from './dev/urls.js'
 import {installAppDependencies} from './dependencies.js'
 import {devUIExtensions} from './dev/extension.js'
+import {setupGraphiQLServer} from './dev/graphiql/server.js'
 import {outputUpdateURLsResult, renderDev} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
@@ -137,13 +138,14 @@ async function dev(options: DevOptions) {
 
   await validateCustomPorts(localApp.webs)
 
-  const [{frontendUrl, frontendPort, usingLocalhost}, backendPort, currentURLs] = await Promise.all([
+  const [{frontendUrl, frontendPort, usingLocalhost}, backendPort, graphiqlPort, currentURLs] = await Promise.all([
     generateFrontendURL({
       ...options,
       app: localApp,
       tunnelClient,
     }),
     getBackendPort() || backendConfig?.configuration.port || getAvailableTCPPort(),
+    getAvailableTCPPort(),
     getURLs(apiKey, token),
   ])
   let frontendServerPort = frontendConfig?.configuration.port
@@ -298,6 +300,18 @@ async function dev(options: DevOptions) {
     additionalProcesses.push(devExt)
   }
 
+  proxyTargets.push(
+    devGraphiQLTarget({
+      app: localApp,
+      apiKey,
+      apiSecret,
+      storeFqdn,
+      url: proxyUrl.replace(/^https?:\/\//, ''),
+      port: graphiqlPort,
+      scopes: getAppScopesArray(localApp.configuration),
+    }),
+  )
+
   await renderDevPreviewWarning(remoteApp, localApp)
 
   if (sendUninstallWebhook) {
@@ -330,10 +344,12 @@ async function dev(options: DevOptions) {
         processes: additionalProcesses,
       },
       previewUrl,
+      `${proxyUrl}/graphiql`,
     )
   } else {
     await runConcurrentHTTPProcessesAndPathForwardTraffic({
       previewUrl,
+      graphiqlUrl: `${proxyUrl}/graphiql`,
       portNumber: proxyPort,
       proxyTargets,
       additionalProcesses,
@@ -442,6 +458,30 @@ async function devProxyTarget(options: DevWebOptions): Promise<ReverseHTTPProxyT
           // Note: These are Laravel variables for backwards compatibility with 2.0 templates.
           SERVER_PORT: `${port}`,
         },
+      })
+    },
+  }
+}
+
+interface DevGraphiQLTargetOptions {
+  app: AppInterface
+  apiKey: string
+  apiSecret: string
+  port: number
+  url: string
+  storeFqdn: string
+  scopes: string[]
+}
+
+function devGraphiQLTarget(options: DevGraphiQLTargetOptions): ReverseHTTPProxyTarget {
+  return {
+    logPrefix: 'graphiql',
+    pathPrefix: '/graphiql',
+    customPort: options.port,
+    action: async (stdout: Writable, stderr: Writable, signal: AbortSignal, port: number) => {
+      const httpServer = setupGraphiQLServer({...options, stdout, port})
+      signal.addEventListener('abort', async () => {
+        await httpServer.close()
       })
     },
   }

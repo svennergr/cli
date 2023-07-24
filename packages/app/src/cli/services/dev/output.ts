@@ -51,7 +51,7 @@ export async function outputUpdateURLsResult(
   }
 }
 
-export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, previewUrl: string) {
+export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, previewUrl: string, graphiqlUrl: string) {
   let options = renderConcurrentOptions
 
   if (previewUrl) {
@@ -61,6 +61,9 @@ export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, prev
         if (input === 'p' && previewUrl) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           openURL(previewUrl)
+        } else if (input === 'g' && graphiqlUrl) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          openURL(graphiqlUrl)
         } else if (input === 'q') {
           exit()
         }
@@ -70,6 +73,10 @@ export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, prev
           {
             key: 'p',
             action: 'preview in your browser',
+          },
+          {
+            key: 'g',
+            action: 'open the GraphiQL explorer',
           },
           {
             key: 'q',
