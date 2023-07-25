@@ -1,7 +1,7 @@
 import {UIExtensionPayload, ExtensionsEndpointPayload, DevNewExtensionPointSchema} from './models.js'
 import {ExtensionDevOptions} from '../../extension.js'
 import {getUIExtensionPayload, isNewExtensionPointsSchema} from '../payload.js'
-import {buildAppURLForMobile, buildAppURLForWeb} from '../../../../utilities/app/app-url.js'
+import {buildAppURLForMobile, buildAppURLForWeb, buildGraphiQLURL} from '../../../../utilities/app/app-url.js'
 import {ExtensionInstance} from '../../../../models/extensions/extension-instance.js'
 import {deepMergeObjects} from '@shopify/cli-kit/common/object'
 import {outputDebug, outputContent} from '@shopify/cli-kit/node/output'
@@ -24,6 +24,7 @@ export async function getExtensionsPayloadStoreRawPayload(
       apiKey: options.apiKey,
       url: buildAppURLForWeb(options.storeFqdn, options.apiKey),
       mobileUrl: buildAppURLForMobile(options.storeFqdn, options.apiKey),
+      graphiqlUrl: buildGraphiQLURL(options.url),
     },
     appId: options.id,
     version: options.manifestVersion,

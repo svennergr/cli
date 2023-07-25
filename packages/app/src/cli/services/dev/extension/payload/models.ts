@@ -6,6 +6,7 @@ export interface ExtensionsPayloadInterface {
     apiKey: string
     url: string
     mobileUrl: string
+    graphiqlUrl: string
     title: string
   }
   appId?: string

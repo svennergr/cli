@@ -31,6 +31,7 @@ export function AppHomeRow() {
       </td>
       <td>
         <PreviewLink resourceUrl={resourceUrl} rootUrl={app.url} title={'App home'} />
+        <PreviewLink rootUrl={app.graphiqlUrl} title={'GraphiQL explorer'} />
       </td>
       <td>
         <Button type="button" onClick={() => setShowModal(true)}>

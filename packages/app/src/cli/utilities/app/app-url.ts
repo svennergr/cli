@@ -7,3 +7,7 @@ export function buildAppURLForMobile(storeFqdn: string, apiKey: string) {
   const hostParam = Buffer.from(hostUrl).toString('base64').replace(/[=]/g, '')
   return `https://${hostUrl}?shop=${storeFqdn}&host=${hostParam}`
 }
+
+export function buildGraphiQLURL(host: string) {
+  return `${host}/graphiql`
+}
