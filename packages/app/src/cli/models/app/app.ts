@@ -6,6 +6,7 @@ import {DotEnvFile} from '@shopify/cli-kit/node/dot-env'
 import {getDependencies, PackageManager, readAndParsePackageJson} from '@shopify/cli-kit/node/node-package-manager'
 import {fileRealPath, findPathUp} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
+import {ApiVersion} from '@shopify/shopify-api'
 
 export const LegacyAppSchema = zod
   .object({
@@ -14,6 +15,7 @@ export const LegacyAppSchema = zod
     scopes: zod.string().default(''),
     extension_directories: zod.array(zod.string()).optional(),
     web_directories: zod.array(zod.string()).optional(),
+    api_version: zod.nativeEnum(ApiVersion).optional(),
   })
   .strict()
 
@@ -77,6 +79,7 @@ export const AppSchema = zod
       .optional(),
     extension_directories: zod.array(zod.string()).optional(),
     web_directories: zod.array(zod.string()).optional(),
+    api_version: zod.nativeEnum(ApiVersion).optional(),
   })
   .strict()
 

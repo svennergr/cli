@@ -60,6 +60,7 @@ import {getBackendPort} from '@shopify/cli-kit/node/environment'
 import {TunnelClient} from '@shopify/cli-kit/node/plugins/tunnel'
 import {renderWarning} from '@shopify/cli-kit/node/ui'
 import {basename} from '@shopify/cli-kit/node/path'
+import {ApiVersion} from '@shopify/shopify-api'
 import {Writable} from 'stream'
 
 const MANIFEST_VERSION = '3'
@@ -305,6 +306,7 @@ async function dev(options: DevOptions) {
       app: localApp,
       apiKey,
       apiSecret,
+      apiVersion: localApp.configuration.api_version,
       storeFqdn,
       url: proxyUrl.replace(/^https?:\/\//, ''),
       port: graphiqlPort,
@@ -467,6 +469,7 @@ interface DevGraphiQLTargetOptions {
   app: AppInterface
   apiKey: string
   apiSecret: string
+  apiVersion?: ApiVersion
   port: number
   url: string
   storeFqdn: string

@@ -2,7 +2,7 @@ import {defaultQuery, template} from './template.js'
 import express from 'express'
 import bodyParser from 'body-parser'
 import '@shopify/shopify-api/adapters/node'
-import {shopifyApi, LogSeverity, Session, LATEST_API_VERSION} from '@shopify/shopify-api'
+import {shopifyApi, LogSeverity, Session, ApiVersion, LATEST_API_VERSION} from '@shopify/shopify-api'
 import {renderLiquidTemplate} from '@shopify/cli-kit/node/liquid'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
 import {Server} from 'http'
@@ -12,6 +12,7 @@ function createShopify({
   stdout,
   apiKey,
   apiSecret,
+  apiVersion,
   scopes,
   url,
   port,
@@ -19,6 +20,7 @@ function createShopify({
   stdout: Writable
   apiKey: string
   apiSecret: string
+  apiVersion: ApiVersion
   scopes: string[]
   url: string
   port: number
@@ -28,7 +30,7 @@ function createShopify({
     apiSecretKey: apiSecret,
     scopes,
     hostName: url,
-    apiVersion: LATEST_API_VERSION,
+    apiVersion,
     isEmbeddedApp: false,
     logger: {
       level: LogSeverity.Debug,
@@ -53,6 +55,7 @@ interface SetupGraphiQLServerOptions {
   port: number
   apiKey: string
   apiSecret: string
+  apiVersion?: ApiVersion
   url: string
   storeFqdn: string
   scopes: string[]
@@ -63,13 +66,15 @@ export function setupGraphiQLServer({
   port,
   apiKey,
   apiSecret,
+  apiVersion,
   url,
   storeFqdn,
   scopes,
 }: SetupGraphiQLServerOptions): Server {
+  const targetApiVersion = apiVersion ?? LATEST_API_VERSION
   outputDebug(`Setting up GraphiQL HTTP server...`, stdout)
 
-  const shopify = createShopify({stdout, apiKey, apiSecret, url, scopes, port})
+  const shopify = createShopify({stdout, apiKey, apiSecret, apiVersion: targetApiVersion, url, scopes, port})
   const app = express()
   let session: Session | undefined
 
@@ -131,5 +136,5 @@ export function setupGraphiQLServer({
     const {body} = await client.query({data: req.body})
     res.json(body)
   })
-  return app.listen(port, () => stdout.write('GraphiQL server started'))
+  return app.listen(port, () => stdout.write(`GraphiQL server started on Admin API version ${targetApiVersion}`))
 }
