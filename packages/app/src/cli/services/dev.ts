@@ -265,6 +265,7 @@ async function dev(options: DevOptions) {
       envIdentifiers: prodEnvIdentifiers,
     })
 
+    // Only cached the extension UUIDs if config-as-code is enabled
     if (isCurrentAppSchema(localApp.configuration)) {
       await updateAppIdentifiers({app: localApp, identifiers, command: 'deploy'})
     }
