@@ -94,10 +94,78 @@ export const template = `
           ],
           plugins: [
             {
-              title: 'AI query generator',
+              title: 'Shopify help',
               icon: function() {
                 return React.createElement('img', {
                   'srcSet': 'https://cdn.shopify.com/shopifycloud/brochure/assets/brand-assets/shopify-logo-primary-logo-456baa801ee66a0a435671082365958316831c9960c480451dd0330bcdae304f.svg',
+                })
+              },
+              content: function() {
+                return React.createElement('div', {
+                }, [
+                  React.createElement('h1', {
+                    style: {
+                      margin: 0,
+                    },
+                  }, 'Shopify help'),
+                  React.createElement('p', {}, "This is a custom plugin to help you get started with Shopify's GraphQL API."),
+                  React.createElement('p', {}, [
+                    'You can find more information about the API in the ',
+                    React.createElement(
+                      'a', {
+                        href: 'https://shopify.dev/docs/admin-api/graphql/reference',
+                        target: '_blank',
+                      },
+                      ['GraphQL reference']
+                    ),
+                    ' and ',
+                    React.createElement('a', {
+                      href: 'https://shopify.dev/concepts/graphql',
+                      target: '_blank',
+                    }, 'GraphQL concepts'),
+                    ' documentation.'
+                  ]),
+                  React.createElement('p', {}, [
+                    'If you have any questions, you can ask them in the ',
+                    React.createElement('a', {
+                      href: 'https://community.shopify.com/c/partners-and-developers/ct-p/appdev',
+                      target: '_blank',
+                    }, 'Partners and Developers'),
+                    ' section of the Shopify Community Forums.'
+                  ]),
+                  React.createElement('p', {}, [
+                    'For CLI issues, open an issue on the ',
+                    React.createElement('a', {
+                      href: 'https://github.com/Shopify/cli',
+                      target: '_blank',
+                    }, 'CLI GitHub repository'),
+                    '.'
+                  ]),
+                  React.createElement('p', {}, [
+                    'Other useful links:',
+                    React.createElement('ul', {}, [
+                      React.createElement('li', {}, [
+                        React.createElement('a', {
+                          href: 'https://shopify.dev',
+                          target: '_blank',
+                        }, 'Shopify developer documentation'),
+                      ]),
+                      React.createElement('li', {}, [
+                        React.createElement('a', {
+                          href: 'https://shopify.dev/changelog',
+                          target: '_blank',
+                        }, 'Shopify developer changelog'),
+                      ]),
+                    ]),
+                  ]),
+                ])
+              },
+            },
+            {
+              title: 'AI query generator',
+              icon: function() {
+                return React.createElement('img', {
+                  'srcSet': 'https://raw.githubusercontent.com/Shopify/polaris/main/polaris-icons/icons/MagicMinor.svg',
                 })
               },
               content: function() {
