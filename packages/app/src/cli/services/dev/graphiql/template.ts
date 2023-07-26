@@ -108,7 +108,7 @@ export const template = `
                       margin: 0,
                     },
                   }, 'Shopify help'),
-                  React.createElement('p', {}, "This is a custom plugin to help you get started with Shopify's GraphQL API."),
+                  React.createElement('p', {}, "This is a custom plugin to help you get started with Shopify's GraphQL Admin API."),
                   React.createElement('p', {}, [
                     'You can find more information about the API in the ',
                     React.createElement(
@@ -141,21 +141,19 @@ export const template = `
                     }, 'CLI GitHub repository'),
                     '.'
                   ]),
-                  React.createElement('p', {}, [
-                    'Other useful links:',
-                    React.createElement('ul', {}, [
-                      React.createElement('li', {}, [
-                        React.createElement('a', {
-                          href: 'https://shopify.dev',
-                          target: '_blank',
-                        }, 'Shopify developer documentation'),
-                      ]),
-                      React.createElement('li', {}, [
-                        React.createElement('a', {
-                          href: 'https://shopify.dev/changelog',
-                          target: '_blank',
-                        }, 'Shopify developer changelog'),
-                      ]),
+                  React.createElement('p', {}, 'Other useful links:'),
+                  React.createElement('ul', {}, [
+                    React.createElement('li', {}, [
+                      React.createElement('a', {
+                        href: 'https://shopify.dev',
+                        target: '_blank',
+                      }, 'Shopify developer documentation'),
+                    ]),
+                    React.createElement('li', {}, [
+                      React.createElement('a', {
+                        href: 'https://shopify.dev/changelog',
+                        target: '_blank',
+                      }, 'Shopify developer changelog'),
                     ]),
                   ]),
                 ])
@@ -172,71 +170,64 @@ export const template = `
                 const [query, setQuery] = React.useState('')
                 const [queryInProgress, setQueryInProgress] = React.useState(false)
                 const [errors, setErrors] = React.useState(null)
-                return React.createElement(
-                  'div',
-                  {},
-                  React.createElement('div', {}, [
-                    React.createElement('h2', {}, 'AI query generator'),
-                    React.createElement('h3', {}, '! Experimental !'),
-                    React.createElement('p', {}, 'This feature uses AI to create GraphQL queries and may be prone to error.'),
-                    React.createElement('textarea', {
-                      id: 'ai-query-generator',
-                      placeholder: "Describe in your own words what you'd like to query...",
-                      style: {
-                        width: '100%',
-                        height: '100px',
-                        padding: '10px',
-                        boxSizing: 'border-box',
-                        marginBottom: '10px',
-                      },
-                    }),
-                    React.createElement('br'),
-                    React.createElement('button', {
-                      disabled: queryInProgress,
-                      onClick: function() {
-                        setQueryInProgress(true)
-                        const query = document.getElementById('ai-query-generator').value
-                        fetch('{{url}}/graphiql/ai?queryInput=' + encodeURIComponent(query)).then(function(response) {
-                          setQueryInProgress(false)
-                          response.json().then(function(data) {
-                            setQuery(data.query)
-                            setErrors(data.errors)
-                          })
+                const editorContext = GraphiQL.React.useEditorContext()
+                return React.createElement('div', {}, [
+                  React.createElement('h2', {key: "h2"}, 'AI query generator'),
+                  React.createElement('h3', {key: "plugin-title"}, '! Experimental !'),
+                  React.createElement('p', {key: "plugin-description"}, 'This feature uses AI to create GraphQL queries and may be prone to error.'),
+                  React.createElement('textarea', {
+                    key: "query-input",
+                    id: 'ai-query-generator',
+                    placeholder: "Describe in your own words what you'd like to query...",
+                    style: {
+                      width: '100%',
+                      height: '100px',
+                      padding: '10px',
+                      boxSizing: 'border-box',
+                      marginBottom: '10px',
+                    },
+                  }),
+                  React.createElement('br'),
+                  React.createElement('button', {
+                    disabled: queryInProgress,
+                    onClick: function() {
+                      setQueryInProgress(true)
+                      const query = document.getElementById('ai-query-generator').value
+                      fetch('{{url}}/graphiql/ai?queryInput=' + encodeURIComponent(query)).then(function(response) {
+                        setQueryInProgress(false)
+                        response.json().then(function(data) {
+                          setQuery(data.query)
+                          setErrors(data.errors)
                         })
+                      })
+                    },
+                  }, 'Generate query'),
+                  React.createElement('br'),
+                  query ? React.createElement('div', {}, [
+                    React.createElement('h3', {}, 'Generated query'),
+                    React.createElement('code', {}, [
+                      React.createElement('pre', {}, query),
+                    ]),
+                    React.createElement('button', {
+                      onClick: function() {
+                        const priorTabsLength = editorContext.tabs.length
+                        editorContext.addTab()
+                        editorContext.updateActiveTabValues({query})
+                        editorContext.changeTab(priorTabsLength)
                       },
-                    }, 'Generate query'),
-                    React.createElement('br'),
-                    query ? React.createElement('div', {}, [
-                      React.createElement('h3', {}, 'Generated query'),
-                      React.createElement('p', {}, [
-                        React.createElement('code', {}, [
-                          React.createElement('pre', {}, query),
-                        ]),
-                      ]),
-                      React.createElement('button', {
-                        onClick: function() {
-                          // Copy the query to the clipboard
-                          const el = document.createElement('textarea')
-                          el.value = query
-                          document.body.appendChild(el)
-                          el.select()
-                          document.execCommand('copy')
-                          document.body.removeChild(el)
-                        },
-                      }, 'copy'),
-                    ]) : null,
-                    errors ? React.createElement('div', {}, [
-                      React.createElement('h3', {}, 'Errors'),
-                      React.createElement(
-                        'ul',
-                        {},
-                        errors.map(function(error) {
-                          return React.createElement('li', {}, error.message)
-                        }),
-                      ),
-                    ]) : null,
-                  ]),
-                )
+                    }, 'add to editor'),
+                  ]) : null,
+                  errors ? React.createElement('div', {}, [
+                    React.createElement('h3', {}, 'Errors'),
+                    React.createElement(
+                      'ul',
+                      {},
+                      errors.map(function(error) {
+                        return React.createElement('li', {}, error.message)
+                      }),
+                    ),
+                  ]) : null,
+                ])
               },
             },
           ]
