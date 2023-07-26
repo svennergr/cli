@@ -432,6 +432,54 @@
       },
       "args": {}
     },
+    "app:magic": {
+      "id": "app:magic",
+      "description": "Help the developer find the right commands to run.",
+      "strict": true,
+      "pluginName": "@shopify/app",
+      "pluginAlias": "@shopify/app",
+      "pluginType": "core",
+      "aliases": [],
+      "flags": {
+        "no-color": {
+          "name": "no-color",
+          "type": "boolean",
+          "description": "Disable color output.",
+          "hidden": false,
+          "allowNo": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "Increase the verbosity of the logs.",
+          "hidden": false,
+          "allowNo": false
+        },
+        "path": {
+          "name": "path",
+          "type": "option",
+          "description": "The path to your app directory.",
+          "multiple": false,
+          "default": "."
+        },
+        "config": {
+          "name": "config",
+          "type": "option",
+          "char": "c",
+          "description": "The name of the app configuration.",
+          "hidden": false,
+          "multiple": false
+        },
+        "query": {
+          "name": "query",
+          "type": "option",
+          "description": "the developer's question",
+          "hidden": false,
+          "multiple": false
+        }
+      },
+      "args": {}
+    },
     "app:release": {
       "id": "app:release",
       "description": "Release an app version.",
