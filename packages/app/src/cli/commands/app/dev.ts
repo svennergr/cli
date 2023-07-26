@@ -120,7 +120,7 @@ export default class Dev extends Command {
       subscriptionProductUrl: flags['subscription-product-url'],
       checkoutCartUrl: flags['checkout-cart-url'],
       tunnelUrl: flags['tunnel-url'],
-      noTunnel: flags['no-tunnel'],
+      noTunnel: true,
       theme: flags.theme,
       themeExtensionPort: flags['theme-app-extension-port'],
       notify: flags.notify,
