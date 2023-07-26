@@ -1,4 +1,4 @@
-import {renderInfo, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
 import {ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate} from 'langchain/prompts'
 import {resolvePath, joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {readFile} from '@shopify/cli-kit/node/fs'
@@ -15,6 +15,7 @@ export async function magic({query}: {query?: string}) {
   let userPrompt = query
 
   if (!userPrompt) {
+    // eslint-disable-next-line require-atomic-updates
     userPrompt = await renderTextPrompt({
       message: 'What would you like to do?',
     })
@@ -22,12 +23,12 @@ export async function magic({query}: {query?: string}) {
 
   const template = 'You are an assistant to a Shopify partner who is building an app with the Shopify CLI.'
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(template)
-  const humanTemplate = `Below, delimited by \`\`\`, you have a json with the "commands" key containing the oclif manifests of the CLI. The "docs" key contains the shopify documentation of the CLI.
-  \`\`\`
+  const humanTemplate = `In the JSON below, you'll find two keys: "commands" and "docs". The "commands" key contains the oclif manifests the Shopify CLI, while the "docs" key contains the documentation of the Shopify CLI.
+  \`\`\`json
   {context}
   \`\`\`
 
-  {userPrompt}`
+  Based on the information provided in the context, please answer the following user prompt: {userPrompt}`
   const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
   const prompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
 
@@ -47,12 +48,22 @@ export async function magic({query}: {query?: string}) {
     prompt,
   })
 
-  const response = await chain.call({
-    context: aiContext,
-    userPrompt,
-  })
+  let response
+
+  await renderTasks([
+    {
+      title: 'Thinking',
+      task: async () => {
+        response = await chain.call({
+          context: aiContext,
+          userPrompt,
+        })
+      },
+    },
+  ])
 
   renderInfo({
-    headline: ['Run', {command: response.output.command}, {char: '.'}],
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    headline: ['Run', {command: response!.output.command}, {char: '.'}],
   })
 }
