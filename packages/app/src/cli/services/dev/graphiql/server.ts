@@ -4,6 +4,7 @@ import bodyParser from 'body-parser'
 import '@shopify/shopify-api/adapters/node'
 import {shopifyApi, LogSeverity, Session, ApiVersion, LATEST_API_VERSION} from '@shopify/shopify-api'
 import {renderLiquidTemplate} from '@shopify/cli-kit/node/liquid'
+import {fetch} from '@shopify/cli-kit/node/http'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
 import {Server} from 'http'
 import {Writable} from 'stream'
@@ -122,6 +123,12 @@ export function setupGraphiQLServer({
     )
   })
   app.use(bodyParser.json())
+  app.get('/graphiql/ai', async (req, res) => {
+    outputDebug('Handling /graphiql/ai request', stdout)
+    const response = await fetch('https://mock.shop/generate/prompt?' + new URLSearchParams({queryInput: (req.query.queryInput as string)}))
+    const json = await response.json()
+    res.json(json)
+  })
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.post('/graphiql/graphql.json', async (req, res) => {
     outputDebug('Handling /graphiql/graphql.json request', stdout)
