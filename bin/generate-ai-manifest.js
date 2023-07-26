@@ -83,7 +83,8 @@ const docsUrls = [
   'https://shopify.dev/docs/apps/tools/cli/commands',
   'https://shopify.dev/docs/apps/tools/cli/structure',
   'https://shopify.dev/docs/apps/tools/cli/existing',
-  'https://shopify.dev/docs/apps/app-extensions/list'
+  'https://shopify.dev/docs/apps/app-extensions/list',
+  'https://shopify.dev/docs/apps/marketing/pixels'
 ];
 
 fetchDocs(docsUrls).then((docs) => {
