@@ -79,7 +79,8 @@ export class ExtensionInstance<TConfiguration extends BaseConfigType = BaseConfi
   }
 
   get isPreviewable() {
-    return this.features.includes('ui_preview')
+    // return this.features.includes('ui_preview')
+    return false
   }
 
   get isThemeExtension() {
@@ -136,7 +137,7 @@ export class ExtensionInstance<TConfiguration extends BaseConfigType = BaseConfi
   }
 
   isDraftable(unifiedDeployment: boolean) {
-    return !this.isPreviewable && !this.isThemeExtension && (unifiedDeployment || !this.isFunctionExtension)
+    return true
   }
 
   async deployConfig({
