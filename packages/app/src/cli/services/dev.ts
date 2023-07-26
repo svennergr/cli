@@ -13,9 +13,7 @@ import {outputUpdateURLsResult, renderDev} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
 import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-webhook.js'
-import {ensureDeploymentIdsPresence} from './context/identifiers.js'
 import {setupConfigWatcher, setupDraftableExtensionBundler, setupFunctionWatcher} from './dev/extension/bundler.js'
-import {updateExtensionDraft} from './dev/update-extension.js'
 import {setCachedAppInfo} from './local-storage.js'
 import {renderDevPreviewWarning} from './extensions/common.js'
 import {
@@ -33,7 +31,7 @@ import {
 import metadata from '../metadata.js'
 import {fetchProductVariant} from '../utilities/extensions/fetch-product-variant.js'
 import {loadApp} from '../models/app/loader.js'
-import {getAppIdentifiers, updateAppIdentifiers} from '../models/app/identifiers.js'
+import {getAppIdentifiers} from '../models/app/identifiers.js'
 import {getAnalyticsTunnelType} from '../utilities/analytics.js'
 import {buildAppURLForWeb} from '../utilities/app/app-url.js'
 import {HostThemeManager} from '../utilities/host-theme-manager.js'
@@ -59,6 +57,7 @@ import {getBackendPort} from '@shopify/cli-kit/node/environment'
 import {renderWarning} from '@shopify/cli-kit/node/ui'
 import {basename} from '@shopify/cli-kit/node/path'
 import {TunnelClient} from '@shopify/cli-kit/node/plugins/tunnel'
+import {adminRequest} from '@shopify/cli-kit/node/api/admin'
 import {Writable} from 'stream'
 
 const MANIFEST_VERSION = '3'
@@ -99,6 +98,8 @@ async function dev(options: DevOptions) {
     updateURLs: cachedUpdateURLs,
     configName,
   } = await ensureDevContext(options, token)
+
+  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
@@ -255,20 +256,20 @@ async function dev(options: DevOptions) {
   }
 
   if (draftableExtensions.length > 0) {
-    const identifiers = await ensureDeploymentIdsPresence({
-      app: localApp,
-      partnersApp: remoteApp,
-      appId: apiKey,
-      appName: remoteApp.title,
-      force: true,
-      deploymentMode,
-      token,
-      envIdentifiers: prodEnvIdentifiers,
-    })
+    // const identifiers = await ensureDeploymentIdsPresence({
+    //   app: localApp,
+    //   partnersApp: remoteApp,
+    //   appId: apiKey,
+    //   appName: remoteApp.title,
+    //   force: true,
+    //   deploymentMode,
+    //   token,
+    //   envIdentifiers: prodEnvIdentifiers,
+    // })
 
-    if (isCurrentAppSchema(localApp.configuration)) {
-      await updateAppIdentifiers({app: localApp, identifiers, command: 'deploy'})
-    }
+    // if (isCurrentAppSchema(localApp.configuration)) {
+    //   await updateAppIdentifiers({app: localApp, identifiers, command: 'deploy'})
+    // }
 
     additionalProcesses.push(
       devDraftableExtensionTarget({
@@ -276,8 +277,9 @@ async function dev(options: DevOptions) {
         apiKey,
         url: proxyUrl,
         token,
+        adminSession,
         extensions: draftableExtensions,
-        remoteExtensions: identifiers.extensionIds,
+        remoteExtensions: {},
         unifiedDeployment,
       }),
     )
@@ -505,6 +507,7 @@ interface DevDraftableExtensionsOptions {
   apiKey: string
   url: string
   token: string
+  adminSession: AdminSession
   extensions: ExtensionInstance[]
   remoteExtensions: {
     [key: string]: string
@@ -518,6 +521,7 @@ export function devDraftableExtensionTarget({
   url,
   apiKey,
   token,
+  adminSession,
   remoteExtensions,
   unifiedDeployment,
 }: DevDraftableExtensionsOptions) {
@@ -527,21 +531,25 @@ export function devDraftableExtensionTarget({
       // Functions will only be passed to this target if unified deployments are enabled
       // ESBuild will take care of triggering an initial build & upload for the extensions with ESBUILD feature.
       // For the rest we need to manually upload an initial draft.
-      const initialDraftExtensions = extensions.filter((ext) => !ext.isESBuildExtension)
-      await Promise.all(
-        initialDraftExtensions.map(async (extension) => {
-          await extension.build({app, stdout, stderr, useTasks: false, signal})
-          const registrationId = remoteExtensions[extension.localIdentifier]
-          if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)
-          await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
-        }),
-      )
+
+      // Upload all extensions to store
+      const result = adminRequest('', adminSession, {})
+
+      // const initialDraftExtensions = extensions.filter((ext) => !ext.isESBuildExtension)
+      // await Promise.all(
+      //   initialDraftExtensions.map(async (extension) => {
+      //     await extension.build({app, stdout, stderr, useTasks: false, signal})
+      //     const registrationId = remoteExtensions[extension.localIdentifier]
+      //     if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)
+      //     await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
+      //   }),
+      // )
 
       await Promise.all(
         extensions
           .map((extension) => {
-            const registrationId = remoteExtensions[extension.localIdentifier]
-            if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)
+            // const registrationId = remoteExtensions[extension.localIdentifier]
+            // if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)
 
             const actions = [
               setupConfigWatcher({
