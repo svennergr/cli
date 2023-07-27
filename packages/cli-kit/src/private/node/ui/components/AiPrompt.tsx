@@ -56,9 +56,9 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
       callChain(answer)
         .then((response) => {
           setAiAnswer({command: response.output.command})
-          if (response.output.clarifying_question.length > 0) {
-            setQuestion(response.output.clarifying_question)
-          }
+          // if (response.output.clarifying_question.length > 0) {
+          //   setQuestion(response.output.clarifying_question)
+          // }
         })
         .catch((error) => {
           setError(error.message)
@@ -77,9 +77,11 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
       <Box flexDirection="column" width={oneThird} marginBottom={1}>
         {aiAnswer ? (
           <Banner type="info">
-            <Box flexDirection="column">
-              <TokenizedText item={aiAnswer} />
-              <Text>Press Shift + Enter to copy the above command to the clipboard</Text>
+            <Box flexDirection="column" gap={1}>
+              <Text>
+                Suggested command: <TokenizedText item={aiAnswer} />
+              </Text>
+              <Text italic>Press Ctrl + r to copy the above command to the clipboard</Text>
             </Box>
           </Banner>
         ) : null}
