@@ -1,16 +1,15 @@
+/* eslint-disable no-console */
 import {PartnersURLs} from './urls.js'
-import {ensureDevContext} from '../context.js'
 import {AppInterface, isCurrentAppSchema} from '../../models/app/app.js'
 import {OrganizationApp} from '../../models/organization.js'
 import {getAppConfigurationShorthand} from '../../models/app/loader.js'
 import {DevSessionDeleteMutation, DevSessionDeleteSchema} from '../../api/graphql/dev_session_delete.js'
-import {DevOptions} from '../dev.js'
 import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {renderConcurrent, RenderConcurrentOptions, renderInfo} from '@shopify/cli-kit/node/ui'
 import {openURL} from '@shopify/cli-kit/node/system'
 import {basename} from '@shopify/cli-kit/node/path'
-import {ensureAuthenticatedAdmin, ensureAuthenticatedPartners} from '@shopify/cli-kit/node/session'
 import {adminRequest} from '@shopify/cli-kit/node/api/admin'
+import {AdminSession} from '@shopify/cli-kit/node/session'
 
 export async function outputUpdateURLsResult(
   updated: boolean,
@@ -59,7 +58,7 @@ export async function outputUpdateURLsResult(
 export function renderDev(
   renderConcurrentOptions: RenderConcurrentOptions,
   previewUrl: string,
-  devOptions?: DevOptions,
+  adminSession?: AdminSession,
   ephemeralAppId?: string,
 ) {
   let options = renderConcurrentOptions
@@ -72,10 +71,8 @@ export function renderDev(
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           openURL(previewUrl)
         } else if (input === 'q') {
-          // delete the dev session
-          if (typeof ephemeralAppId !== 'undefined' && typeof devOptions !== 'undefined') {
-            deleteDevSession(ephemeralAppId, devOptions).catch((err) => {
-              // eslint-disable-next-line no-console
+          if (typeof ephemeralAppId !== 'undefined' && typeof adminSession !== 'undefined') {
+            deleteDevSession(adminSession, ephemeralAppId).catch((err) => {
               console.log(`Could not delete dev session. Error: ${err}`)
             })
           }
@@ -109,34 +106,17 @@ async function partnersURL(organizationId: string, appId: string) {
   }
 }
 
-async function deleteDevSession(devSessionId: string, devCommandOptions: DevOptions) {
-  // 0. ensure we have a valid organization, app and dev store
-  const {
-    storeFqdn,
-    remoteApp,
-    remoteAppUpdated,
-    updateURLs: cachedUpdateURLs,
-    configName,
-  } = await ensureDevContext(devCommandOptions, await ensureAuthenticatedPartners())
-  // eslint-disable-next-line no-console
-  console.log(storeFqdn)
-
-  // 1. ensure we have a valid admin API session for the given store
-  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
-  // eslint-disable-next-line no-console
-  console.log(adminSession)
-
-  // 2. delete the dev session via the Admin API
+async function deleteDevSession(adminSession: AdminSession, devSessionId: string) {
+  // 1. delete the dev session via the Admin API
+  console.log('Deleting dev session...')
   const devSessionDeleteResponse: DevSessionDeleteSchema = await adminRequest(DevSessionDeleteMutation, adminSession, {
     id: devSessionId,
   })
 
-  // 3. handle errors in DevSessionDeleteSchema
+  // 2. handle errors in DevSessionDeleteSchema
   if (devSessionDeleteResponse.userErrors.length > 0) {
-    // eslint-disable-next-line no-console
     console.log(devSessionDeleteResponse.userErrors)
   } else {
-    // eslint-disable-next-line no-console
     console.log(`Successfully deleted dev with ID: ${devSessionId}`)
   }
 }

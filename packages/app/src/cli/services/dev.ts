@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {ensureDevContext} from './context.js'
 import {
   generateFrontendURL,
@@ -98,6 +99,7 @@ export interface UpdateAppModulesOptions {
 
 export async function updateAppModules({app, extensions, adminSession, token, apiKey}: UpdateAppModulesOptions) {
   await inTemporaryDirectory(async (tmpDir) => {
+    console.log('here1', adminSession, apiKey)
     const signedUrlResult: DevSessionGenerateUrlSchema = await adminRequest(
       DevSessionGenerateUrlMutation,
       adminSession,
@@ -117,6 +119,8 @@ export async function updateAppModules({app, extensions, adminSession, token, ap
       extensions,
       bundlePath,
     })
+
+    console.log('here2')
 
     const form = formData()
     const buffer = readFileSync(bundlePath)
@@ -184,13 +188,9 @@ async function dev(options: DevOptions) {
     apiKey: ephemeralApp.devSessionCreate.app.apiKey,
   })
 
-  console.log('here!')
-
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
   }
-
-  console.log('here 2')
 
   if (
     isCurrentAppSchema(localApp.configuration) &&
@@ -419,7 +419,7 @@ async function dev(options: DevOptions) {
         processes: additionalProcesses,
       },
       previewUrl,
-      options,
+      adminSession,
       ephemeralApp.devSessionCreate.app.id,
     )
   } else {
