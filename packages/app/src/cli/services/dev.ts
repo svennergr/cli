@@ -16,6 +16,7 @@ import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-we
 import {setupConfigWatcher, setupDraftableExtensionBundler, setupFunctionWatcher} from './dev/extension/bundler.js'
 import {setCachedAppInfo} from './local-storage.js'
 import {renderDevPreviewWarning} from './extensions/common.js'
+import {bundleAndBuildExtensions} from './deploy/bundle.js'
 import {
   ReverseHTTPProxyTarget,
   runConcurrentHTTPProcessesAndPathForwardTraffic,
@@ -37,6 +38,9 @@ import {buildAppURLForWeb} from '../utilities/app/app-url.js'
 import {HostThemeManager} from '../utilities/host-theme-manager.js'
 
 import {ExtensionInstance} from '../models/extensions/extension-instance.js'
+import {DevSessionGenerateUrlMutation, DevSessionGenerateUrlSchema} from '../api/graphql/dev_session_generate_url.js'
+import {DevSessionUpdateMutation, DevSessionUpdateSchema} from '../api/graphql/dev_session_update.js'
+import {DevSessionCreateMutation, DevSessionCreateSchema} from '../api/graphql/dev_session_create.js'
 import {Config} from '@oclif/core'
 import {reportAnalyticsEvent} from '@shopify/cli-kit/node/analytics'
 import {execCLI2} from '@shopify/cli-kit/node/ruby'
@@ -55,10 +59,13 @@ import {OutputProcess} from '@shopify/cli-kit/node/output'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {getBackendPort} from '@shopify/cli-kit/node/environment'
 import {renderWarning} from '@shopify/cli-kit/node/ui'
-import {basename} from '@shopify/cli-kit/node/path'
+import {basename, dirname, joinPath} from '@shopify/cli-kit/node/path'
 import {TunnelClient} from '@shopify/cli-kit/node/plugins/tunnel'
 import {adminRequest} from '@shopify/cli-kit/node/api/admin'
+import {inTemporaryDirectory, mkdir} from '@shopify/cli-kit/node/fs'
+import {fetch, formData} from '@shopify/cli-kit/node/http'
 import {Writable} from 'stream'
+import {readFileSync} from 'fs'
 
 const MANIFEST_VERSION = '3'
 
@@ -81,6 +88,59 @@ export interface DevOptions {
   notify?: string
 }
 
+async function updateAppModules(
+  app: AppInterface,
+  extensions: ExtensionInstance[],
+  adminSession: AdminSession,
+  token: string,
+  apiKey: string,
+) {
+  await inTemporaryDirectory(async (tmpDir) => {
+    const signedUrlResult: DevSessionGenerateUrlSchema = await adminRequest(
+      DevSessionGenerateUrlMutation,
+      adminSession,
+      {
+        apiKey,
+      },
+    )
+
+    console.log(signedUrlResult)
+
+    const bundlePath = joinPath(tmpDir, `bundle.zip`)
+    await mkdir(dirname(bundlePath))
+    const identifiers = {app: apiKey, extensionIds: {}, extensions: {}}
+    await bundleAndBuildExtensions({
+      app,
+      identifiers,
+      extensions,
+      bundlePath,
+    })
+
+    const form = formData()
+    const buffer = readFileSync(bundlePath)
+    form.append('my_upload', buffer)
+    await fetch(signedUrlResult.generateDevSessionSignedUrl.signedUrl, {
+      method: 'put',
+      body: buffer,
+      headers: form.getHeaders(),
+    })
+
+    const appModules = await Promise.all(
+      extensions.flatMap((ext) => ext.bundleConfig({identifiers, token, apiKey, unifiedDeployment: true})),
+    )
+
+    console.log(appModules)
+
+    const udpateResult: DevSessionUpdateSchema = await adminRequest(DevSessionUpdateMutation, adminSession, {
+      apiKey,
+      appModules,
+      bundleUrl: signedUrlResult.generateDevSessionSignedUrl.signedUrl,
+    })
+
+    console.log(udpateResult)
+  })
+}
+
 async function dev(options: DevOptions) {
   // Be optimistic about tunnel creation and do it as early as possible
   const tunnelPort = await getAvailableTCPPort()
@@ -91,20 +151,36 @@ async function dev(options: DevOptions) {
   }
 
   const token = await ensureAuthenticatedPartners()
-  const {
-    storeFqdn,
-    remoteApp,
-    remoteAppUpdated,
-    updateURLs: cachedUpdateURLs,
-    configName,
-  } = await ensureDevContext(options, token)
-
-  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
+  const {remoteApp, remoteAppUpdated, updateURLs: cachedUpdateURLs, configName} = await ensureDevContext(options, token)
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
 
   let localApp = await loadApp({directory: options.directory, specifications, configName})
+
+  const storeFqdn = 'shop1.shopify.extensions-ghy0.isaac-roldan.eu.spin.dev'
+
+  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
+  console.log(adminSession)
+
+  const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
+    title: 'my-app',
+    scopes: ['write_products'],
+  })
+
+  console.log(ephemeralApp)
+
+  await updateAppModules(
+    localApp,
+    localApp.allExtensions,
+    adminSession,
+    token,
+    ephemeralApp.devSessionCreate.app.apiKey,
+  )
+
+  // updateAppModules()
+
+  // throw new Error('test')
 
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
@@ -556,7 +632,7 @@ export function devDraftableExtensionTarget({
                 extension,
                 token,
                 apiKey,
-                registrationId,
+                registrationId: '',
                 stdout,
                 stderr,
                 signal,
@@ -573,7 +649,7 @@ export function devDraftableExtensionTarget({
                   url,
                   token,
                   apiKey,
-                  registrationId,
+                  registrationId: '',
                   stderr,
                   stdout,
                   signal,
@@ -594,7 +670,7 @@ export function devDraftableExtensionTarget({
                   signal,
                   token,
                   apiKey,
-                  registrationId,
+                  registrationId: '',
                   unifiedDeployment,
                 }),
               )

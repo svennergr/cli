@@ -1,5 +1,6 @@
 import {AppInterface} from '../../models/app/app.js'
 import {Identifiers} from '../../models/app/identifiers.js'
+import {ExtensionInstance} from '../../models/extensions/extension-instance.js'
 import {zip} from '@shopify/cli-kit/node/archiver'
 import {renderConcurrent} from '@shopify/cli-kit/node/ui'
 import {AbortSignal} from '@shopify/cli-kit/node/abort'
@@ -11,6 +12,7 @@ export interface BundleOptions {
   app: AppInterface
   bundlePath?: string
   identifiers: Identifiers
+  extensions?: ExtensionInstance[]
 }
 
 export async function bundleAndBuildExtensions(options: BundleOptions) {
@@ -20,7 +22,7 @@ export async function bundleAndBuildExtensions(options: BundleOptions) {
     await touchFile(joinPath(bundleDirectory, '.shopify'))
 
     await renderConcurrent({
-      processes: options.app.allExtensions.map((extension) => {
+      processes: (options.extensions ?? options.app.allExtensions).map((extension) => {
         return {
           prefix: extension.localIdentifier,
           action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {

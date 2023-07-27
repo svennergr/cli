@@ -245,7 +245,7 @@ export class ExtensionInstance<TConfiguration extends BaseConfigType = BaseConfi
   }
 
   async buildForBundle(options: ExtensionBuildOptions, identifiers: Identifiers, bundleDirectory: string) {
-    const extensionId = identifiers.extensions[this.localIdentifier]!
+    const extensionId = this.handle
     const outputFile = this.isThemeExtension ? '' : joinPath('dist', `${this.outputFileName}`)
 
     if (this.features.includes('bundling')) {
@@ -268,9 +268,10 @@ export class ExtensionInstance<TConfiguration extends BaseConfigType = BaseConfi
     const contextValue = (handle as string) || ''
 
     return {
-      uuid: identifiers.extensions[this.localIdentifier]!,
+      uuid: this.handle,
       config: JSON.stringify(remainingConfigs),
       context: contextValue,
+      specificationIdentifier: this.specification.graphQLType ?? this.specification.identifier,
     }
   }
 }
