@@ -1,6 +1,7 @@
 import {TextInput} from './TextInput.js'
 import {CommandToken, TokenizedText} from './TokenizedText.js'
 import {TextAnimation} from './TextAnimation.js'
+import {Banner} from './Banner.js'
 import {handleCtrlC} from '../../ui.js'
 import useLayout from '../hooks/use-layout.js'
 import React, {FunctionComponent, useState} from 'react'
@@ -75,10 +76,12 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
       <Box flexGrow={1} />
       <Box flexDirection="column" width={oneThird} marginBottom={1}>
         {aiAnswer ? (
-          <Box marginBottom={2} flexDirection="column">
-            <TokenizedText item={aiAnswer} />
-            <Text>Press Shift + Enter to copy the above command to the clipboard</Text>
-          </Box>
+          <Banner type="info">
+            <Box flexDirection="column">
+              <TokenizedText item={aiAnswer} />
+              <Text>Press Shift + Enter to copy the above command to the clipboard</Text>
+            </Box>
+          </Banner>
         ) : null}
         {loading ? <TextAnimation text={loadingBar} /> : null}
         <Box>
