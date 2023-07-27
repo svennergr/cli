@@ -57,7 +57,8 @@
     "serve-static": "1.15.0",
     "ws": "8.13.0",
     "langchain": "0.0.117",
-    "zod": "3.21.4"
+    "zod": "3.21.4",
+    "hnswlib-node": "2.0.0"
   },
   "devDependencies": {
     "@types/diff": "^5.0.3",

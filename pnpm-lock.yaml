@@ -184,6 +184,9 @@ importers:
       h3:
         specifier: 0.7.21
         version: 0.7.21
+      hnswlib-node:
+        specifier: 2.0.0
+        version: 2.0.0
       http-proxy:
         specifier: 1.18.1
         version: 1.18.1
@@ -192,7 +195,7 @@ importers:
         version: 0.1.7
       langchain:
         specifier: 0.0.117
-        version: 0.0.117
+        version: 0.0.117(hnswlib-node@2.0.0)
       serve-static:
         specifier: 1.15.0
         version: 1.15.0
@@ -5854,6 +5857,12 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
+  /bindings@1.5.0:
+    resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    dependencies:
+      file-uri-to-path: 1.0.0
+    dev: false
+
   /bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
     dependencies:
@@ -7954,6 +7963,10 @@ packages:
     dependencies:
       flat-cache: 3.0.4
 
+  /file-uri-to-path@1.0.0:
+    resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    dev: false
+
   /filelist@1.0.4:
     resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
     dependencies:
@@ -8616,6 +8629,14 @@ packages:
     dependencies:
       capital-case: 1.0.4
       tslib: 2.6.0
+
+  /hnswlib-node@2.0.0:
+    resolution: {integrity: sha512-ib5c5m5JSW0w/8CfufAozrgXSGnWizH62YZkd2JvGVCi2OE45jQZmtQzh5aXszQiJTr8+6bMxnN/Qo2w4e+Z4A==}
+    requiresBuild: true
+    dependencies:
+      bindings: 1.5.0
+      node-addon-api: 7.0.0
+    dev: false
 
   /hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -9584,7 +9605,7 @@ packages:
       seed-random: 2.2.0
     dev: true
 
-  /langchain@0.0.117:
+  /langchain@0.0.117(hnswlib-node@2.0.0):
     resolution: {integrity: sha512-muoMhEGErDsN/D1+dUbpToo0SOBi6mz9IeG735tE57n2W7h0fUrhvmWKI66pm7uR7cE8sojBLKTjHLWZqJy6CQ==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -9777,6 +9798,7 @@ packages:
       decamelize: 1.2.0
       expr-eval: 2.0.2
       flat: 5.0.2
+      hnswlib-node: 2.0.0
       js-tiktoken: 1.0.7
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
@@ -10548,6 +10570,10 @@ packages:
   /node-addon-api@3.2.1:
     resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}
     dev: true
+
+  /node-addon-api@7.0.0:
+    resolution: {integrity: sha512-vgbBJTS4m5/KkE16t5Ly0WW9hz46swAstv0hYYwMtbG7AznRhNyfLRe8HZAiWIpcHzoO7HxhLuBQj9rJ/Ho0ZA==}
+    dev: false
 
   /node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
