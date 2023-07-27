@@ -6,12 +6,15 @@ import {
 import {parseConfigurationFile, parseConfigurationObject} from '../../models/app/loader.js'
 import {ExtensionInstance} from '../../models/extensions/extension-instance.js'
 import {ExtensionsArraySchema, UnifiedSchema} from '../../models/extensions/schemas.js'
+import {updateAppModules} from '../dev.js'
+import {AppInterface} from '../../models/app/app.js'
 import {partnersRequest} from '@shopify/cli-kit/node/api/partners'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {readFile} from '@shopify/cli-kit/node/fs'
 import {OutputMessage, outputInfo} from '@shopify/cli-kit/node/output'
 import {relativizePath} from '@shopify/cli-kit/node/path'
 import {decodeToml} from '@shopify/cli-kit/node/toml'
+import {AdminSession} from '@shopify/cli-kit/node/session'
 import {Writable} from 'stream'
 
 interface UpdateExtensionDraftOptions {
@@ -63,7 +66,9 @@ export async function updateExtensionDraft({
 }
 
 interface UpdateExtensionConfigOptions {
+  app: AppInterface
   extension: ExtensionInstance
+  adminSession: AdminSession
   token: string
   apiKey: string
   registrationId: string
@@ -73,8 +78,10 @@ interface UpdateExtensionConfigOptions {
 }
 
 export async function updateExtensionConfig({
+  app,
   extension,
   token,
+  adminSession,
   apiKey,
   registrationId,
   stdout,
@@ -116,5 +123,7 @@ export async function updateExtensionConfig({
 
   // eslint-disable-next-line require-atomic-updates
   extension.configuration = newConfig
-  return updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
+  return updateAppModules({app, extensions: [extension], adminSession, token, apiKey})
+
+  // return updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
 }

@@ -6,9 +6,11 @@ import {AppInterface} from '../../../models/app/app.js'
 import {updateExtensionConfig, updateExtensionDraft} from '../update-extension.js'
 import {buildFunctionExtension} from '../../../services/build/extension.js'
 import {ExtensionInstance} from '../../../models/extensions/extension-instance.js'
+import {updateAppModules} from '../../dev.js'
 import {AbortController, AbortSignal} from '@shopify/cli-kit/node/abort'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
+import {AdminSession} from '@shopify/cli-kit/node/session'
 import {Writable} from 'stream'
 
 export interface WatchEvent {
@@ -115,6 +117,7 @@ interface SetupDraftableExtensionBundlerOptions {
   app: AppInterface
   url: string
   token: string
+  adminSession: AdminSession
   apiKey: string
   registrationId: string
   stderr: Writable
@@ -128,6 +131,7 @@ export async function setupDraftableExtensionBundler({
   app,
   url,
   token,
+  adminSession,
   apiKey,
   registrationId,
   stderr,
@@ -160,14 +164,17 @@ export async function setupDraftableExtensionBundler({
       )
       if (error) return
 
-      await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
+      await updateAppModules({app, extensions: [extension], adminSession, token, apiKey})
+      // await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
     },
   })
 }
 
 interface SetupConfigWatcherOptions {
+  app: AppInterface
   extension: ExtensionInstance
   token: string
+  adminSession: AdminSession
   apiKey: string
   registrationId: string
   stdout: Writable
@@ -177,8 +184,10 @@ interface SetupConfigWatcherOptions {
 }
 
 export async function setupConfigWatcher({
+  app,
   extension,
   token,
+  adminSession,
   apiKey,
   registrationId,
   stdout,
@@ -191,8 +200,10 @@ export async function setupConfigWatcher({
   const configWatcher = chokidar.watch(extension.configurationPath).on('change', (_event, _path) => {
     outputInfo(`Config file at path ${extension.configurationPath} changed`, stdout)
     updateExtensionConfig({
+      app,
       extension,
       token,
+      adminSession,
       apiKey,
       registrationId,
       stdout,

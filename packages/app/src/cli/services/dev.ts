@@ -176,13 +176,13 @@ async function dev(options: DevOptions) {
 
   console.log(ephemeralApp)
 
-  await updateAppModules(
-    localApp,
-    localApp.allExtensions,
+  await updateAppModules({
+    app: localApp,
+    extensions: localApp.allExtensions,
     adminSession,
     token,
-    ephemeralApp.devSessionCreate.app.apiKey,
-  )
+    apiKey: ephemeralApp.devSessionCreate.app.apiKey,
+  })
 
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
@@ -352,7 +352,7 @@ async function dev(options: DevOptions) {
     additionalProcesses.push(
       devDraftableExtensionTarget({
         app: localApp,
-        apiKey,
+        apiKey: ephemeralApp.devSessionCreate.app.apiKey,
         url: proxyUrl,
         token,
         adminSession,
@@ -628,8 +628,10 @@ export function devDraftableExtensionTarget({
 
             const actions = [
               setupConfigWatcher({
+                app,
                 extension,
                 token,
+                adminSession,
                 apiKey,
                 registrationId: '',
                 stdout,
@@ -647,6 +649,7 @@ export function devDraftableExtensionTarget({
                   app,
                   url,
                   token,
+                  adminSession,
                   apiKey,
                   registrationId: '',
                   stderr,
