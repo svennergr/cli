@@ -1,6 +1,6 @@
-import {renderAiPrompt, renderTasks} from '@shopify/cli-kit/node/ui'
+import {renderAiPrompt, renderSuccess, renderTasks} from '@shopify/cli-kit/node/ui'
 import {ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate} from 'langchain/prompts'
-import {resolvePath, joinPath, dirname} from '@shopify/cli-kit/node/path'
+import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {z} from 'zod'
 import {HNSWLib} from 'langchain/vectorstores/hnswlib'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai'
@@ -10,6 +10,8 @@ import {fileExistsSync, readFile} from '@shopify/cli-kit/node/fs'
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter'
 import {StuffDocumentsChain} from 'langchain/chains'
 import {fetch} from '@shopify/cli-kit/node/http'
+import {packageDirectory} from 'pkg-dir'
+import clipboard from 'clipboardy'
 import {fileURLToPath} from 'url'
 
 const zodSchema = z.object({
@@ -38,10 +40,12 @@ export async function magic() {
 
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = dirname(__filename)
-  const rootDir = resolvePath(__dirname, '../../../../..')
-  const fileToRead = joinPath(rootDir, 'ai.json')
+  const rootDir = await packageDirectory({
+    cwd: __dirname,
+  })
+  const fileToRead = joinPath(rootDir!, 'ai.json')
   const oclifManifests = await readFile(fileToRead)
-  const embeddingsDir = joinPath(rootDir, 'embeddings')
+  const embeddingsDir = joinPath(rootDir!, 'embeddings')
 
   // Create a vector store from the documents.
   let vectorStore: HNSWLib
@@ -123,13 +127,19 @@ export async function magic() {
     prompt,
   })
 
-  const chain = new StuffDocumentsChain({llmChain})
+  const chain = new StuffDocumentsChain({llmChain, verbose: true})
 
-  await renderAiPrompt({
+  const command = await renderAiPrompt({
     chain,
     chainParams: {
       oclif_manifests: oclifManifests,
     },
     retriever: vectorStoreRetriever,
+  })
+
+  clipboard.writeSync(command)
+
+  renderSuccess({
+    headline: ["I've copied the command to the clipboard: ", {command}, {char: '.'}],
   })
 }

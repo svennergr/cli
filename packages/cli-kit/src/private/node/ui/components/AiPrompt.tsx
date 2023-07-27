@@ -5,7 +5,6 @@ import {handleCtrlC} from '../../ui.js'
 import useLayout from '../hooks/use-layout.js'
 import React, {FunctionComponent, useState} from 'react'
 import {Box, useInput, Text, useStdout, useApp} from 'ink'
-import {exec} from '@shopify/cli-kit/node/system'
 
 export interface AiPromptProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,11 +13,12 @@ export interface AiPromptProps {
   chainParams: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   retriever: any
+  onSubmit: (command: string) => void
 }
 
 const loadingBarChar = '▀'
 
-const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriever}) => {
+const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriever, onSubmit}) => {
   const {oneThird} = useLayout()
   const [error, setError] = useState<string | undefined>(undefined)
   const underline = new Array(oneThird - 3).fill('▔')
@@ -46,21 +46,18 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
     handleCtrlC(input, key)
 
     if (key.ctrl && input === 'r' && aiAnswer && aiAnswer.command) {
+      onSubmit(aiAnswer.command)
       unmountInk()
-      exec('pnpm', aiAnswer.command.split(' ')).catch((error) => {
-        // eslint-disable-next-line no-console
-        console.log(error)
-      })
     }
 
     if (key.return && answer) {
+      setAnswer('')
+
       callChain()
         .then((response) => {
           setAiAnswer({command: response.output.command})
           if (response.output.clarifying_question.length > 0) {
             setQuestion(response.output.clarifying_question)
-          } else {
-            setAnswer('')
           }
         })
         .catch((error) => {

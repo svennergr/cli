@@ -618,7 +618,14 @@ interface RenderAiPromptOptions {
 }
 
 export async function renderAiPrompt(props: RenderAiPromptOptions) {
-  return render(<AiPrompt {...props} />)
+  // eslint-disable-next-line max-params
+  return new Promise<string>((resolve, reject) => {
+    render(<AiPrompt {...props} onSubmit={(value: string) => resolve(value)} />, {
+      exitOnCtrlC: false,
+    })
+      .catch(reject)
+      .finally(resetRecordedSleep)
+  })
 }
 
 /** Waits for any key to be pressed except Ctrl+C which will terminate the process. */

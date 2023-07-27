@@ -42,5 +42,5 @@ const files = [
 
 const concatenatedAndCleanedManifests = concatenateAndCleanManifests(files);
 
-fs.writeFileSync('ai.json', JSON.stringify(concatenatedAndCleanedManifests));
+fs.writeFileSync('packages/app/ai.json', JSON.stringify(concatenatedAndCleanedManifests));
 console.log('Done!');
