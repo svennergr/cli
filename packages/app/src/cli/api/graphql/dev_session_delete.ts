@@ -12,11 +12,11 @@ export const DevSessionDeleteMutation = gql`
   }
 `
 
-export interface DevSessionUpdateVariables {
+export interface DevSessionDeleteVariables {
   id: string
 }
 
-export interface DevSessionUpdateSchema {
+export interface DevSessionDeleteSchema {
   deletedAppId: string
   userErrors: {
     field: string[]

@@ -167,14 +167,14 @@ async function dev(options: DevOptions) {
 
   const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
 
-  console.log(adminSession)
+  console.log(`admin session ${adminSession}`)
 
   const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
     title: 'my-app',
     scopes: ['write_products'],
   })
 
-  console.log(ephemeralApp)
+  console.log('ephemeral app: ', ephemeralApp)
 
   await updateAppModules({
     app: localApp,
@@ -184,9 +184,13 @@ async function dev(options: DevOptions) {
     apiKey: ephemeralApp.devSessionCreate.app.apiKey,
   })
 
+  console.log('here!')
+
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
   }
+
+  console.log('here 2')
 
   if (
     isCurrentAppSchema(localApp.configuration) &&
@@ -415,6 +419,8 @@ async function dev(options: DevOptions) {
         processes: additionalProcesses,
       },
       previewUrl,
+      options,
+      ephemeralApp.devSessionCreate.app.id,
     )
   } else {
     await runConcurrentHTTPProcessesAndPathForwardTraffic({
