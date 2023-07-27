@@ -28,7 +28,7 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
   const [loading, setLoading] = useState(false)
   const {exit: unmountInk} = useApp()
 
-  const callChain = async () => {
+  const callChain = async (answer: string) => {
     const relevantDocs = await retriever.getRelevantDocuments(answer)
 
     setLoading(true)
@@ -52,8 +52,7 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
 
     if (key.return && answer) {
       setAnswer('')
-
-      callChain()
+      callChain(answer)
         .then((response) => {
           setAiAnswer({command: response.output.command})
           if (response.output.clarifying_question.length > 0) {
