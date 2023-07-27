@@ -68,12 +68,12 @@ export default class Dev extends Command {
       env: 'SHOPIFY_FLAG_TUNNEL_URL',
       exclusive: ['no-tunnel', 'tunnel'],
     }),
-    'no-tunnel': Flags.boolean({
-      hidden: true,
+    'tunnel': Flags.boolean({
+      hidden: false,
       description: 'Automatic creation of a tunnel is disabled. Service entry point will listen to localhost instead',
-      env: 'SHOPIFY_FLAG_NO_TUNNEL',
+      env: 'SHOPIFY_FLAG_TUNNEL',
       default: false,
-      exclusive: ['tunnel-url', 'tunnel'],
+      exclusive: ['tunnel-url', 'no-tunnel'],
     }),
     theme: Flags.string({
       hidden: false,
@@ -120,7 +120,7 @@ export default class Dev extends Command {
       subscriptionProductUrl: flags['subscription-product-url'],
       checkoutCartUrl: flags['checkout-cart-url'],
       tunnelUrl: flags['tunnel-url'],
-      noTunnel: flags['no-tunnel'],
+      noTunnel: !flags['tunnel'],
       theme: flags.theme,
       themeExtensionPort: flags['theme-app-extension-port'],
       notify: flags.notify,

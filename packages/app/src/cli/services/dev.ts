@@ -254,7 +254,7 @@ async function dev(options: DevOptions) {
   const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
     title: 'my-app',
     scopes: ['write_products'],
-    application: exposedUrl,
+    applicationUrl: exposedUrl,
   })
 
   if (!ephemeralApp.devSessionCreate.app) {
@@ -272,25 +272,6 @@ async function dev(options: DevOptions) {
   })
   // ///////////////////////////
   // ///////////////////////////
-
-  if (frontendConfig || backendConfig) {
-    if (options.update) {
-      const newURLs = generatePartnersURLs(
-        exposedUrl,
-        localApp.webs.map(({configuration}) => configuration.auth_callback_path).find((path) => path),
-      )
-      shouldUpdateURLs = await shouldOrPromptUpdateURLs({
-        currentURLs,
-        appDirectory: localApp.directory,
-        cachedUpdateURLs,
-        newApp: remoteApp.newApp,
-        localApp,
-        apiKey,
-      })
-      if (shouldUpdateURLs) await updateURLs(newURLs, apiKey, token, localApp)
-      await outputUpdateURLsResult(shouldUpdateURLs, newURLs, remoteApp, localApp)
-    }
-  }
 
   // If we have a real UUID for an extension, use that instead of a random one
   const prodEnvIdentifiers = getAppIdentifiers({app: localApp})
