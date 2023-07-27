@@ -61,7 +61,8 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
           }
         })
         .catch((error) => {
-          setError(error)
+          setError(error.message)
+          setLoading(false)
         })
     }
   })
