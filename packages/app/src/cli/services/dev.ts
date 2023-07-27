@@ -151,14 +151,20 @@ async function dev(options: DevOptions) {
   }
 
   const token = await ensureAuthenticatedPartners()
-  const {remoteApp, remoteAppUpdated, updateURLs: cachedUpdateURLs, configName} = await ensureDevContext(options, token)
+  const {
+    storeFqdn,
+    remoteApp,
+    remoteAppUpdated,
+    updateURLs: cachedUpdateURLs,
+    configName,
+  } = await ensureDevContext(options, token)
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
 
   let localApp = await loadApp({directory: options.directory, specifications, configName})
 
-  const storeFqdn = 'shop1.shopify.extensions-ghy0.isaac-roldan.eu.spin.dev'
+  // const storeFqdn = 'shop1.shopify.extensions-ghy0.isaac-roldan.eu.spin.dev'
 
   const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
   console.log(adminSession)
