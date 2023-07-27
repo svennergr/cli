@@ -3,7 +3,7 @@ import {
   AppConfiguration,
   AppInterface,
   EmptyApp,
-  getAppScopes,
+  getAppScopesArray,
   isCurrentAppSchema,
   isLegacyAppSchema,
 } from '../../../models/app/app.js'
@@ -176,7 +176,7 @@ const getAccessScopes = (localApp: AppInterface, remoteApp: OrganizationApp) => 
   // if we have upstream scopes, use them
   if (remoteApp.requestedAccessScopes) {
     return {
-      scopes: remoteApp.requestedAccessScopes.join(','),
+      scopes: remoteApp.requestedAccessScopes,
     }
     // if we have scopes locally and not upstream, preserve them but don't push them upstream (legacy is true)
   } else if (isLegacyAppSchema(localApp.configuration) && localApp.configuration.scopes) {
@@ -186,7 +186,7 @@ const getAccessScopes = (localApp: AppInterface, remoteApp: OrganizationApp) => 
     }
   } else if (isCurrentAppSchema(localApp.configuration) && localApp.configuration.access_scopes?.scopes) {
     return {
-      scopes: getAppScopes(localApp.configuration),
+      scopes: getAppScopesArray(localApp.configuration),
       use_legacy_install_flow: true,
     }
     // if we can't find scopes or have to fall back, omit setting a scope and set legacy to true

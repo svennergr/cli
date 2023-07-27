@@ -17,7 +17,7 @@ import {ExtensionsArraySchema, UnifiedSchema} from '../extensions/schemas.js'
 import {ExtensionSpecification} from '../extensions/specification.js'
 import {getCachedAppInfo} from '../../services/local-storage.js'
 import use from '../../services/app/config/use.js'
-import {NewAppSchemaResponse, jsonToZod, zod} from '@shopify/cli-kit/node/schema'
+import {jsonToZod, storeAppSchema, zod} from '@shopify/cli-kit/node/schema'
 import {fileExists, readFile, glob, findPathUp, fileExistsSync} from '@shopify/cli-kit/node/fs'
 import {readAndParseDotEnv, DotEnvFile} from '@shopify/cli-kit/node/dot-env'
 import {
@@ -35,7 +35,6 @@ import {outputContent, outputDebug, OutputMessage, outputToken} from '@shopify/c
 import {slugify} from '@shopify/cli-kit/common/string'
 import {getArrayRejectingUndefined} from '@shopify/cli-kit/common/array'
 import {checkIfIgnoredInGitRepository} from '@shopify/cli-kit/node/git'
-import {fetch} from '@shopify/cli-kit/node/http'
 
 const defaultExtensionDirectory = 'extensions/*'
 
@@ -523,7 +522,7 @@ class AppConfigurationLoader {
 
     const file = await loadConfigurationFile(configurationPath, this.abort, decodeToml)
 
-    const appSchema = isCurrentSchema(file) ? await newAppSchema() : LegacyAppSchema
+    const appSchema = isCurrentSchema(file) ? await newAppSchema(appDirectory) : LegacyAppSchema
 
     const configuration = await parseConfigurationFile(appSchema, configurationPath, this.abort)
 
@@ -773,24 +772,7 @@ export function getAppConfigurationShorthand(path: string) {
   return match?.[1]?.slice(1)
 }
 
-async function newAppSchema() {
-  const jsonSchema = await fetchAppSchema()
-  return jsonToZod(jsonSchema as NewAppSchemaResponse)
-}
-
-async function fetchAppSchema(): Promise<object> {
-  const options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }
-  const url = 'https://partners.hack-days.alfonso-noriega.eu.spin.dev/services/cli/schema/app'
-  const response = await fetch(url, options)
-
-  if (!response.ok) {
-    throw new AbortError(outputContent`Couldn't fetch the app schema`)
-  }
-
-  return response.json() as object
+async function newAppSchema(appDirectory: string) {
+  const jsonSchema = await storeAppSchema(appDirectory)
+  return jsonToZod(jsonSchema)
 }

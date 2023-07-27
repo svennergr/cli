@@ -18,6 +18,7 @@ import {joinPath} from '@shopify/cli-kit/node/path'
 import {username} from '@shopify/cli-kit/node/os'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
+import {storeAppSchema} from '@shopify/cli-kit/node/schema'
 
 interface InitOptions {
   name: string
@@ -130,6 +131,8 @@ async function init(options: InitOptions) {
     )
 
     await renderTasks(tasks)
+
+    await storeAppSchema(templateScaffoldDir)
 
     await moveFile(templateScaffoldDir, outputDirectory)
   })
