@@ -2,16 +2,17 @@ import {renderAiPrompt, renderSuccess, renderTasks} from '@shopify/cli-kit/node/
 import {ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate} from 'langchain/prompts'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {z} from 'zod'
-import {HNSWLib} from 'langchain/vectorstores/hnswlib'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai'
 import {createStructuredOutputChainFromZod} from 'langchain/chains/openai_functions'
 import {ChatOpenAI} from 'langchain/chat_models/openai'
-import {fileExistsSync, readFile} from '@shopify/cli-kit/node/fs'
+import {readFile} from '@shopify/cli-kit/node/fs'
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter'
 import {StuffDocumentsChain} from 'langchain/chains'
 import {fetch} from '@shopify/cli-kit/node/http'
 import {packageDirectory} from 'pkg-dir'
 import clipboard from 'clipboardy'
+import {PineconeStore} from 'langchain/vectorstores/pinecone'
+import {PineconeClient} from '@pinecone-database/pinecone'
 import {fileURLToPath} from 'url'
 
 const zodSchema = z.object({
@@ -19,7 +20,7 @@ const zodSchema = z.object({
   clarifying_question: z.string().describe('A clarifying question to ask the user.'),
 })
 
-export async function magic() {
+export async function magic({regenerateEmbeddings = false}) {
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
     "You are an assistant to a Shopify partner who is building an app with the Shopify CLI. If you don't know the answer, ask a clarifying question, don't try to make up an answer. ",
   )
@@ -42,16 +43,19 @@ export async function magic() {
   const rootDir = await packageDirectory({
     cwd: __dirname,
   })
-  const fileToRead = joinPath(rootDir!, 'ai.json')
+  const fileToRead = joinPath(rootDir!, 'oclif.manifest.json')
   const oclifManifests = await readFile(fileToRead)
-  const embeddingsDir = joinPath(rootDir!, 'embeddings')
 
   // Create a vector store from the documents.
-  let vectorStore: HNSWLib
+  let vectorStore: PineconeStore
+  const client = new PineconeClient()
+  await client.init({
+    apiKey: process.env.PINECONE_API_KEY!,
+    environment: process.env.PINECONE_ENVIRONMENT!,
+  })
+  const pineconeIndex = client.Index(process.env.PINECONE_INDEX!)
 
-  if (fileExistsSync(embeddingsDir)) {
-    vectorStore = await HNSWLib.load(embeddingsDir, new OpenAIEmbeddings())
-  } else {
+  if (regenerateEmbeddings) {
     await renderTasks([
       {
         title: 'Creating embeddings',
@@ -69,7 +73,6 @@ export async function magic() {
             'https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions',
             'https://shopify.dev/docs/apps/tools/cli/managing-app-configuration-files',
             'https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create',
-            'https://shopify.dev/docs/api/checkout-ui-extensions',
             'https://shopify.dev/docs/api/functions',
             'https://shopify.dev/docs/apps/selling-strategies/discounts/experience',
             'https://shopify.dev/docs/apps/checkout/product-offers/post-purchase',
@@ -106,11 +109,15 @@ export async function magic() {
           }
 
           const docs = await splitter.createDocuments(texts)
-          vectorStore = await HNSWLib.fromDocuments(docs, new OpenAIEmbeddings())
-          await vectorStore.save(embeddingsDir)
+
+          vectorStore = await PineconeStore.fromDocuments(docs, new OpenAIEmbeddings(), {
+            pineconeIndex,
+          })
         },
       },
     ])
+  } else {
+    vectorStore = await PineconeStore.fromExistingIndex(new OpenAIEmbeddings(), {pineconeIndex})
   }
 
   // Initialize a retriever wrapper around the vector store
