@@ -24,7 +24,6 @@ export async function magic() {
     "You are an assistant to a Shopify partner who is building an app with the Shopify CLI. If you don't know the answer, ask a clarifying question, don't try to make up an answer. ",
   )
   const humanTemplate = `In the JSON below, delimited by \`\`\`json. you'll find the oclif manifests the Shopify CLI.
-  Commands are in the form of \`app:build\`, which translate to \`shopify app build\` in the terminal.
   \`\`\`json
   {oclif_manifests}
   \`\`\`
