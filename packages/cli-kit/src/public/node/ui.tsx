@@ -39,6 +39,7 @@ import {AutocompletePromptProps, AutocompletePrompt} from '../../private/node/ui
 import {InfoTableSection} from '../../private/node/ui/components/Prompts/InfoTable.js'
 import {recordUIEvent, resetRecordedSleep} from '../../private/node/demo-recorder.js'
 import {InfoMessageProps} from '../../private/node/ui/components/Prompts/InfoMessage.js'
+import {AiPrompt} from '../../private/node/ui/components/AiPrompt.js'
 import React from 'react'
 import {Key as InkKey, RenderOptions} from 'ink'
 
@@ -605,6 +606,19 @@ export function renderText({text, logLevel = 'info', logger = consoleLog}: Rende
   if (isUnitTest()) collectLog(logLevel, textWithLineReturn)
   outputWhereAppropriate(logLevel, logger, textWithLineReturn)
   return textWithLineReturn
+}
+
+interface RenderAiPromptOptions {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  chain: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  chainParams: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  retriever: any
+}
+
+export async function renderAiPrompt(props: RenderAiPromptOptions) {
+  return render(<AiPrompt {...props} />)
 }
 
 /** Waits for any key to be pressed except Ctrl+C which will terminate the process. */

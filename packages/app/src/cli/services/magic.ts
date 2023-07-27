@@ -1,4 +1,4 @@
-import {renderInfo, renderTasks, renderTextPrompt} from '@shopify/cli-kit/node/ui'
+import {renderAiPrompt, renderTasks} from '@shopify/cli-kit/node/ui'
 import {ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate} from 'langchain/prompts'
 import {resolvePath, joinPath, dirname} from '@shopify/cli-kit/node/path'
 import {z} from 'zod'
@@ -14,33 +14,25 @@ import {fileURLToPath} from 'url'
 
 const zodSchema = z.object({
   command: z.string().describe('The command the developer should run to reach their goal.'),
+  clarifying_question: z.string().describe('A clarifying question to ask the user.'),
 })
 
-export async function magic({query}: {query?: string}) {
-  let userPrompt = query
-
-  if (!userPrompt) {
-    // eslint-disable-next-line require-atomic-updates
-    userPrompt = await renderTextPrompt({
-      message: 'What would you like to do?',
-    })
-  }
-
+export async function magic() {
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-    'You are an assistant to a Shopify partner who is building an app with the Shopify CLI.',
+    "You are an assistant to a Shopify partner who is building an app with the Shopify CLI. If you don't know the answer, ask a clarifying question, don't try to make up an answer. ",
   )
   const humanTemplate = `In the JSON below, delimited by \`\`\`json. you'll find the oclif manifests the Shopify CLI.
   Commands are in the form of \`app:build\`, which translate to \`shopify app build\` in the terminal.
   \`\`\`json
-  {oclifManifests}
+  {oclif_manifests}
   \`\`\`
 
-  The following, delimited by \`\`\` is a list of all documentation pages relevant to the user query:
+  The following, delimited by \`\`\`, is a list of all documentation pages relevant to the user query:
   \`\`\`
   {context}
   \`\`\`
 
-  Based on the information provided in the context, please answer the following user prompt: {userPrompt}`
+  Based on the information provided in the context, please answer the following user prompt: {user_prompt}`
   const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
   const prompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
 
@@ -68,6 +60,25 @@ export async function magic({query}: {query?: string}) {
             'https://shopify.dev/docs/apps/tools/cli/existing',
             'https://shopify.dev/docs/apps/app-extensions/list',
             'https://shopify.dev/docs/apps/marketing/pixels',
+            'https://shopify.dev/docs/apps/admin/admin-actions-and-blocks',
+            'https://shopify.dev/docs/apps/app-extensions/getting-started',
+            'https://shopify.dev/docs/apps/marketing/marketing-activities',
+            'https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions',
+            'https://shopify.dev/docs/apps/tools/cli/managing-app-configuration-files',
+            'https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create',
+            'https://shopify.dev/docs/api/checkout-ui-extensions',
+            'https://shopify.dev/docs/api/functions',
+            'https://shopify.dev/docs/apps/selling-strategies/discounts/experience',
+            'https://shopify.dev/docs/apps/checkout/product-offers/post-purchase',
+            'https://shopify.dev/docs/apps/flow/triggers',
+            'https://shopify.dev/docs/apps/flow/actions',
+            'https://shopify.dev/docs/apps/flow/lifecycle-events',
+            'https://shopify.dev/docs/apps/online-store/theme-app-extensions',
+            'https://shopify.dev/docs/apps/payments/create-a-payments-app',
+            'https://shopify.dev/docs/apps/pos/ui-extensions',
+            'https://shopify.dev/docs/apps/pos/links',
+            'https://shopify.dev/docs/apps/pos/cart',
+            'https://shopify.dev/docs/apps/pos/recommendations',
           ]
 
           const splitter = RecursiveCharacterTextSplitter.fromLanguage('html', {
@@ -83,7 +94,12 @@ export async function magic({query}: {query?: string}) {
             const text = await response.text()
             // keep only the <main> tag from the text
             const mainTag = text.match(/<main.*?>([\s\S]*?)<\/main>/)
-            texts.push(mainTag![1]!)
+            if (mainTag && mainTag[1]) {
+              texts.push(mainTag[1])
+            } else {
+              // eslint-disable-next-line no-console
+              console.log(`No main tag found for ${url}`)
+            }
           }
 
           const docs = await splitter.createDocuments(texts)
@@ -96,10 +112,6 @@ export async function magic({query}: {query?: string}) {
 
   // Initialize a retriever wrapper around the vector store
   const vectorStoreRetriever = vectorStore!.asRetriever()
-  const relevantDocs = await vectorStoreRetriever.getRelevantDocuments(userPrompt)
-
-  // eslint-disable-next-line no-console
-  console.log(relevantDocs)
 
   const llm = new ChatOpenAI({
     temperature: 0,
@@ -113,24 +125,11 @@ export async function magic({query}: {query?: string}) {
 
   const chain = new StuffDocumentsChain({llmChain})
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let response: {[key: string]: any}
-
-  await renderTasks([
-    {
-      title: 'Thinking',
-      task: async () => {
-        response = await chain.call({
-          input_documents: relevantDocs,
-          userPrompt,
-          oclifManifests,
-          verbose: true,
-        })
-      },
+  await renderAiPrompt({
+    chain,
+    chainParams: {
+      oclif_manifests: oclifManifests,
     },
-  ])
-
-  renderInfo({
-    headline: ['Run', {command: response!.output.command}, {char: '.'}],
+    retriever: vectorStoreRetriever,
   })
 }
