@@ -88,13 +88,15 @@ export interface DevOptions {
   notify?: string
 }
 
-async function updateAppModules(
-  app: AppInterface,
-  extensions: ExtensionInstance[],
-  adminSession: AdminSession,
-  token: string,
-  apiKey: string,
-) {
+export interface UpdateAppModulesOptions {
+  app: AppInterface
+  extensions: ExtensionInstance[]
+  adminSession: AdminSession
+  token: string
+  apiKey: string
+}
+
+export async function updateAppModules({app, extensions, adminSession, token, apiKey}: UpdateAppModulesOptions) {
   await inTemporaryDirectory(async (tmpDir) => {
     const signedUrlResult: DevSessionGenerateUrlSchema = await adminRequest(
       DevSessionGenerateUrlMutation,
@@ -161,12 +163,10 @@ async function dev(options: DevOptions) {
 
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
-
   let localApp = await loadApp({directory: options.directory, specifications, configName})
 
-  // const storeFqdn = 'shop1.shopify.extensions-ghy0.isaac-roldan.eu.spin.dev'
-
   const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
+
   console.log(adminSession)
 
   const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
@@ -183,10 +183,6 @@ async function dev(options: DevOptions) {
     token,
     ephemeralApp.devSessionCreate.app.apiKey,
   )
-
-  // updateAppModules()
-
-  // throw new Error('test')
 
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
@@ -613,9 +609,6 @@ export function devDraftableExtensionTarget({
       // Functions will only be passed to this target if unified deployments are enabled
       // ESBuild will take care of triggering an initial build & upload for the extensions with ESBUILD feature.
       // For the rest we need to manually upload an initial draft.
-
-      // Upload all extensions to store
-      const result = adminRequest('', adminSession, {})
 
       // const initialDraftExtensions = extensions.filter((ext) => !ext.isESBuildExtension)
       // await Promise.all(
