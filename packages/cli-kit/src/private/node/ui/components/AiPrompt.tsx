@@ -74,12 +74,11 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
   return (
     <Box width={stdout.columns} height={stdout.rows} flexDirection="column">
       <Box flexGrow={1} />
-      <Box flexDirection="column" width={oneThird}>
+      <Box flexDirection="column" width={oneThird} marginBottom={1}>
         {aiAnswer ? (
-          <Box marginBottom={3} flexDirection="column">
-            <Text>Would you like me to run this command?</Text>
+          <Box marginBottom={2} flexDirection="column">
             <TokenizedText item={aiAnswer} />
-            <Text>Press Shift + Enter if so</Text>
+            <Text>Press Shift + Enter to copy the above command to the clipboard</Text>
           </Box>
         ) : null}
         {loading ? <TextAnimation text={loadingBar} /> : null}

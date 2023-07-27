@@ -119,7 +119,7 @@ export async function magic() {
 
   const llm = new ChatOpenAI({
     temperature: 0,
-    modelName: 'gpt-3.5-turbo-16k-0613',
+    modelName: 'gpt-3.5-turbo-0613',
   })
 
   const llmChain = createStructuredOutputChainFromZod(zodSchema, {
