@@ -3,6 +3,7 @@ import {
   AppConfiguration,
   AppInterface,
   EmptyApp,
+  getAppScopes,
   isCurrentAppSchema,
   isLegacyAppSchema,
 } from '../../../models/app/app.js'
@@ -185,7 +186,7 @@ const getAccessScopes = (localApp: AppInterface, remoteApp: OrganizationApp) => 
     }
   } else if (isCurrentAppSchema(localApp.configuration) && localApp.configuration.access_scopes?.scopes) {
     return {
-      scopes: localApp.configuration.access_scopes.scopes,
+      scopes: getAppScopes(localApp.configuration),
       use_legacy_install_flow: true,
     }
     // if we can't find scopes or have to fall back, omit setting a scope and set legacy to true

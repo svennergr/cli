@@ -33,7 +33,7 @@ export const AppSchema = zod
     embedded: zod.boolean(),
     access_scopes: zod
       .object({
-        scopes: zod.string().optional(),
+        scopes: zod.union([zod.string().optional(), zod.array(zod.string()).optional()]),
         use_legacy_install_flow: zod.boolean().optional(),
       })
       .optional(),
@@ -106,7 +106,9 @@ export function getAppScopes(config: AppConfiguration) {
   if (isLegacyAppSchema(config)) {
     return config.scopes
   } else {
-    return config.access_scopes?.scopes ?? ''
+    if (!config.access_scopes?.scopes) return ''
+    if (typeof config.access_scopes?.scopes !== 'string') return config.access_scopes?.scopes.join(',')
+    return config.access_scopes?.scopes
   }
 }
 
@@ -116,6 +118,7 @@ export function getAppScopes(config: AppConfiguration) {
  */
 export function getAppScopesArray(config: AppConfiguration) {
   const scopes = getAppScopes(config)
+  if (typeof scopes !== 'string') return scopes
   return scopes.length ? scopes.split(',').map((scope) => scope.trim()) : []
 }
 

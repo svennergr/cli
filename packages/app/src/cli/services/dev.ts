@@ -29,6 +29,7 @@ import {
   WebType,
   isLegacyAppSchema,
   isCurrentAppSchema,
+  getAppScopes,
 } from '../models/app/app.js'
 import metadata from '../metadata.js'
 import {fetchProductVariant} from '../utilities/extensions/fetch-product-variant.js'
@@ -197,7 +198,7 @@ async function dev(options: DevOptions) {
     apiKey,
     scopes: isLegacyAppSchema(localApp.configuration)
       ? localApp.configuration.scopes
-      : localApp.configuration.access_scopes?.scopes,
+      : getAppScopes(localApp.configuration),
     apiSecret,
     backendPort,
     frontendServerPort,
