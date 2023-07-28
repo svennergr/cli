@@ -84,10 +84,6 @@ export async function magic({regenerateEmbeddings = false}) {
             'https://shopify.dev/docs/apps/flow/lifecycle-events',
             'https://shopify.dev/docs/apps/online-store/theme-app-extensions',
             'https://shopify.dev/docs/apps/payments/create-a-payments-app',
-            'https://shopify.dev/docs/apps/pos/ui-extensions',
-            'https://shopify.dev/docs/apps/pos/links',
-            'https://shopify.dev/docs/apps/pos/cart',
-            'https://shopify.dev/docs/apps/pos/recommendations',
           ]
 
           const splitter = RecursiveCharacterTextSplitter.fromLanguage('html', {
