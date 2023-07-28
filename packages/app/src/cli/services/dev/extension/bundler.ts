@@ -140,8 +140,9 @@ export async function setupDraftableExtensionBundler({
 }: SetupDraftableExtensionBundlerOptions) {
   const {default: chokidar} = await import('chokidar')
 
-  const configWatcher = chokidar.watch(extension.directory).on('change', (_event, _path) => {
-    outputInfo(`File change detected: ${_event}`, stdout)
+  const configWatcher = chokidar.watch(extension.directory).on('change', (path, stats) => {
+    if (path.includes('extension.toml')) return
+    outputInfo(`File change detected: ${path}`, stdout)
     outputInfo(`Change detected for ${extension.handle}`, stdout)
     updateExtensionConfig({
       app,
@@ -209,8 +210,8 @@ export async function setupConfigWatcher({
   //   }
   // })
 
-  const configWatcher = chokidar.watch(extension.configurationPath).on('change', (_event, _path) => {
-    outputInfo(`Event detected ${_event}`)
+  const configWatcher = chokidar.watch(extension.configurationPath).on('change', (path, stats) => {
+    outputInfo(`Event detected ${path}`)
     outputInfo(`Config file at path ${extension.configurationPath} changed`, stdout)
     updateExtensionConfig({
       app,
