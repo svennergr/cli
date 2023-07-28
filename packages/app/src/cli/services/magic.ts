@@ -1,6 +1,7 @@
 import {renderAiPrompt, renderSuccess, renderTasks} from '@shopify/cli-kit/node/ui'
 import {ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate} from 'langchain/prompts'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
+import {sleep} from '@shopify/cli-kit/node/system'
 import {z} from 'zod'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai'
 import {createStructuredOutputChainFromZod} from 'langchain/chains/openai_functions'
@@ -14,6 +15,8 @@ import clipboard from 'clipboardy'
 import {PineconeStore} from 'langchain/vectorstores/pinecone'
 import {PineconeClient} from '@pinecone-database/pinecone'
 import {fileURLToPath} from 'url'
+import { TokenTextSplitter } from 'langchain/text_splitter'
+
 
 const zodSchema = z.object({
   command: z.string().describe('The command the developer should run to reach their goal.'),
@@ -92,20 +95,11 @@ export async function magic({regenerateEmbeddings = false}) {
             chunkOverlap: 200,
           })
 
-          const texts = []
+          const texts: string[] = []
           for (const url of docsUrls) {
-            // eslint-disable-next-line no-await-in-loop
-            const response = await fetch(url)
-            // eslint-disable-next-line no-await-in-loop
-            const text = await response.text()
-            // keep only the <main> tag from the text
-            const mainTag = text.match(/<main.*?>([\s\S]*?)<\/main>/)
-            if (mainTag && mainTag[1]) {
-              texts.push(mainTag[1])
-            } else {
-              // eslint-disable-next-line no-console
-              console.log(`No main tag found for ${url}`)
-            }
+            const data = await scrapeData(url)
+            const cleanedData = await cleanData(data)
+            texts.concat(cleanedData)
           }
 
           const docs = await splitter.createDocuments(texts)
@@ -148,4 +142,103 @@ export async function magic({regenerateEmbeddings = false}) {
   renderSuccess({
     headline: ["I've copied the command to the clipboard: ", {command}, {char: '.'}],
   })
+}
+
+async function scrapeData(url: string) {
+  console.log(`Scraping ${url}`)
+  // eslint-disable-next-line no-await-in-loop
+  const response = await fetch(url)
+  // eslint-disable-next-line no-await-in-loop
+  const text = await response.text()
+  // keep only the <main> tag from the text
+  const mainTag = text.match(/<main.*?>([\s\S]*?)<\/main>/)
+  return mainTag && mainTag[1] ? mainTag[1] : ''
+}
+
+async function cleanData(data: string) {
+  const humanTemplate = `Below I’m going to give you a section of page contents that were scraped off of a webpage
+  about Shopify Apps. The page contents document the tools that developers can use to build Shopify Apps.
+  Your job is to clean up the scraped page contents so that it only includes useful knowledge for developers using the
+  tools. Preserve necessary html semantics required to understand the documentation while reducing noise.
+  Copy any sentences from the scraped page that might be useful into your response. It’s okay to stop in the middle
+  of a sentence if that’s where the page contents ends. It’s also ok to return the body as an empty string if there is
+  no useful text in the scraped section I gave you. Don’t omit any sentences from the scraped text, only remove things
+  that look like text from buttons and footers and junk like that. Be sparing with what you omit. I want to see most
+  of the content returned, minus all the one word sentences from buttons and so on.
+
+  This is the last couple of sentences of a section of the page you previously processed. I’m showing you so that
+  you can try to make your new section mesh grammatically with the last word of this previously processed text, as we
+  will be adding your new “body” response onto the end of it. If it’s empty then nevermind and just start fresh.
+  — BEGIN PREVIOUS BODY —
+  {existingBody}
+  — END PREVIOUS BODY —
+
+  And here are the scraped page contents:
+  — BEGIN SCRAPED PAGE CONTENTS —
+  {pageContent}
+  — END SCRAPED PAGE CONTENTS —
+
+  Only respond with the cleaned up body of the page.`
+
+  const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
+  const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+    'You are a web scraping expert. You are going to determine the most important details in a html document and eliminate the noise.'
+  )
+  const chatPrompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
+
+  const zodSchemaForCleaningData = z.object({
+    body: z.string().describe('The cleaned up body of the page.'),
+  })
+
+  const llm = new ChatOpenAI({
+    temperature: 0,
+    modelName: 'gpt-3.5-turbo-16k-0613',
+  })
+
+  const chain = createStructuredOutputChainFromZod(zodSchemaForCleaningData, {
+    llm,
+    prompt: chatPrompt,
+  })
+
+  const execPrompt = async (existingBody: string, pageContent: string) => {
+    await chain.call({
+      existingBody,
+      pageContent,
+    })
+  }
+
+  // Gpt-3.5 has a token limit of 4096
+  const tokenLimit = 4096
+  const existingBodyLength = 240  // To provide some context of what was previously processed
+  const chunkSize = (tokenLimit - humanTemplate.length - existingBodyLength) / 2
+  const splitter = new TokenTextSplitter({
+    chunkSize,
+    chunkOverlap: 0
+  })
+  const splitDocs = await splitter.createDocuments([data])
+
+  const backOffPeriod = 10
+  const cleanedData = []
+  let existingBody = ''
+  for (let i = 0; i < splitDocs.length; i++) {
+    console.log(`Processing chunk ${i + 1}`)
+    const doc = splitDocs[i]
+    let result
+    try {
+      result = await chain.call({
+        existingBody,
+        pageContent: doc!.pageContent,
+      })
+      await sleep(backOffPeriod)
+    } catch (error) {
+      // Most likely due to OpenAI's rate limit
+      console.log(`Error: ${error}`)
+      await sleep(backOffPeriod)
+      continue
+    }
+
+    existingBody = doc!.pageContent.slice(-existingBodyLength)
+    cleanedData.push(result.output.body)
+  }
+  return cleanedData as string[]
 }
