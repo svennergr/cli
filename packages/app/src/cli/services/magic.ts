@@ -31,6 +31,8 @@ export async function magic({regenerateEmbeddings = false}) {
   {oclif_manifests}
   --- MANIFEST ---
 
+  For example, the command to generate an extension is \`shopify app generate extension\`, but in the manifest above, it is defined as \`app:generate:extension\`.
+
   The following, delimited by --- DOCS ---, is a list of all documentation pages relevant to the user query:
   --- DOCS ---
   {context}
