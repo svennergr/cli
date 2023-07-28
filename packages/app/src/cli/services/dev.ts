@@ -1,15 +1,8 @@
 import {ensureDevContext} from './context.js'
-import {
-  generateFrontendURL,
-  generatePartnersURLs,
-  getURLs,
-  shouldOrPromptUpdateURLs,
-  startTunnelPlugin,
-  updateURLs,
-} from './dev/urls.js'
+import {generateFrontendURL, getURLs, startTunnelPlugin} from './dev/urls.js'
 import {installAppDependencies} from './dependencies.js'
 import {devUIExtensions} from './dev/extension.js'
-import {outputUpdateURLsResult, renderDev} from './dev/output.js'
+import {renderDev} from './dev/output.js'
 import {themeExtensionArgs} from './dev/theme-extension-args.js'
 import {fetchSpecifications} from './generate/fetch-extension-specifications.js'
 import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-webhook.js'
@@ -244,7 +237,7 @@ async function dev(options: DevOptions) {
 
   // By default, preview goes to the direct URL for the app.
   let previewUrl = buildAppURLForWeb(storeFqdn, apiKey)
-  let shouldUpdateURLs = false
+  const shouldUpdateURLs = false
 
   // ///////////////////////////
   // ///////////////////////////
@@ -252,7 +245,7 @@ async function dev(options: DevOptions) {
   const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
 
   const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
-    title: 'my-app',
+    title: 'hackdays34-dev-app',
     scopes: ['write_products'],
     applicationUrl: exposedUrl,
   })
