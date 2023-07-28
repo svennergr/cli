@@ -17,28 +17,30 @@ import {PineconeClient} from '@pinecone-database/pinecone'
 import {fileURLToPath} from 'url'
 
 const zodSchema = z.object({
-  command: z.string().describe('The command the developer should run to reach their goal.'),
+  command: z.string().describe('The command the developer should run.'),
 })
 
 export async function magic({regenerateEmbeddings = false}) {
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-    `You are an assistant to a Shopify partner who is building an app with the Shopify CLI.`,
+    `You are an assistant to a Shopify partner who is building an app with the Shopify CLI.
+    Everything they want to do is in the context of an already created app.`,
   )
-  const humanTemplate = `In the JSON below, delimited by --- MANIFEST ---. you'll find the oclif manifests the Shopify CLI.
+  const humanTemplate = `In the JSON below you'll find the oclif manifests of the Shopify CLI.
+  --- BEGIN MANIFEST ---
+  {oclif_manifests}
+  --- END MANIFEST ---
+
   Commands in this json are defined separated by colons, but in the terminal, they are separated by spaces.
   NEVER output commands that include colons.
-  --- MANIFEST ---
-  {oclif_manifests}
-  --- MANIFEST ---
-
   For example, the command to generate an extension is \`shopify app generate extension\`, but in the manifest above, it is defined as \`app:generate:extension\`.
+  Extension types are written with underscores as word separators, when passed as params to flags.
 
-  The following, delimited by --- DOCS ---, is a list of all documentation pages relevant to the user query:
-  --- DOCS ---
+  Here is a list of all documentation pages relevant to the user query:
+  --- BEGIN DOCUMENTATION ---
   {context}
-  --- DOCS ---
+  --- END DOCUMENTATION ---
 
-  Based on the information provided in the context, please answer the following user prompt: {user_prompt}`
+  Based on the information provided in the context, please answer the following user request: {user_prompt}`
   const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
   const prompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
 
@@ -121,11 +123,12 @@ export async function magic({regenerateEmbeddings = false}) {
   }
 
   // Initialize a retriever wrapper around the vector store
-  const vectorStoreRetriever = vectorStore!.asRetriever()
+  const vectorStoreRetriever = vectorStore!.asRetriever(10)
 
   const llm = new ChatOpenAI({
     temperature: 0,
     modelName: 'gpt-3.5-turbo-16k-0613',
+    // modelName: 'gpt-4-32k-0613',
   })
 
   const llmChain = createStructuredOutputChainFromZod(zodSchema, {
