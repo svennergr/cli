@@ -24,16 +24,17 @@ export async function magic({regenerateEmbeddings = false}) {
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
     `You are an assistant to a Shopify partner who is building an app with the Shopify CLI.`,
   )
-  const humanTemplate = `In the JSON below, delimited by \`\`\`json. you'll find the oclif manifests the Shopify CLI.
+  const humanTemplate = `In the JSON below, delimited by --- MANIFEST ---. you'll find the oclif manifests the Shopify CLI.
   Commands in this json are defined separated by colons, but in the terminal, they are separated by spaces.
-  \`\`\`json
+  NEVER output commands that include colons.
+  --- MANIFEST ---
   {oclif_manifests}
-  \`\`\`
+  --- MANIFEST ---
 
-  The following, delimited by \`\`\`, is a list of all documentation pages relevant to the user query:
-  \`\`\`
+  The following, delimited by --- DOCS ---, is a list of all documentation pages relevant to the user query:
+  --- DOCS ---
   {context}
-  \`\`\`
+  --- DOCS ---
 
   Based on the information provided in the context, please answer the following user prompt: {user_prompt}`
   const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
