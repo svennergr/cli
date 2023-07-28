@@ -204,11 +204,9 @@ export async function setupConfigWatcher({
   const deletionWatcher = chokidar.watch(extension.directory).on('unlinkDir', (path) => {
     if (path === extension.directory) {
       outputInfo(`Deleting extension ${extension.handle}`, stdout)
-      console.log(extension.handle)
       const uuid = `${apiKey}-${extension.handle}`
       adminRequest(DevSessionDeleteAppModulesMutation, adminSession, {apiKey, moduleUuidsToDelete: [uuid]})
         .then((result: unknown) => {
-          console.log(result)
           outputInfo(`Deleted extension ${extension.handle}`, stdout)
         })
 
