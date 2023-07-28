@@ -235,9 +235,6 @@ async function dev(options: DevOptions) {
   const proxyUrl = usingLocalhost ? `${frontendUrl}:${proxyPort}` : frontendUrl
   const hmrServerPort = frontendConfig?.configuration.hmr_server ? await getAvailableTCPPort() : undefined
 
-  // By default, preview goes to the direct URL for the app.
-  let previewUrl = buildAppURLForWeb(storeFqdn, apiKey)
-  const shouldUpdateURLs = false
 
   // ///////////////////////////
   // ///////////////////////////
@@ -253,6 +250,9 @@ async function dev(options: DevOptions) {
   if (!ephemeralApp.devSessionCreate.app) {
     throw new AbortError(`Failed to create ephemeral app, you might have reached the limit of custom apps in your shop`)
   }
+
+  // By default, preview goes to the direct URL for the app.
+  let previewUrl = buildAppURLForWeb(storeFqdn, ephemeralApp.devSessionCreate.app.apiKey)
 
   // outputInfo(`Ephemeral app created: ${ephemeralApp.devSessionCreate.app.id}`)
 
@@ -274,10 +274,10 @@ async function dev(options: DevOptions) {
 
   const additionalProcesses: OutputProcess[] = []
 
-  const apiSecret = (remoteApp.apiSecret as string) ?? ''
+  const apiSecret = ephemeralApp.devSessionCreate.app.sharedSecret
 
   const webOptions = {
-    apiKey,
+    apiKey: ephemeralApp.devSessionCreate.app.apiKey,
     scopes: isLegacyAppSchema(localApp.configuration)
       ? localApp.configuration.scopes
       : localApp.configuration.access_scopes?.scopes,
@@ -393,7 +393,7 @@ async function dev(options: DevOptions) {
 
   setPreviousAppId(options.directory, apiKey)
 
-  await logMetadataForDev({devOptions: options, tunnelUrl: frontendUrl, shouldUpdateURLs, storeFqdn})
+  await logMetadataForDev({devOptions: options, tunnelUrl: frontendUrl, shouldUpdateURLs: false, storeFqdn})
 
   await reportAnalyticsEvent({config: options.commandConfig})
 

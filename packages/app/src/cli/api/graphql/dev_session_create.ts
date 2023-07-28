@@ -7,6 +7,7 @@ export const DevSessionCreateMutation = gql`
         apiKey
         title
         id
+        sharedSecret
       }
     }
   }
@@ -24,6 +25,7 @@ export interface DevSessionCreateSchema {
       apiKey: string
       title: string
       id: string
+      sharedSecret: string
     }
     userErrors: {
       field: string[]
