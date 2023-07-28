@@ -254,7 +254,7 @@ async function dev(options: DevOptions) {
   const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
     title: 'my-app',
     scopes: ['write_products'],
-    application: previewUrl,
+    application: exposedUrl,
   })
 
   if (!ephemeralApp.devSessionCreate.app) {
