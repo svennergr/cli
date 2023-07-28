@@ -1,0 +1,1111 @@
+Shopify CLI is a command-line interface tool that helps you build Shopify apps. It quickly generates Shopify apps and generates app extensions. You can also use it to automate many common development tasks.
+
+You need to use Node.js to install Shopify CLI and manage its dependencies. However, you can use any technology stack to build your app's functionality.
+
+This documentation explains how to use Shopify CLI for app development. To learn how to use Shopify CLI for other tasks, refer to the following documentation:
+
+- Shopify CLI for themes
+- Shopify CLI for Hydrogen storefronts
+
+Features:
+- Creates new apps using app templates
+- Generates app extensions in your app
+- Creates app records in the Partner Dashboard
+- Builds your app and extensions, and creates a tunnel to let you preview your work in a development store
+- Deploys your app extensions
+
+Requirements:
+- You've installed Node.js 16 or higher.
+- You've installed a Node.js package manager: either npm, Yarn 1.x, or pnpm.
+- You've installed Git 2.28.0 or higher.
+- You're using the latest version of Chrome or Firefox.
+
+Getting started:
+- Shopify CLI is managed as a set of Node.js packages: @shopify/cli and @shopify/app.
+- If you're building a Shopify app, then you don't need to install Shopify CLI globally. Instead, these packages should be added as dependencies of your app.
+- Because Shopify CLI requires a conventional directory structure, if you're creating a new app, then you should run one of the following commands to initialize your app:
+
+npm init @shopify/app@latest
+yarn create @shopify/app
+pnpm create @shopify/app
+
+Command reference:
+- Refer to the Shopify CLI app command reference to explore the commands available to build apps with Shopify CLI.
+
+App structure:
+- To offer a better and more integrated development experience, apps created using Shopify CLI follow a conventional directory structure.
+- Learn more about the structure of apps built with Shopify CLI.
+
+Using Shopify CLI for continuous integration:
+- If you have an app extension that you want to deploy to Shopify regularly, then you can integrate Shopify CLI into your CI/CD pipeline to programmatically deploy your app components using the deploy command.
+- Learn more about running Shopify CLI in a CI/CD pipeline.
+
+Upgrade Shopify CLI:
+- To upgrade Shopify CLI 3.x to the latest version, use the upgrade command.
+- To check your CLI version, use the version command.
+- If the version command doesn't return a version number, or the upgrade command fails, then you might be using the previous version of Shopify CLI. To work on an existing app with the newest version of Shopify CLI, you need to migrate your app. Alternatively, you can create a new app that uses Shopify CLI as a dependency.
+
+Migrate to Shopify CLI 3.x:
+- To offer a better and more integrated development experience, apps created Shopify CLI 3.x follow a conventional directory structure and manage your Node-based dependencies for you.
+- If you have an app that was created using a previous version of Shopify CLI, or without Shopify CLI, then you can migrate your app so you can use the newest version of Shopify CLI.
+
+Usage reporting:
+- Anonymous usage statistics are collected by default. To opt out, you can use the environment variable SHOPIFY_CLI_NO_ANALYTICS=1.
+
+Contributing to Shopify CLI:
+- Shopify CLI is open source. Learn how to contribute to our GitHub repository.
+
+Where to get help:
+- Open a GitHub issue - To report bugs or request new features, open an issue in the Shopify CLI repository.
+- Shopify Community Forums - Visit our forums to connect with the community and learn more about Shopify CLI development.
+
+--- document divider ---
+
+Shopify CLI commands for apps
+
+This reference lists the commands that you can use to build apps with Shopify CLI.
+
+Command overview
+- dev: Builds the app and lets you preview it on a development store or Plus sandbox store.
+- info: Displays information about your app.
+- generate extension: Creates a new app extension for your app.
+- function build: Compiles the function in your current directory to WebAssembly (Wasm) for testing purposes.
+- function run: Runs the function from your current directory for testing purposes.
+- function schema: Generates the latest GraphQL schema for a function in your app.
+- function typegen: Creates GraphQL types based on your input query for a function written in JavaScript.
+- build: Builds the app, including extensions.
+- config link: Pulls app configuration from the Partner Dashboard and creates or overwrites a configuration file.
+- config push: Pushes your app configuration to Shopify.
+- config use: Sets a particular configuration file as your project's default when you run app-related CLI commands.
+- deploy: Builds the app and deploys all of the extensions in your app to Shopify.
+- release: Releases an existing app version.
+- versions list: Lists the deployed app versions.
+- env: Stores or displays environment variables required for app deployment.
+- update-url: Updates the app URL and allowed redirection URLs for your app.
+- config autocorrect: Enables or disables command autocorrection.
+- auth logout: Logs you out of your Shopify Partner account.
+- webhook trigger: Triggers the delivery of a sample event topic payload to a designated address.
+- help: Lists the available commands and describes what they do.
+- version: Lists the version of Shopify CLI included in the project.
+- upgrade: Upgrades the @shopify/cli and @shopify/app packages to their latest versions.
+
+Command syntax
+Shopify CLI commands should only be run in a project where Shopify CLI is installed.
+
+You can run all Shopify CLI commands using the run command:
+
+[PACKAGE MANAGER] run shopify [TOPIC] [COMMAND]
+
+You can also run some commands as scripts, which use an abbreviated syntax:
+
+npm run dev is the same as npm run shopify app dev
+yarn build is the same as yarn shopify app build
+pnpm deploy is the same as pmpm shopify app deploy
+
+Some package managers require a separator to pass flags to the script:
+
+npm run shopify [TOPIC] [COMMAND] -- [FLAGS]
+npm run [COMMAND ALIAS] -- [FLAGS]
+
+Examples:
+npm run shopify webhook trigger -- --help
+npm run dev -- --reset
+
+yarn shopify [TOPIC] [COMMAND] [FLAGS]
+yarn [COMMAND ALIAS] [FLAGS]
+
+Examples:
+yarn shopify webhook trigger --help
+yarn dev --reset
+
+pnpm shopify [TOPIC] [COMMAND] [FLAGS]
+pnpm [COMMAND ALIAS] [FLAGS]
+
+Examples:
+pnpm shopify webhook trigger --help
+pnpm dev --reset
+
+--- document divider ---
+
+dev
+
+Builds the app and lets you preview it on a development store or Plus sandbox store.
+
+To preview your app on a development store or Plus sandbox store, Shopify CLI walks you through the following steps. If you've run dev before, then your settings are saved and some of these steps are skipped:
+
+- Associating your project with an app associated with your Partner account or organization, or creating a new app.
+- Selecting a development store or Plus sandbox store to use for testing. If you have only one store, then it's selected automatically.
+- Installing your app on the store using the provided install link.
+- Creating a tunnel between your local environment and the store using Cloudflare.
+- Updating the app URLs that are set in the Partner Dashboard.
+- Building and serving your app and app extensions.
+
+If you're using the PHP or Ruby app template, then you need to complete the following steps before you can preview your app for the first time:
+
+- PHP: Set up your Laravel app
+- Ruby: Set up your Rails app
+
+Note: dev is an alias for shopify app dev.
+
+info
+
+Displays information about your app.
+
+The information returned includes the following:
+
+- The app and development store or Plus sandbox store that's used when you run the dev command. You can reset these configurations using dev --reset.
+- The structure of your app project.
+- The access scopes your app has requested.
+- System information, including the package manager and version of Shopify CLI used in the project.
+
+generate extension
+
+Generates a new app extension. For a list of app extensions that you can generate using this command, refer to Supported extensions.
+
+Each new app extension is created in a folder under extensions/. To learn more about the extensions file structure, refer to App structure and the documentation for your extension.
+
+--- document divider ---
+
+Shopify Flow action
+Order discount
+Product discount
+Shipping discount
+Delivery customization
+Payment customization
+Order routing location rule
+Cart and checkout validation
+Cart transform
+Fulfillment constraints
+Post-purchase UI
+Product subscription
+Web pixel
+Shopify POS UI
+Theme app extensions
+function build
+Compiles the function in your current directory to WebAssembly (Wasm) for testing purposes.
+function build flags
+function run
+Runs the function from your current directory for testing purposes.
+function run flags
+function schema
+Generates the latest GraphQL schema for a function in your app. Run this command from the function directory.
+function schema flags
+function typegen
+Creates GraphQL types based on your input query for a function written in JavaScript.
+function typegen flags
+config link
+Pulls app configuration from the Partner Dashboard and creates or overwrites a configuration file.
+config use
+
+
+--- document divider ---
+
+Sets default configuration when you run app-related CLI commands. If you omit the config-name parameter, then you'll be prompted to choose from the configuration files in your project.
+
+Pushes your default app configuration to Shopify. You can specify a different configuration file with the --config flag. This overwrites the settings for the app specified in the configuration file in your Partner Dashboard.
+
+Builds the app, including extensions.
+
+This command executes the build script specified in the element's TOML file. You can specify a custom script in the file. To learn about configuration files in Shopify apps, refer to App configuration.
+
+If you're building a theme app extension, then running the build command runs Theme Check against your extension to ensure that it's valid.
+
+build is an alias for shopify app build.
+
+Builds the app and deploys app extensions.
+
+Depending on whether you're using simplified deployment, this command behaves differently:
+
+Opted in to simplified deployment
+Creates an app version that contains a snapshot of all of your app extensions, including the app extensions that you manage in the Partner Dashboard, and releases the app version to users.
+
+Not opted in (individual deployment)
+Bundles all extensions that are managed using Shopify CLI and pushes them to Shopify.
+After the extensions are deployed, you need to individually version and publish them from the Partner Dashboard.
+
+This command doesn't deploy your web app. When you're ready to deploy your app, you need to deploy these components to your own hosting solution. Learn more about deploying your web app.
+
+deploy is an alias for shopify app deploy.
+
+Releases an existing app version. Pass the name of the version that you want to release using the --version flag.
+
+This command is available only if you're using simplified deployment.
+
+versions list
+
+Lists the deployed app versions. An app version is a snapshot of your app extensions.
+
+This command is available only if you're using simplified deployment.
+
+--- document divider ---
+
+The cleaned up body of the page is as follows:
+
+"Flag
+Description
+--path <path>
+The path to your app directory.
+--config <name>
+The name of the config to use.
+--verbose
+Provide more detailed output in the logs.
+--no-color
+Disables color output in the logs.
+--client-id <id>
+The client ID of your app. This flag replaces the deprecated --api-key flag.
+--env-file
+Specify the file where environment variables are saved. If the file doesn't exist, then it will be created.
+--app-url
+The new app URL for the app.
+--redirect-urls
+A comma-separated list of the new allowed redirection URL or URLs for the app.
+--topic <topic>
+The requested event topic. You can pass the webhook topic using the GraphQL enum value or the webhook topic name. For example, you can request the orders/create webhook topic by passing ORDERS_CREATE (GraphQL API style) or orders/create (REST API style).
+--api-version <version>
+API version of the event topic, in the format YYYY-MM or unstable. If the topic isn't available in the specified version, then the webhook payload isn't sent.
+--client-secret <value>
+Your app's client secret. This secret is used to generate and return a X-Shopify-Hmac-SHA256 header, which lets you validate the origin of the response that you receive.
+--delivery-method <option>
+The method chosen to deliver the topic payload. Options: http, google-pub-sub, event-bridge
+--address <address>
+The URL where the webhook payload should be sent."
+
+--- document divider ---
+
+<li><code class="text-highlight text-highlight--grey">google-pub-sub</code>: A <code class="text-highlight text-highlight--grey">pubsub</code> URL, in the format <code class="text-highlight text-highlight--grey">pubsub://{project-id}:{topic-id}</code></li>
+<li><code class="text-highlight text-highlight--grey">event-bridge</code>: An Amazon Resource Name (ARN) starting with <code class="text-highlight text-highlight--grey">arn:aws:events:</code></li>
+<p>Lists the available commands and describes what they do.</p>
+<p>You can add a help flag to any command to learn more about it. Use <code class="text-highlight text-highlight--grey">--help</code> or <code class="text-highlight text-highlight--grey">-h</code>.</p>
+<p>Lists the version of Shopify CLI included in the project.</p>
+<p>If nothing is returned from this command, then your project isn&#39;t using Shopify CLI 3.0 or higher, and you might need to <a href="/docs/apps/tools/cli/migrate">migrate</a>.</p>
+<p>Shopify CLI acts as a dependency of your app. This command upgrades the <code class="text-highlight text-highlight--grey">@shopify/cli</code> and <code class="text-highlight text-highlight--grey">@shopify/app</code> dependencies to their latest versions.</p>
+
+--- document divider ---
+
+To offer a better and more integrated development experience, apps created using Shopify CLI 3.x follow a conventional directory structure. This structure allows you to serve and deploy your app and its app extensions at the same time, and generate new app extensions easily.
+
+Shopify CLI also manages any Node-based dependencies for you, including your Shopify CLI version. This leads to a consistent app development experience across environments.
+
+If you have an app that was created using a previous version of Shopify CLI, or without Shopify CLI, then you can migrate your app. Refer to Migrate your app to Shopify CLI 3.x to learn how to update your app to follow this structure.
+
+All apps created with Shopify CLI follow the same basic directory structure. Some elements might be included or omitted depending on your app's functionality.
+
+└── <App name>
+    ├── shopify.app.toml
+    ├── package.json
+    ├── node_modules/
+    |   └── ...
+    ├── web/
+    |   ├── shopify.web.toml
+    |   └── ...
+    ├── extensions/
+    |   ├── my-ui-extension
+    |   |  ├── shopify.extension.toml
+    |   |  ├── package.json
+    |   |  └── ...
+    |   ├── my-function-extension
+    |   |  ├── shopify.extension.toml
+    |   |  ├── package.json
+    |   |  └── ...
+    |   ├── my-theme-extension
+    |   |  ├── shopify.extension.toml
+    |   |  ├── package.json
+    |   |  └── ...
+    |   └── ...
+    └── .env
+
+shopify.app.toml is a configuration file that contains app-level configurations and metadata. The first time you use the app dev or app config link CLI commands, the file is updated to reflect the settings of the linked Shopify app. For more details, refer to App configuration.
+
+You can use TOML files with names matching format shopify.app.{config-name}.toml to link your project to multiple Shopify apps. For more details, please refer to App configuration.
+
+A directory containing the web components for your app. For new apps created with Shopify CLI 3.x, this directory is called web/. Use this directory if you want to build a web interface to display in the Shopify admin or Shopify POS using Shopify App Bridge.
+
+The web interface can consist of one process or multiple processes. For example, you might have one process if you have a standard Rails app with an asset pipeline, or you might have multiple processes if your web app has independent frontend and backend stacks. To learn more about the conventions for single-process and multiple-process apps, refer to Web component conventions.
+
+The default location for web components is the web/ subdirectory. Keeping your web components in a subdirectory like web/ helps to keep your project organized. However, the CLI supports having the web component at the root of the project or any subdirectory of your choice.
+
+To use a different subdirectory or the project root for your web components, include the shopify.web.toml file in the directory.
+
+shopify.web.toml is a configuration file where you can define properties for your embedded app. The location of this file identifies your web component directory to the CLI.
+
+When you create an app using a template that contains an embedded app, the shopify.web.toml file is created in the web/ directory. If you choose to store your web components at the project root, or in another subdirectory, you need to include a shopify.web.toml in that directory instead.
+
+If you need to override the build or dev command to build or preview your web app, then you can provide your own command at this level.
+
+In projects where you want to serve the web backend and frontend through two processes, you can create a shopify.web.toml for each process. The CLI can start the two processes, and expects the frontend web HTTP server to forward the traffic to the backend process. To learn more, refer to Web component conventions.
+
+To explicitly specify the folders where Shopify CLI should look for shopify.web.toml files, and to avoid files being loaded twice due to symlinks, use the web_directories variable in the shopify.app.toml file.
+
+Web components are a directory containing the web components for your app. For new apps created with Shopify CLI 3.x, this directory is called web/. Use this directory if you want to build a web interface to display in the Shopify admin or Shopify POS using Shopify App Bridge.
+
+The web interface can consist of one process or multiple processes. For example, you might have one process if you have a standard Rails app with an asset pipeline, or you might have multiple processes if your web app has independent frontend and backend stacks. To learn more about the conventions for single-process and multiple-process apps, refer to Web component conventions.
+
+The default location for web components is the web/ subdirectory. Keeping your web components in a subdirectory like web/ helps to keep your project organized. However, the CLI supports having the web component at the root of the project or any subdirectory of your choice.
+
+To use a different subdirectory or the project root for your web components, include the shopify.web.toml file in the directory.
+
+shopify.web.toml is a configuration file where you can define properties for your embedded app. The location of this file identifies your web component directory to the CLI.
+
+When you create an app using a template that contains an embedded app, the shopify.web.toml file is created in the web/ directory. If you choose to store your web components at the project root, or in another subdirectory, you need to include a shopify.web.toml in that directory instead.
+
+If you need to override the build or dev command to build or preview your web app, then you can provide your own command at this level.
+
+In projects where you want to serve the web backend and frontend through two processes, you can create a shopify.web.toml for each process. The CLI can start the two processes, and expects the frontend web HTTP server to forward the traffic to the backend process. To learn more, refer to Web component conventions.
+
+To explicitly specify the folders where Shopify CLI should look for shopify.web.toml files, and to avoid files being loaded twice due to symlinks, use the web_directories variable in the shopify.app.toml file.
+
+--- document divider ---
+
+The cleaned up body of the page is as follows:
+
+To explicitly specify the folders where Shopify CLI should look for shopify.web.toml files, and to avoid files being loaded twice due to symlinks, use the web_directories variable in the shopify.app.toml file.
+
+The following information is provided to the process as environment variables:
+- SHOPIFY_API_KEY: The client ID of the app.
+- SHOPIFY_API_SECRET: The client secret of the app.
+- HOST/APP_URL: The URL that stores will load.
+- PORT/FRONTEND_PORT/SERVER_PORT: The port in which the process’ server should run.
+- SCOPES: The app's access scopes.
+- BACKEND_PORT: The port in which the second, or backend, process will run if the app is a two-process app. The frontend uses 'BACKEND_PORT' to proxy traffic to the backend process.
+
+The following conventions apply to the backend process of two-process apps, or to single-process apps.
+
+The CLI expects a shopify.web.toml configuration file in any subdirectory of the project, with roles including backend.
+
+The frontend must proxy backend requests to the backend port defined in the environment variable BACKEND_PORT.
+
+The following information will be provided as environment variables to the process:
+- SHOPIFY_API_KEY: The client ID of the app.
+- SHOPIFY_API_SECRET: The client secret of the app.
+- HOST/APP_URL: The URL that stores will load.
+- SERVER_PORT/BACKEND_PORT/PORT: The port in which the process’s server should run.
+- SCOPES: The app's access scopes.
+- FRONTEND_PORT: The port in which the frontend process will run.
+
+You can also specify additional processes that will run in the background and don't require the behavior of frontend or backend processes. This can be useful for service-oriented architectures or custom file-watcher processes.
+
+The CLI accepts a shopify.web.toml configuration file in any subdirectory of the project, with roles = ["background"].
+
+The following information will be provided as environment variables to the process:
+- SHOPIFY_API_KEY: The client ID of the app.
+- SHOPIFY_API_SECRET: The client secret of the app.
+- HOST/APP_URL: The URL that stores will load.
+- SERVER_PORT/PORT: The port in which the process’s server should run, if the process includes a server.
+- SCOPES: The app's access scopes.
+- FRONTEND_PORT: The port in which the frontend process will run.
+- BACKEND_PORT: The port in which the second, or backend, process will run, if the app has a backend.
+
+The extensions/ directory contains any app extensions that you've generated onto your app, or that were included in your app template. If your app doesn't contain any app extensions, then you don't need this directory. You can add override the default directories using the extension_directories variable in shopify.app.toml.
+
+Each extension is created in its own directory. The structure of the extension directory depends on the type of extension.
+
+Shopify CLI builds and serves app extensions using information defined in a TOML file. Some extension types require specific configurations. To accommodate this, Shopify CLI groups extensions into the following types in the TOML file:
+
+- Checkout UI (Developer preview)
+- Admin action (Developer preview)
+- Admin block (Developer preview)
+- Product configuration
+- Shopify Flow trigger
+- Shopify Flow action
+- Order discount
+- Product discount
+- Shipping discount (Developer preview)
+- Delivery customization
+- Payment customization
+- Order routing location rule (Beta)
+- Cart and checkout validation
+- Cart transform
+- Fulfillment constraints
+- Post-purchase UI (Beta)
+- Product subscription
+- Web pixel
+- Shopify POS UI
+- Theme app extensions
+
+The build and deploy process varies based on extension type:
+
+- UI extensions: The CLI builds UI extensions using ESBuild. It expects an extension script named index.{ts,js,tsx,jsx} to exist in the extension’s directory or the src/ subdirectory. The CLI build process outputs the extension in dist/index.js when running build, and inside a temporary directory when running deploy to prevent past build artifacts from leaking into the deploy bundle.
+- Functions: The CLI runs the command specified in the build.command attribute of the configuration file. It expects the output wasm file to be at dist/index.wasm, unless a different path is set in the build.path attribute.
+- Themes: When building, the CLI runs Theme Check against the theme app extension.
+
+Shopify CLI uses workspaces to manage dependencies for various parts of your app project. For example, your app might contain the following:
+
+- A package.json file at the root of the app project to manage all of the dependencies required by Shopify to load, build, and publish your app, including the following:
+  - @shopify/app: Manages all of the dependencies required to build and run a Shopify app and any CLI-managed app extensions.
+  - @shopify/cli: The current version of Shopify CLI.
+- A package.json file for each extension that you create.
+
+You can change your dependency management configuration if desired.
+
+We recommend including the lock files generated by the package manager (yarn.lock, package-lock.json, or pnpm-lock.yaml) in the repository to ensure the same version of these dependencies is used consistently across environments.
+
+--- document divider ---
+
+Work on an existing app. You can collaborate with other developers to build a Shopify CLI app. Caution: This tutorial only applies to apps created with Shopify CLI 3 or higher. If you're using a previous version of Shopify CLI, then consider migrating your app to use the newest version. Requirements: You've created a Partner account and a development store. You understand how apps fit into Shopify. You've installed Node.js 16 or higher. You've installed a Node.js package manager: either npm, Yarn 1.x, or pnpm. You've installed Git 2.28.0 or higher. You're using the latest version of Chrome or Firefox. Step 1: Install the project dependencies. If you haven't already, clone the app that you want to work on, and then navigate to the project directory. Run your package manager's install command to install the project's dependencies. Shopify CLI is a dependency of all apps created with Shopify 3.0 or higher. Step 2: Verify the installation. After you install the dependencies for the app, check the version to make sure that Shopify CLI is available. Step 3: Preview the app. After you install your app's dependencies locally, you can work with it by building the app and starting a local development server. Shopify CLI uses Cloudflare to create a tunnel that allows your app to be accessed using a unique HTTPS URL. Press p to open your app's preview URL in a browser. The CLI walks you through the following: Logging into your Shopify Partner account and, if needed, selecting a Partner organization. Linking your app to an existing app in the Partner Dashboard, or creating a new app. Creating a new configuration file for your local development environment. Creating a tunnel between your local environment and the development store using Cloudflare. Installing your app on a development store. To learn more about the processes that are executed when you run dev, refer to the Shopify CLI command reference. To learn more about managing your app's configuration locally, refer to App configuration.
+
+--- document divider ---
+
+List of app extensions
+
+App extensions relate to specific use cases and have varying requirements. This guide describes the available app extensions that you can use to surface your app's functionality to Shopify user interfaces.
+
+The following table lists all of the available app extensions that you can build. For each app extension listed in the table, you can review the following information:
+
+- The area of the Shopify interface the app extension is associated with.
+- Whether the app extension is versioned. This applies only if your app uses individual deployment. Apps that use simplified deployment apply versioning to all app extensions. Learn more.
+- Whether the app extension requires review and approval from Shopify.
+- The tool to use to create the extension.
+- Links to detailed documentation.
+
+Shopify admin
+- Admin actions: Add custom modals to resource pages in the Shopify admin.
+- Admin blocks: Add custom cards to resource pages in the Shopify admin.
+- Admin links: Add quick links to your app from any page in the Shopify admin.
+- Bulk action links: Add bulk app actions to any resource page in the Shopify admin.
+- Navigation links: Add navigation links to display your embedded app's navigation items consistently across devices.
+- Marketing activities: Enable users to manage promotional campaigns and marketing automations from the Marketing page.
+- Product subscription: Add recurring billing options for users in the Shopify admin.
+- Subscription link: Customize the link that allows users to see the subscription details in your subscription-enabled application.
+- Web pixel: Run JavaScript code snippets on the order status page to collect behavioral data for marketing campaign optimization and analytics.
+
+Checkout
+- Checkout UI extensions: Add custom workflows and functionality at defined points in the checkout process.
+- Shopify Functions: Inject custom code into key areas of the Shopify platform, such as checkout or cart.
+- Post-purchase: Help users increase sales by adding products for purchase after checkout.
+- Web pixel: Run JavaScript code snippets on an online store to collect behavioral data for marketing campaign optimization and analytics.
+
+Flow
+- Triggers: Connect your app to Shopify Flow so that events that occur in your app can trigger workflows.
+- Actions: Connect your app to Shopify Flow so that your app receives data when a workflow action runs.
+- Lifecycle Events: Improve efficiency by letting Shopify Flow notify your app when your triggers are in use.
+
+Online store
+- Theme app extensions: Integrate with Online Store 2.0 themes. Theme app extensions act as a replacement for using the Script Tag or Asset resources to integrate apps with online stores.
+- Web pixel: Run JavaScript code snippets on an online store to collect behavioral data for marketing campaign optimization and analytics.
+
+Payments
+- Payments extension: Allow customers to complete purchases using a payment method provided by your app.
+
+Shopify Point of Sale (POS)
+- POS UI Extensions: Add custom functionality at defined areas in the POS app.
+- POS links: Link directly to your app from pages in the Shopify POS app.
+- Cart app extension: Add your app's loyalty points or other promotional discounts to the cart in the Shopify POS app.
+- Product recommendations: Show product recommendations in the Shopify POS app.
+
+Next steps
+- Learn how to deploy extensions to release changes to users.
+
+--- document divider ---
+
+Web pixels are JavaScript code snippets that run on the online store and collect behavioral data, referred to as customer events, for marketing campaign optimization and analytics. After you’ve created your web pixel and configured it to a merchant’s shop, your pixel is able to load in the shop’s online store. As a customer browses the online store, they’ll trigger customer events that are published to a Shopify data layer or event bus. Your pixel can subscribe to the events on this data layer and then transform the event payloads into a format that conforms to the requirements of your pixel’s data collection endpoint.
+
+Web pixel app extensions provide developers with a simplified process for managing and processing behavioral data, by loading pixels in a secure sandbox environment with APIs for subscribing to customer events. Web pixel app extensions provide the following benefits to app users and developers:
+
+- Eliminate or minimize the need for users to add tracking code
+- Securely access all surfaces, like storefront, checkout and post-purchase pages
+- Control what data the developers have access to
+- Avoid performance and privacy alerts
+- Provide a smaller pixel code libraries with the removal of excess DOM manipulation code
+
+Web pixel app extensions are compatible with the Customer Privacy API, so you can request consent as needed. Web pixel app extension callbacks are executed only after the visitor has given consent. When the buyer gives consent, all registered events are replayed to capture any events that already occurred on the page.
+
+Web pixels are loaded in a sandbox on a visitor's browser, and are designed to give merchants and buyers complete control over what data is accessible to app developers. These controls mean some common features of pixels won’t work the same or won’t work at all. Specifically, these include any features that rely on scraping the DOM for information or attempting to write to the DOM. Although these limitations may seem constraining, most can be overcome by leveraging the data passed into the sandbox using the web pixel extension API.
+
+App developers create web pixel app extensions which are loaded in a strict sandbox environment using web workers. This environment has access to many of the same globals as you’d get with JavaScript running in a browser. However, we only guarantee the presence of the following globals: self, console, setTimeout, clearTimeout, setInterval, clearInterval, fetch and related globals (Headers, Request, and Response), which can be used to make HTTP requests to arbitrary endpoints.
+
+Caution: You must not rely on any other globals being available. Many globals will be explicitly overwritten to be undefined in the sandbox, and non-language globals that aren’t hidden and aren’t in the list above might also be overwritten at any time. Traditional JavaScript pixels that use browser APIs such as window.document won't work in this environment. You can use contextual APIs available to web pixel app extensions to replicate specific browser API functionality.
+
+Custom pixels are loaded in a lax sandbox environment. The lax sandbox is an iframe element that has the sandbox attribute defined with the allow-scripts and allow-forms values. This setup allows legacy Javascript pixels to be inserted onto the page using an iframe. Traditional Javascript pixels that are placed in the lax sandbox cannot access the top frame. There are certain properties that return different values because you cannot access the top frame. For example, window.href returns the sandbox URL instead of the top frame URL. This feature is intended for merchants to use and more information can be found in the help docs. We strongly recommend that developers create apps and encourage users to install their apps instead of creating Custom Pixels, for greater integration.
+
+Next steps: Create a web pixel app extension to subscribe to all events emitted by Shopify.
+
+--- document divider ---
+
+Admin action and block extensions are in developer preview and can't be deployed to production versions of your app. You can give feedback and request new features on the UI Extensions Github repo.
+
+Admin action and admin block extensions enable you to seamlessly integrate your app's functionality into the Shopify admin. These extensions enable your app to embed workflows and UX on core admin pages while automatically matching the Shopify admin's look and feel. By giving merchants access to your app's functionality, without the need to navigate away from their current task, these extensions help merchants be more efficient and productive.
+
+You can create actions and blocks by writing extensions with UI Extensions and targeting the appropriate extension target. For the full list of admin pages that you can extend, refer to the extension target reference.
+
+Admin action extensions enable you to create transactional workflows within existing pages of the Shopify admin. Merchants can launch these extensions from the More actions menus on resource pages or from an index table's bulk action menu when one or more resources are selected. After the extensions are launched, they display as modals. After they're closed, the page updates with the changes from the action.
+
+Admin block extensions enable your app to embed contextual information and inputs directly on resource pages in the Shopify admin. When a merchant has added them to their pages, these extensions display as cards inline with the other resource information.
+
+During dev preview, block extensions automatically display at the bottom of the targeted page. When block extensions become available to merchants after dev preview, merchants will need to manually add the extension to their page in the Shopify admin. Merchants can also specify the extension's location on the page.
+
+With admin block extensions, merchants can view and modify information from your app and other data on the page simultaneously. To facilitate complex interactions and transactional changes, you can launch admin actions directly from an admin block.
+
+Follow the getting started tutorials to learn how to build admin action and block extensions. These tutorials are designed to be completed together to illustrate how admin action and block extensions complement each other and can be used together to build features for your app.
+
+Consult the API reference for admin UI extension targets and their respective types.
+
+Learn about the components that are available in admin UI extensions.
+
+Learn about the locations where you can create admin UI extensions.
+
+Learn about how to configure your extension from its .toml file.
+
+Learn the design guidelines for building apps in the Shopify admin.
+
+The Figma UI kit contains components, screens, and examples to help you build and understand admin UI extensions.
+
+Learn how to build an admin action extension that enables merchants to create a QR code for a product directly from the product details page.
+
+--- document divider ---
+
+You're ready to start working with app extensions. You want to make your app's features accessible through the Shopify admin.
+
+In this guide, you'll learn how to configure three different types of app extensions:
+
+- Admin links: Make your app's features accessible to users throughout the Shopify admin.
+- Bulk action links: Make your app's features accessible to users wherever action drop-down menus are available in the Shopify admin.
+- Navigation links: Display your app's navigation items consistently across devices.
+
+Each app extension is an independent type. You can choose to configure only the app extension that you need, or configure all of the types of app extensions that are presented in this guide.
+
+Requirements:
+- You've created a Partner account and a development store.
+- You understand how apps fit into Shopify and the different ways of distributing your app.
+- You've created an app that uses Shopify CLI 3.0 or higher.
+
+Add an admin link:
+When you add an admin link for your app, the link displays in the More actions menu on the pages in Shopify that you specify. Users can then access your app to complete a task directly.
+
+Examples:
+The Order Printer app uses an admin link on order pages to let users print invoices.
+The Digital Downloads app uses an admin link on product pages to let users add digital attachments.
+
+Tracking incoming admin links:
+You can track incoming admin links by using the parameters that identify the store or resource where your app is being used.
+
+Add a bulk action link:
+You can make your apps accessible to users wherever action drop-down menus are available in the Shopify admin.
+
+Example:
+When a user selects multiple orders on the Orders page of the Shopify admin, the Actions drop-down menu appears. You can use the Actions menu to prompt users to use your app when they complete a bulk action.
+
+Add navigation links:
+You can add navigation links to display your app's navigation items consistently across devices.
+
+Next steps:
+Explore and build other app extensions to surface your app's functionality in Shopify.
+
+--- document divider ---
+
+You can use a marketing activities app extension to enable merchants to manage promotional campaigns and marketing automations from the Marketing page in the Shopify admin using your app. This guide describes how your app works with the marketing activities app extension and Shopify to support marketing activities. It also describes how you can connect a marketing app to the Shopify platform.
+
+Marketing on Shopify helps merchants find and sell to customers using a variety of means, including content marketing, SEO, and social media. You can add a marketing activities app extension to your app to surface your app directly in the Marketing page in the Shopify admin. Using a marketing activities app extension, you can complete the following tasks:
+
+- Configure the marketing activity form that's rendered in Shopify admin.
+- Enable app users to preview marketing activities on your platform.
+- Manage a user's marketing onboarding state.
+- Manage the lifecycle of a user's marketing activities.
+- Track a user's marketing activity engagements.
+
+Using Shopify’s form builder inside the Partner Dashboard, you can define the fields necessary for your activity to participate in a marketing campaign. There are many components to choose from. Some of the components are generic, like text and numbers, while others allow you to access Shopify data, like products and discounts.
+
+Each marketing activity extension is uniquely identified by its UUID, which is used to open the marketing activity form. Shopify calls your app's preload endpoint to render the marketing activity form. Your app is responsible for responding with form data based on the merchant’s marketing activity and the state of a merchant's shop data. Shopify also calls your app's error feedback endpoint to report whether there were problems with your marketing activity extension.
+
+After a merchant publishes a marketing activity, Shopify calls your app's create endpoint to create the marketing activity. Your app is responsible for validating the form data. After the marketing activity is created, your app calls Shopify to update the status of the marketing activity using the MarketingActivityUpdate mutation.
+
+You can use the GraphQL Admin API to create and manage marketing efforts in your app or on a platform outside of Shopify. By integrating with Shopify, apps can connect their data, and app users can access a complete picture of how their marketing efforts are performing.
+
+You don't need to use a marketing activities app extension to connect a marketing app to Shopify.
+
+Developer resources:
+
+- Marketing activities components reference: Learn about the different components that you can use to build a marketing activity form.
+- Marketing activities endpoints reference: Learn about the endpoints that you need to add to your app to support marketing activities.
+- Marketing activities statuses reference: Learn about the different statuses for marketing activities and how to handle them.
+
+Next steps:
+
+- Get started with marketing activities to enable merchants to create marketing campaigns from their Shopify admin using your app.
+- Consult the reference documentation for marketing activities app extensions.
+- Learn how to connect a marketing app to the Shopify platform using the GraphQL Admin API.
+
+--- document divider ---
+
+Product subscription app extension overview
+
+Note: Currently, Shopify doesn't have a separate app extension for deferred purchase options. You can create and configure the product subscription app extension for deferred purchase options.
+
+The product subscription app extension can be used to render an interface that enables merchants to create and manage purchase options in the Shopify admin. This guide introduces the product subscription app extension and the App Bridge Admin app extension framework, and demonstrates the high-level subscription flow.
+
+How the product subscription app extension works
+
+Your app interacts with the SellingPlanGroup objects and the product subscription app extension.
+The Shopify admin renders the interface that enables merchants to create and manage subscriptions or deferred purchase options.
+
+Note: You can't use the product subscription app extension to modify subscription contracts.
+
+Requirements for existing subscription apps
+
+If you have an existing subscription app, then you need to meet the following requirements to add the product subscription app extension to your app:
+- Test your app using a development store.
+- Submit your testing app for review in the Partner Dashboard.
+If your app meets the requirements, then it will be approved and you can add the product subscription app extension to your existing published app.
+
+App Bridge Admin app extension framework
+
+The product subscription app extension renders in Shopify using App Bridge Admin. App Bridge Admin enables apps to integrate directly into the Shopify admin, mobile apps, checkout, or Shopify Point of Sale (POS). It includes a set of consistent UI components, and development tools for authoring them.
+
+You create app extensions by writing JavaScript, React, or TypeScript to define your app's behavior and describe your user interface. Shopify securely hosts and renders your user interface seamlessly in the client.
+
+With App Bridge Admin, you use session tokens to authenticate your app instead of relying on third-party cookies.
+
+When the product subscription app extension appears to the merchant in the Shopify admin, it includes both app-provided and Shopify-provided interface elements.
+
+How a product subscription app extension looks in Shopify
+
+Shopify renders a product subscription app extension on the product page, which contains a set of extension modes. Apps are responsible for integrating with these extension modes, which will enable merchants to complete their tasks or access app functionality directly in the Shopify admin.
+
+Tip: Apps can include contextual links to active subscriptions on the Customers and Order detail pages.
+
+Next steps
+
+Get started building a product subscription app extension.
+
+--- document divider ---
+
+Managing app configuration files
+
+This guide shows you how to get started with the Shopify CLI, manage and update app configurations, and safely test your app’s behavior.
+
+After you've finished this tutorial, you'll understand:
+- How to install the Shopify CLI
+- How to configure and manage Shopify apps from your terminal or IDE
+- How to safely test and update your app configuration
+
+Requirements:
+- You've created a Partner account
+- You've created a development store
+- You've installed Node.js 16 or higher
+
+Get started with the CLI:
+Shopify CLI is a command-line interface tool that helps you build Shopify apps. It’s managed as a set of Node.js packages: @shopify/cli, @shopify/app. To enable a consistent development experience across environments, these packages should be added as dependencies of your app. If you can't add them as project-level dependencies, you can install the Shopify CLI globally.
+
+Link and configure apps:
+You can create, link, and configure Shopify apps directly from your preferred terminal or IDE using the Shopify CLI. When you run `shopify app config link`, you can create a new Shopify app or link to any existing apps. This will generate a configuration file in the root directory of your app. You can use your configuration file to view and modify your app’s configuration on Shopify. After you've made changes to your configuration file, you can run `shopify app config push` to push your changes up to Shopify, where they will go live immediately.
+
+Test your app functionality:
+After your app has been installed on a live store, avoid doing active development against it so that end-users are not affected by possible breaking changes. Shopify CLI makes this easy by allowing you to link multiple Shopify apps to your codebase, so that you can dedicate specific apps and their configurations for various development, staging, and production workflows. Use `shopify app config link` to generate additional configuration files for development or staging apps. You can also re-link upstream Shopify apps if your configuration file gets deleted, corrupted, or out-of-sync.
+
+Port changes across different app configurations:
+Shopify configuration files make it easy to push and manage changes across development, staging, and production apps. After your configuration changes have been tested, you can copy and paste your blocks of configuration to any of your other configuration files, and push those changes up with `shopify app config push --config {your_config}`.
+
+--- document divider ---
+
+Create a subscription contract
+
+A subscription contract is the agreement between a customer and a merchant over a specific term for recurring purchases over a set or undefined period of time.
+
+This guide shows you how to create subscription contracts by illustrating two use cases: "Subscribe and save" subscriptions and "Prepaid" subscriptions.
+
+Note: Shopify automatically creates subscription contracts when products with selling plans are purchased through checkout.
+
+Requirements:
+- Most purchase option apps need to request API access through the Partner Dashboard. We give API access to apps that are designed according to our principles for purchase options apps.
+- Public apps that use purchase options need to meet specific requirements to be published on the Shopify App Store.
+- Custom apps created in the Shopify admin can't use purchase options because these apps can't use extensions or request access to protected scopes. If you're building a solution for a single store, then build your custom app in the Partner Dashboard.
+- Your app can make authenticated requests to the GraphQL Admin API.
+- Your app has the read_own_subscription_contracts and write_own_subscription_contracts access scopes. For more information on requesting access scopes when your app is installed, refer to Getting started with OAuth.
+- You've created products and product variants in your development store.
+- You've familiarized yourself with the concept of subscription contracts.
+
+Step 1: Create a new subscription draft
+Tip: This guide shows you how to build a subscription contract incrementally. However, you can also create a subscription contract in one call with the subscriptionContractAtomicCreate mutation.
+
+A subscription draft captures the intent to change a subscription contract. Apps can incrementally build subscription contracts.
+
+A subscription draft provides a way to get the projected state of the contract with all of the updates applied. Subscription contracts should always be up-to-date and accurate so that you can report on subscriptions and email subscribers, and build flows based on subscription changes.
+
+Depending on your selling strategy, you might create a "Subscribe and save" or a "Prepaid" subscription.
+
+Subscribe and save subscriptions
+The following example shows the creation of a new subscription draft for a monthly "Subscribe and save" subscription, with a minimum commitment of three orders.
+
+For error codes related to subscription contracts, refer to SubscriptionDraftErrorCode.
+
+Note: Using the subscriptionContractCreate mutation doesn't affect existing fulfillments that have been paid for. To edit an existing order, apps should use the orderEditBegin mutation.
+
+Prepaid subscriptions
+Prepaid contracts are created by defining a delivery policy that is more frequent than the billing policy. In the following example, the policies combine to define a prepaid subscription with three monthly deliveries.
+
+For error codes related to subscription contracts, refer to SubscriptionDraftErrorCode.
+
+Note: Using the subscriptionContractCreate mutation does not affect existing fulfillments that have been paid for. To edit an existing order, apps should use the orderEditBegin mutation.
+
+--- document divider ---
+
+You can call the `subscriptionDraftLineAdd` mutation to add a subscription line to the subscription draft. In the following example, a subscription line is added to specify a product variant with its quantity and price:
+
+```graphql
+mutation {
+  subscriptionDraftLineAdd(
+    draftId: "gid://shopify/SubscriptionDraft/22"
+    variantId: "gid://shopify/ProductVariant/123456789"
+    quantity: 1
+    price: {
+      amount: 10.99
+      currencyCode: USD
+    }
+  ) {
+    draft {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+```
+
+The response will include the ID of the draft and any user errors:
+
+```json
+{
+  "data": {
+    "subscriptionDraftLineAdd": {
+      "draft": {
+        "id": "gid://shopify/SubscriptionDraft/22"
+      },
+      "userErrors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 10,
+      "throttleStatus": {
+        "maximumAvailable": 1000.0,
+        "currentlyAvailable": 990,
+        "restoreRate": 50.0
+      }
+    }
+  }
+}
+```
+
+--- document divider ---
+
+When you're satisfied with the state of the subscription draft, you can commit it. When you commit a draft subscription, all of the changes are made active:
+
+mutation {
+  subscriptionDraftCommit(draftId: "gid://shopify/SubscriptionDraft/22") {
+    contract {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+The View subscription button on the customer subscriptions card and the order subscriptions card allows merchants to navigate to the app and view the subscription contract details.
+
+To redirect merchants to the relevant subscription contract, the app needs to implement a specific endpoint. After implemented, the endpoint redirects to the subscription contract page within the app for the subscription defined by subscription_contract_id.
+
+You can customize the View subscription link by managing the Subscription link app extension in your Partner Dashboard. You can modify the link target URL, save the changes, or remove the app extension if it's already present.
+
+--- document divider ---
+
+If you're opted in to simplified deployment, then create and release a new app version to make this extension available to users. You need to release a new app version whenever you update the extension configuration in the Partner Dashboard.
+
+If you don't customize the View subscription link, then the link is hardcoded. The hardcoded link has the following format:
+
+{app_application_url}/subscriptions?customer_id={customer_id}&hmac={hmac}&id={subscription_contract_id}&shop={myshopify_domain}
+
+To schedule and automate the billing of subscriptions, apps need to create a billing attempt. A subscription is renewed when an app makes a billing attempt.
+
+A billing attempt represents an attempt at executing a billing cycle and charging the customer payment method for a subscription contract. A billing attempt executes a contract based on the billing cycle at the origin time if provided. Otherwise, the billing attempt is created for the current billing cycle by default. You can also create a billing attempt on a specific billing cycle.
+
+A billing attempt starts in a pending status. After it has been processed, it either transitions to successful or failed, both of which are terminal states:
+
+- If the billing attempt is successful, then an order is created.
+- If the billing attempt fails, then it means that the transaction has failed.
+
+If an action is pending on the part of the customer in regards to 3D Secure, then a 3D Secure challenge can occur before the billing attempt transitions to a terminal state.
+
+To create a billing attempt, specify the following inputs in the subscriptionBillingAttemptCreate mutation:
+
+- subscriptionContractId: The ID of the subscription contract.
+- subscriptionBillingAttemptInput:
+  - idempotencyKey: A unique key generated by the client to avoid duplicate payments.
+  - originTime: An optional field that changes the way fulfillment intervals are calculated. If nothing is provided, fulfillment is calculated using the date that the billing attempt was successful. Otherwise, fulfillment is calculated using the provided originTime value. The UTC offset of originTime should match the shop's timezoneOffset.
+
+Billing attempts are processed asynchronously, which means the resulting order will not be available right away. You can fetch the billing attempt and inspect the ready field to find out whether the order has been created (true) or not (false).
+
+Because the order isn't ready immediately, you can query the subscriptionBillingAttempt to get the resulting order information.
+
+--- document divider ---
+
+Shopify handles 3D Secure authentication by emailing the customer when the financial institution requires a challenge. This flow is demonstrated in the diagram below:
+
+You can poll the subscriptionBillingAttempt object until the nextActionUrl field is available to see the URL. It's up to apps to attempt re-billing for failed payment attempts.
+
+Note: The subscription_billing_attempts/success and subscription_billing_attempts/failure webhooks aren't triggered until the challenge is completed. If the customer doesn't complete the challenge, then your app won't be notified.
+
+--- document divider ---
+
+Shopify Function APIs reference
+
+Functions availability
+Some Function APIs are available only in developer preview.
+Users that have checkout.liquid customizations need to upgrade to checkout extensibility to use Function APIs.
+Public apps that are distributed through the Shopify App Store and contain functions can be used by stores on any plan. Only users on a Shopify Plus plan can create custom apps that contain Shopify Function APIs.
+
+Shopify Functions allow developers to customize the backend logic that powers parts of Shopify. This guide introduces the available APIs for Shopify Functions.
+
+Available APIs
+The following Function APIs are available:
+- Delivery Customization API: Rename, reorder, and sort the delivery options available to buyers during checkout.
+- Order Discount API: Create a new type of discount that's applied to all merchandise in the cart.
+- Product Discount API: Create a new type of discount that's applied to a particular product or product variant in the cart.
+- Payment Customization API: Rename, reorder, and sort the payment methods available to buyers during checkout.
+- Cart Transform API: Expand cart line items and update the presentation of cart line items.
+- Cart and Checkout Validation API: Provide your own validation of a cart and checkout.
+- Fulfillment Constraints API: Provide your own logic for how Shopify should fulfill and allocate an order.
+
+APIs in developer preview
+The following Function APIs are available only in the checkout extensibility developer preview:
+- Order Routing Location Rule API: Provide your own ranking of location, for each item, during order routing.
+- Shipping Discount API: Create a new type of discount that's applied to one or more shipping rates at checkout.
+
+Getting started
+Learn how to use Shopify Functions by following one of our use case tutorials:
+- Discounts: Use Shopify Functions to create a new discount type for users.
+- Payment customizations: Use Shopify Functions to hide a payment option offered to customers at checkout.
+- Delivery customizations: Use Shopify Functions to rename a delivery option offered to customers at checkout.
+- Cart and checkout validations: Use Shopify Functions to block progress on a checkout when the cart line quantities exceed a limit.
+- Order routing location rules: Use Shopify Functions to choose a different order location during checkout.
+- Customized bundles: Use Shopify Functions to group products together and sell them as a single unit.
+- Fulfillment constraints: Use Shopify Functions to customize fulfillment and delivery strategies.
+
+Limitations
+The following limitations apply to all functions:
+- Shopify doesn't allow nondeterminism in functions, which means that you can't use any randomizing or clock functionality in your functions.
+- The compiled function can't exceed 256 kB in size.
+- You can't debug your function by printing out STDOUT, which is reserved for function output. Use STDERR instead.
+- Function logs to STDERR are truncated after 1 kB. Some Wasm toolchains might crash if STDERR fails to write full logs.
+- The logic of the function must execute in a maximum of 11 million instructions, which can be tested locally using function-runner.
+- At runtime, a function can't exceed the following memory limits:
+  - Linear memory limit: 10 MB
+  - Stack memory limit: 512 kB
+- A function's input cannot exceed 64,000 bytes in size.
+- A function's output can't exceed 20 kB in size.
+- An app can deploy a maximum of 50 functions.
+- Network access isn't supported. For example, you can't send HTTP requests to your app's backend as part of the function's logic. However, you can pre-populate data by using metafields on products and customers, or passing data using cart attributes.
+
+Next steps
+- Learn about how Shopify Functions work and the benefits of using Shopify Functions.
+- Learn about how data is input to and output from Shopify Functions.
+
+--- document divider ---
+
+Build a discounts experience
+
+In this tutorial series, you'll use Shopify Functions to create a new discount type called "Volume discount" that offers a percentage off when customers purchase more than the minimum quantity of each product. You'll end up with a working discounts sample app to build your functionality.
+
+What you'll learn:
+- Set up your environment to use functions.
+- Create a product discount function.
+- Add configuration to your product discount using metafields.
+- Build a product discount user interface with App Bridge.
+
+Requirements:
+- You've created a Partner account.
+- You've created a development store.
+- You've created an app that uses Shopify CLI 3.0 or higher.
+- If you plan to create a UI for your extension, then start with the Remix app template.
+- You've installed Node.js 16 or higher.
+- You've installed your app on the development store.
+
+Rust-specific requirements:
+- You've installed Rust.
+- You've installed cargo-wasi.
+
+Sample code:
+If you want to quickly get started, then you can get the sample code by completing the following steps. The tutorial series describes the sample code step by step.
+
+Tutorial series:
+Follow the tutorial series to go from "Hello World" to a fully built out discounts experience.
+
+Developer tools and resources:
+Explore the following developer tools and resources to get familiar with building discount experiences.
+
+Next steps:
+- Get started with building a discounts experience.
+
+--- document divider ---
+
+A post-purchase product offer is an additional sales opportunity that's displayed to customers immediately after they complete checkout. This guide introduces post-purchase checkout extensions, which allow merchants to add a post-purchase page directly into the Shopify checkout.
+
+The post-purchase page appears after the order is confirmed, but before the thank you page. You can use a post-purchase extension to add custom content such as upsell offers, survey requests, feedback requests, donation requests, discount code offers, loyalty sign-ups, and important notifications.
+
+Post-purchase checkout extensions use App Bridge Checkout, a technology that hosts your extension on Shopify's CDN and integrates directly into the Shopify checkout. App Bridge Checkout includes a set of consistent UI components, targets, and development tools.
+
+Follow this tutorial series to learn how to build post-purchase experiences.
+
+Explore the following developer tools and resources to get familiar with building post-purchase experiences.
+
+The following limitations and considerations for post-purchase checkout extensions apply:
+
+The post-purchase page shouldn't be used as a replacement for the order status page.
+
+The post-purchase checkout extension APIs aren't versioned and don't follow the Shopify API versioning quarterly release schedule.
+
+Get started building a post-purchase checkout extension.
+
+--- document divider ---
+
+A trigger is a task in Shopify Flow that starts the execution of a workflow. The trigger represents an event that happens in a store or in an app. You can build a trigger for Shopify Flow so that events in your app trigger workflows to run.
+
+Triggers that use the "customer" Shopify property are also available to Shopify marketing automations.
+
+To build a trigger, you need to create a trigger extension in your app. In that extension, you specify details about the trigger using a TOML file. Once you have published your extension, you can then test or use it by calling the Shopify API with the trigger payload.
+
+--- document divider ---
+
+Action overview
+
+How actions work
+An action is a workflow component in Shopify Flow. It represents a task that's executed in a store or in an app when certain conditions are met. You can connect your app to Shopify Flow so that your app receives data when a workflow action runs.
+This guide shows you how to add an action to your app so that users can use it in their workflows.
+
+Next steps
+Follow our step by step guide on how to create and test a Flow action.
+Check out our action endpoint guide for more information on how to setup an execution endpoint, a custom configuration page preview endpoint and custom validation.
+Interested in building a custom configuration page? Follow this guide to learn more.
+
+--- document divider ---
+
+You can receive webhooks from Shopify Flow about the stores that are using your triggers in enabled workflows. You can then use this data to make your app more efficient and reduce running the flowTriggerReceive mutation.
+
+This guide shows you how to configure your app to receive trigger use webhooks from Shopify Flow.
+
+How trigger usage webhooks work
+Trigger usage webhooks contain identifying information about the trigger and the store that's using it, and indicate whether the trigger is being used. You can use this information to track the stores that are currently using your triggers, and then send trigger requests to only those stores.
+
+Properties
+The trigger usage webhook (HTTP POST request) is formatted in JSON and it contains the following properties:
+
+- Property: flow_trigger_definition_id, Data type: String, Description: The unique identifier for your Shopify Flow trigger.
+- Property: has_enabled_flow, Data type: Boolean, Description: Whether the store has an enabled workflow that uses your trigger.
+- Property: shop_id, Data type: Number, Description: The unique identifier for the Shopify store.
+- Property: shopify_domain, Data type: String, Description: The myshopify domain of the Shopify store.
+- Property: timestamp, Data type: ISO 8601 date and timestamp, Description: The time when the notification was created.
+
+Webhook events
+Shopify Flow sends trigger usage webhooks when the following events occur:
+
+- A user enables a workflow that uses your trigger.
+- Your web server sends a trigger to a store and that store doesn't have a workflow that uses your trigger.
+
+Web server response time and status codes
+When a user tries to enable a workflow that uses your trigger, Shopify Flow sends a trigger usage webhook to your web server.
+
+If your web server doesn't respond within 5 seconds, or if it responds with a different status code, then the user can't enable that workflow. The user receives a notification in the Shopify Flow app that tells them to try enabling the workflow at a later time.
+
+1. Configure your web server
+To begin, configure your web server to listen for Shopify Flow webhooks.
+
+2. Process and store webhook data
+After you've added support to listen for Shopify Flow webhooks, you can configure your web server to process and store the webhook data.
+
+3. Configure the webhook
+Finally, configure the webhook in your Partner Dashboard. When a user enables or disables a workflow that uses your trigger, a webhook is sent from Shopify Flow to your web server.
+
+Next steps
+- Familiarize yourself with Shopify Flow and learn about building connectors.
+- Connect your app to Shopify Flow so that events that occur in your app can trigger workflows.
+- Connect your app to Shopify Flow so that your app receives data and information when a workflow action runs.
+
+--- document divider ---
+
+Theme app extensions allow merchants to easily add dynamic elements to their themes without having to interact with Liquid templates or code. For example, dynamic elements can include product reviews, prices, ratings, or interactive 3D models of products. Theme app extensions can integrate with Online Store 2.0 themes, such as the default Dawn theme, which is Shopify's Online Store 2.0 reference theme.
+
+Benefits of using theme app extensions:
+- Theme app extensions automatically expose your app in the theme editor. You can leverage the editor’s visual editing capabilities without needing to replicate them in your app.
+- You can deploy your app at the same time to all online stores that use it. You also have access to versioning, and asset hosting on the Shopify CDN.
+- A single set of integration logic and instructions works for all themes.
+- Merchants won't need to manually edit their theme code.
+
+Theme app extensions resources include:
+- Blocks - Liquid files that act as the entry point for what you want to inject in a theme. The following block types are supported: App blocks, App embed blocks.
+- Assets - CSS, JavaScript, and other static app content that gets injected into themes.
+- Snippets - Reusable Liquid snippets that can be used across multiple blocks.
+
+Designing for the best merchant experience:
+- Apps built in the theme app extension framework don't edit theme code, which decreases the risk of introducing breaking changes to the theme, makes it easier to iterate on the content of the integration, and provides for a better merchant experience.
+- Merchants can use the theme editor to configure exposed settings and add app blocks in theme sections for precise positioning in a page's layout.
+
+Resources:
+- Dawn: Explore Shopify's Online Store 2.0 reference theme, built to support app blocks.
+- Shopify CLI: Learn about Shopify CLI, which is used for creating and registering theme app extensions and for version control.
+
+Next steps:
+- Get started with theme app extensions
+- Review the theme app extensions framework
+- Understand the UX guidelines for theme app extensions
+- Update your app to use theme app extensions
+
+--- document divider ---
+
+Create a payments app
+
+A public app becomes a payments app after you've configured your payments app extension, submitted it for approval, and published a version. When you publish your payments app, your app becomes available, and merchants can install and use the app in their Shopify stores.
+
+Payments app extensions are a mechanism that enables apps to support additional features. Payments apps rely on this mechanism in order to offer payments capabilities. There are two types of payments app extensions: offsite payments app extensions and credit card payments app extensions. Each extension allows an app to support a payment method.
+
+A given app can have only one payments app extension. If you want to offer both offsite and onsite credit card payments, then you need to create two apps, and associate one payments app extension to each app.
+
+Offsite payments app extensions enable a payments app to support offsite payment flows.
+
+When a store enables your offsite payments app and a buyer selects your payment method, the buyer is redirected to a webpage that's hosted by your payments app where you can collect the buyer's payment information, confirm the payment, and then redirect the buyer back to Shopify to finalize the order.
+
+Learn more about the offsite payment flow.
+
+Note: If your payments app supports authorization, then you should provide a capture session URL and void session URL. If your payments app doesn't support authorization, then leave the capture session URL and void session URL fields empty.
+
+Offsite payments app extension:
+- Payment session URL (Required): The URL that receives payment and order details from the checkout.
+- Refund session URL (Required): The URL that refund session requests are sent to.
+- Capture session URL: The URL that capture session requests are sent to. This is only used if your payments app supports merchant manual capture or void payments.
+- Void session URL: The URL that void session requests are sent to. This is only used if your payments app supports merchant manual capture or void payments.
+- Multiple capture (Closed Beta): Enables merchants using your payment provider app to partially capture an authorized payment multiple times up to the full authorization amount.
+- Buyer features: The customer features that your payments app offers. 3D Secure support is mandated in some instances. For example, you must select the 3D Secure buyer feature checkbox if you plan to support credit card payments in countries which have mandated 3D Secure.
+- Payment methods (Required): The payment methods (for example, Visa) that are available with your payments app.
+- Available countries (Required): The countries where your payments app is available.
+- Merchant admin name (Required): The name for your payment provider app. This name is displayed to merchants in the Shopify admin when they search for payment methods to add to their store. Limited to 50 characters.
+- Checkout name: The name of the checkout. Your checkout name can be the same as your Merchant admin name or it can be customized for customers. This name is displayed with the payment methods that you support in the customer checkout. After a checkout name has been set, translations should be provided for localization.
+- Test mode (Required): Enables merchants using your payments app to test their setup by simulating transactions. To test your app on a development store, your alternative payment provider in the Shopify admin must be set to test mode.
+- API version (Required): The Payments Apps GraphQL API version used by the payment provider app to receive requests from Shopify. You must use the same API version for sending GraphQL requests. You must not use unstable in production. API versions are updated in accordance with Shopify's general API versioning timelines.
+
+Credit card payments app extensions allow a payments app to be rendered as an onsite payment method in checkout. It supports configuration to manage credit card payments and 3DS authentication.
+
+When a store enables your credit card payments app and a buyer selects your payment method, the buyer can input their credit card information into a form shown in Shopify's checkout. Upon submission, the credit card information is sent to the payments app that processes the payments.
+
+Learn more about the credit card payment flow.
+
+Credit card payments app extension:
+- Payment session URL (Required): The URL that receives payment and order details from the checkout.
+- Refund session URL (Required): The URL that refund session requests are sent to.
+- Capture session URL (Required): The URL that capture session requests are sent to.
+- Void session URL (Required): The URL that void session requests are sent to.
+- Confirm session URL: The URL that confirm session requests are sent to. This URL is required if your payments app supports 3-D Secure authentication.
+- Multiple capture (Closed Beta): Enables merchants using your payment provider app to partially capture an authorized payment multiple times up to the full authorization amount.
+- Buyer features: The customer features that your payments app offers. 3D Secure support is mandated in some instances. For example, you must select the 3D Secure buyer feature checkbox if you plan to support credit card payments in countries which have mandated 3D Secure.
+- Payment methods (Required): The payment methods (for example, Visa) that are available with your payments app.
+- Available countries (Required): The countries where your payments app is available.
+- Merchant admin name (Required): The name for your payment provider app. This name is displayed to merchants in the Shopify admin when they search for payment methods to add to their store. Limited to 50 characters.
+- Checkout name: The name of the checkout. Your checkout name can be the same as your Merchant admin name or it can be customized for customers. This name is displayed with the payment methods that you support in the customer checkout. After a checkout name has been set, translations should be provided for localization.
+- Test mode (Required): Enables merchants using your payments app to test their setup by simulating transactions. To test your app on a development store, your alternative payment provider in the Shopify admin must be set to test mode.
+- Encryption Certificate (Required): The certificate that Shopify uses to generate the ephemeral key and encrypt the credit card information of the customer. Refer to manage encryption certificates section to learn more.
+- API version (Required): The Payments Apps GraphQL API version used by the payment provider app to receive requests from Shopify. You must use the same API version for sending GraphQL requests. You must not use unstable in production. API versions are updated in accordance with Shopify's general API versioning timelines.
+
+Next steps:
+- Learn how to manage payments app extensions.
+- Learn how to manage encryption certificates for onsite credit card payments apps.

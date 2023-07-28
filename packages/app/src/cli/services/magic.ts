@@ -6,17 +6,15 @@ import {z} from 'zod'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai'
 import {createStructuredOutputChainFromZod} from 'langchain/chains/openai_functions'
 import {ChatOpenAI} from 'langchain/chat_models/openai'
-import {readFile} from '@shopify/cli-kit/node/fs'
-import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter'
-import {StuffDocumentsChain} from 'langchain/chains'
+import {fileExistsSync, readFile, writeFile} from '@shopify/cli-kit/node/fs'
+import {RecursiveCharacterTextSplitter, TokenTextSplitter} from 'langchain/text_splitter'
+import {LLMChain, StuffDocumentsChain} from 'langchain/chains'
 import {fetch} from '@shopify/cli-kit/node/http'
 import {packageDirectory} from 'pkg-dir'
 import clipboard from 'clipboardy'
 import {PineconeStore} from 'langchain/vectorstores/pinecone'
 import {PineconeClient} from '@pinecone-database/pinecone'
 import {fileURLToPath} from 'url'
-import { TokenTextSplitter } from 'langchain/text_splitter'
-
 
 const zodSchema = z.object({
   command: z.string().describe('The command the developer should run to reach their goal.'),
@@ -63,42 +61,51 @@ export async function magic({regenerateEmbeddings = false}) {
       {
         title: 'Creating embeddings',
         task: async () => {
-          const docsUrls = [
-            'https://shopify.dev/docs/apps/tools/cli',
-            'https://shopify.dev/docs/apps/tools/cli/commands',
-            'https://shopify.dev/docs/apps/tools/cli/structure',
-            'https://shopify.dev/docs/apps/tools/cli/existing',
-            'https://shopify.dev/docs/apps/app-extensions/list',
-            'https://shopify.dev/docs/apps/marketing/pixels',
-            'https://shopify.dev/docs/apps/admin/admin-actions-and-blocks',
-            'https://shopify.dev/docs/apps/app-extensions/getting-started',
-            'https://shopify.dev/docs/apps/marketing/marketing-activities',
-            'https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions',
-            'https://shopify.dev/docs/apps/tools/cli/managing-app-configuration-files',
-            'https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create',
-            'https://shopify.dev/docs/api/functions',
-            'https://shopify.dev/docs/apps/selling-strategies/discounts/experience',
-            'https://shopify.dev/docs/apps/checkout/product-offers/post-purchase',
-            'https://shopify.dev/docs/apps/flow/triggers',
-            'https://shopify.dev/docs/apps/flow/actions',
-            'https://shopify.dev/docs/apps/flow/lifecycle-events',
-            'https://shopify.dev/docs/apps/online-store/theme-app-extensions',
-            'https://shopify.dev/docs/apps/payments/create-a-payments-app',
-          ]
+          let aiProcessedTexts
 
-          const splitter = RecursiveCharacterTextSplitter.fromLanguage('html', {
-            chunkSize: 2000,
-            chunkOverlap: 200,
-          })
+          if (fileExistsSync('ai-processed-docs.txt')) {
+            aiProcessedTexts = await readFile('ai-processed-docs.txt')
+            aiProcessedTexts = aiProcessedTexts.split('\n\n--- document divider ---\n\n')
+          } else {
+            const docsUrls = [
+              'https://shopify.dev/docs/apps/tools/cli',
+              'https://shopify.dev/docs/apps/tools/cli/commands',
+              'https://shopify.dev/docs/apps/tools/cli/structure',
+              'https://shopify.dev/docs/apps/tools/cli/existing',
+              'https://shopify.dev/docs/apps/app-extensions/list',
+              'https://shopify.dev/docs/apps/marketing/pixels',
+              'https://shopify.dev/docs/apps/admin/admin-actions-and-blocks',
+              'https://shopify.dev/docs/apps/app-extensions/getting-started',
+              'https://shopify.dev/docs/apps/marketing/marketing-activities',
+              'https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions',
+              'https://shopify.dev/docs/apps/tools/cli/managing-app-configuration-files',
+              'https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create',
+              'https://shopify.dev/docs/api/functions',
+              'https://shopify.dev/docs/apps/selling-strategies/discounts/experience',
+              'https://shopify.dev/docs/apps/checkout/product-offers/post-purchase',
+              'https://shopify.dev/docs/apps/flow/triggers',
+              'https://shopify.dev/docs/apps/flow/actions',
+              'https://shopify.dev/docs/apps/flow/lifecycle-events',
+              'https://shopify.dev/docs/apps/online-store/theme-app-extensions',
+              'https://shopify.dev/docs/apps/payments/create-a-payments-app',
+            ]
 
-          const texts: string[] = []
-          for (const url of docsUrls) {
-            const data = await scrapeData(url)
-            const cleanedData = await cleanData(data)
-            texts.concat(cleanedData)
+            let texts: string[] = []
+            for (const url of docsUrls) {
+              // eslint-disable-next-line no-await-in-loop
+              const data = await scrapeData(url)
+              // eslint-disable-next-line no-await-in-loop
+              const cleanedData = await cleanData(data)
+              texts = [...texts, ...cleanedData]
+            }
+
+            // write texts to disk
+            await writeFile('ai-processed-docs.txt', texts.join('\n\n--- document divider ---\n\n'))
+            aiProcessedTexts = texts
           }
 
-          const docs = await splitter.createDocuments(texts)
+          const splitter = new RecursiveCharacterTextSplitter()
+          const docs = await splitter.createDocuments(aiProcessedTexts)
 
           vectorStore = await PineconeStore.fromDocuments(docs, new OpenAIEmbeddings(), {
             pineconeIndex,
@@ -141,14 +148,20 @@ export async function magic({regenerateEmbeddings = false}) {
 }
 
 async function scrapeData(url: string) {
+  // eslint-disable-next-line no-console
   console.log(`Scraping ${url}`)
-  // eslint-disable-next-line no-await-in-loop
   const response = await fetch(url)
-  // eslint-disable-next-line no-await-in-loop
   const text = await response.text()
   // keep only the <main> tag from the text
   const mainTag = text.match(/<main.*?>([\s\S]*?)<\/main>/)
-  return mainTag && mainTag[1] ? mainTag[1] : ''
+
+  if (mainTag && mainTag[1]) {
+    return mainTag[1]
+  } else {
+    // eslint-disable-next-line no-console
+    console.log(`No main tag found for ${url}`)
+    return ''
+  }
 }
 
 async function cleanData(data: string) {
@@ -178,63 +191,59 @@ async function cleanData(data: string) {
 
   const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(humanTemplate)
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-    'You are a web scraping expert. You are going to determine the most important details in a html document and eliminate the noise.'
+    'You are a web scraping expert. You are going to determine the most important details in a html document and eliminate the noise.',
   )
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([systemMessagePrompt, humanMessagePrompt])
 
-  const zodSchemaForCleaningData = z.object({
-    body: z.string().describe('The cleaned up body of the page.'),
-  })
-
   const llm = new ChatOpenAI({
     temperature: 0,
-    modelName: 'gpt-3.5-turbo-16k-0613',
+    modelName: 'gpt-3.5-turbo-16k',
   })
 
-  const chain = createStructuredOutputChainFromZod(zodSchemaForCleaningData, {
+  const chain = new LLMChain({
     llm,
     prompt: chatPrompt,
   })
 
-  const execPrompt = async (existingBody: string, pageContent: string) => {
-    await chain.call({
-      existingBody,
-      pageContent,
-    })
-  }
-
-  // Gpt-3.5 has a token limit of 4096
-  const tokenLimit = 4096
-  const existingBodyLength = 240  // To provide some context of what was previously processed
+  // gpt-3.5-turbo-16k has a token limit of 16384
+  const tokenLimit = 16384
+  // To provide some context of what was previously processed
+  const existingBodyLength = 240
   const chunkSize = (tokenLimit - humanTemplate.length - existingBodyLength) / 2
   const splitter = new TokenTextSplitter({
     chunkSize,
-    chunkOverlap: 0
+    chunkOverlap: 0,
   })
   const splitDocs = await splitter.createDocuments([data])
 
-  const backOffPeriod = 10
+  const backOffPeriod = 2
   const cleanedData = []
   let existingBody = ''
   for (let i = 0; i < splitDocs.length; i++) {
+    // eslint-disable-next-line no-console
     console.log(`Processing chunk ${i + 1}`)
     const doc = splitDocs[i]
     let result
     try {
+      // eslint-disable-next-line no-await-in-loop
       result = await chain.call({
         existingBody,
         pageContent: doc!.pageContent,
       })
+      // eslint-disable-next-line no-await-in-loop
       await sleep(backOffPeriod)
+      // eslint-disable-next-line no-catch-all/no-catch-all
     } catch (error) {
       // Most likely due to OpenAI's rate limit
+      // eslint-disable-next-line no-console
       console.log(`Error: ${error}`)
+      // eslint-disable-next-line no-await-in-loop
       await sleep(backOffPeriod)
       continue
     }
 
     existingBody = doc!.pageContent.slice(-existingBodyLength)
-    cleanedData.push(result.output.body)
+    cleanedData.push(result.text)
   }
   return cleanedData as string[]
 }
