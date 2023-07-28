@@ -6,7 +6,6 @@ import {AppInterface} from '../../../models/app/app.js'
 import {updateExtensionConfig, updateExtensionDraft} from '../update-extension.js'
 import {buildFunctionExtension} from '../../../services/build/extension.js'
 import {ExtensionInstance} from '../../../models/extensions/extension-instance.js'
-import {updateAppModules} from '../../dev.js'
 import {AbortController, AbortSignal} from '@shopify/cli-kit/node/abort'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
@@ -139,34 +138,39 @@ export async function setupDraftableExtensionBundler({
   signal,
   unifiedDeployment,
 }: SetupDraftableExtensionBundlerOptions) {
-  return bundleExtension({
-    minify: false,
-    outputPath: extension.outputPath,
-    environment: 'development',
-    env: {
-      ...(app.dotenv?.variables ?? {}),
-      APP_URL: url,
-    },
-    stdin: {
-      contents: extension.getBundleExtensionStdinContent(),
-      resolveDir: extension.directory,
-      loader: 'tsx',
-    },
-    stderr,
-    stdout,
-    watchSignal: signal,
+  const {default: chokidar} = await import('chokidar')
 
-    watch: async (result) => {
-      const error = (result?.errors?.length ?? 0) > 0
-      outputInfo(
-        `The Javascript bundle of "${extension.handle}" has ${error ? 'an error' : 'changed'}`,
-        error ? stderr : stdout,
-      )
-      if (error) return
+  const configWatcher = chokidar.watch(extension.directory).on('change', (_event, _path) => {
+    outputInfo(`File change detected: ${_event}`, stdout)
+    outputInfo(`Change detected for ${extension.handle}`, stdout)
+    updateExtensionConfig({
+      app,
+      extension,
+      token,
+      adminSession,
+      apiKey,
+      registrationId,
+      stdout,
+      stderr,
+      unifiedDeployment,
+    }).catch((_: unknown) => {})
+  })
 
-      await updateAppModules({app, extensions: [extension], adminSession, token, apiKey, stdout})
-      // await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
-    },
+  signal.addEventListener('abort', () => {
+    outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)
+
+    configWatcher
+      .close()
+      .then(() => {
+        outputDebug(`Config file watching closed for extension with ${extension.devUUID}`, stdout)
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((error: any) => {
+        outputDebug(
+          `Config file watching failed to close for extension with ${extension.devUUID}: ${error.message}`,
+          stderr,
+        )
+      })
   })
 }
 
@@ -197,7 +201,16 @@ export async function setupConfigWatcher({
 }: SetupConfigWatcherOptions) {
   const {default: chokidar} = await import('chokidar')
 
+  // const anotherWatcher = chokidar.watch(extension.directory, {}).on('unlinkDir', (_event: unknown, _path: unknown) => {
+  //   console.log(_path)
+  //   console.log(extension.directory)
+  //   if (_path === extension.directory) {
+  //     outputInfo(`Deleting extension ${extension.handle}`, stdout)
+  //   }
+  // })
+
   const configWatcher = chokidar.watch(extension.configurationPath).on('change', (_event, _path) => {
+    outputInfo(`Event detected ${_event}`)
     outputInfo(`Config file at path ${extension.configurationPath} changed`, stdout)
     updateExtensionConfig({
       app,
@@ -214,6 +227,7 @@ export async function setupConfigWatcher({
 
   signal.addEventListener('abort', () => {
     outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)
+
     configWatcher
       .close()
       .then(() => {
