@@ -3,7 +3,7 @@ import {gql} from 'graphql-request'
 export const DevSessionDeleteAppModulesMutation = gql`
   mutation devSessionDeleteAppModules($apiKey: String!, $moduleUuidsToDelete: [String!]!) {
     devSessionDeleteAppModules(apiKey: $apiKey, moduleUuidsToDelete: $moduleUuidsToDelete) {
-      deleted_uuids
+      deletedUuids
     }
   }
 `
