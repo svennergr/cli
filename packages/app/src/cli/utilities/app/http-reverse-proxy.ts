@@ -3,6 +3,7 @@ import {RenderConcurrentOptions} from '@shopify/cli-kit/node/ui'
 import {getAvailableTCPPort} from '@shopify/cli-kit/node/tcp'
 import {AbortController, AbortSignal} from '@shopify/cli-kit/node/abort'
 import {OutputProcess, outputDebug, outputContent, outputToken, outputWarn} from '@shopify/cli-kit/node/output'
+import {AdminSession} from '@shopify/cli-kit/node/session'
 import {Writable} from 'stream'
 import * as http from 'http'
 
@@ -44,6 +45,8 @@ interface Options {
   portNumber: number
   proxyTargets: ReverseHTTPProxyTarget[]
   additionalProcesses: OutputProcess[]
+  ephemeralAppId?: string
+  adminSession: AdminSession
 }
 
 /**
@@ -60,6 +63,8 @@ export async function runConcurrentHTTPProcessesAndPathForwardTraffic({
   portNumber,
   proxyTargets,
   additionalProcesses,
+  ephemeralAppId,
+  adminSession,
 }: Options): Promise<void> {
   // Lazy-importing it because it's CJS and we don't want it
   // to block the loading of the ESM module graph.
@@ -132,7 +137,10 @@ ${outputToken.json(JSON.stringify(rules))}
     abortSignal: abortController.signal,
   }
 
-  await Promise.all([renderDev(renderConcurrentOptions, previewUrl), server.listen(portNumber)])
+  await Promise.all([
+    renderDev(renderConcurrentOptions, previewUrl, adminSession, ephemeralAppId),
+    server.listen(portNumber),
+  ])
 }
 
 function match(rules: {[key: string]: string}, req: http.IncomingMessage, websocket = false) {

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {PartnersURLs} from './urls.js'
 import {AppInterface, isCurrentAppSchema} from '../../models/app/app.js'
 import {OrganizationApp} from '../../models/organization.js'
@@ -10,6 +9,7 @@ import {openURL} from '@shopify/cli-kit/node/system'
 import {basename} from '@shopify/cli-kit/node/path'
 import {adminRequest} from '@shopify/cli-kit/node/api/admin'
 import {AdminSession} from '@shopify/cli-kit/node/session'
+import {outputSuccess, outputWarn} from '@shopify/cli-kit/node/output'
 
 export async function outputUpdateURLsResult(
   updated: boolean,
@@ -72,11 +72,16 @@ export function renderDev(
           openURL(previewUrl)
         } else if (input === 'q') {
           if (typeof ephemeralAppId !== 'undefined' && typeof adminSession !== 'undefined') {
-            deleteDevSession(adminSession, ephemeralAppId).catch((err) => {
-              console.log(`Could not delete dev session. Error: ${err}`)
-            })
+            deleteDevSession(adminSession, ephemeralAppId)
+              .catch((err) => {
+                outputWarn(`Could not delete dev session. Error: ${err}`)
+              })
+              .finally(() => {
+                exit()
+              })
+          } else {
+            exit()
           }
-          exit()
         }
       },
       footer: {
@@ -107,16 +112,9 @@ async function partnersURL(organizationId: string, appId: string) {
 }
 
 async function deleteDevSession(adminSession: AdminSession, devSessionId: string) {
-  // 1. delete the dev session via the Admin API
-  console.log('Deleting dev session...')
   const devSessionDeleteResponse: DevSessionDeleteSchema = await adminRequest(DevSessionDeleteMutation, adminSession, {
     id: devSessionId,
   })
 
-  // 2. handle errors in DevSessionDeleteSchema
-  if (devSessionDeleteResponse.userErrors.length > 0) {
-    console.log(devSessionDeleteResponse.userErrors)
-  } else {
-    console.log(`Successfully deleted dev with ID: ${devSessionId}`)
-  }
+  outputSuccess(`Cleaned up dev session`)
 }

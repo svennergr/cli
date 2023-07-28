@@ -59,7 +59,7 @@ export async function buildThemeExtension(extension: ExtensionInstance, options:
  * @param options - Build options.
  */
 export async function buildUIExtension(extension: ExtensionInstance, options: ExtensionBuildOptions): Promise<void> {
-  options.stdout.write(`Bundling UI extension ${extension.localIdentifier}...`)
+  options.stdout.write(`Bundling ${extension.handle}...`)
 
   await bundleExtension({
     minify: true,
@@ -77,7 +77,7 @@ export async function buildUIExtension(extension: ExtensionInstance, options: Ex
 
   await extension.buildValidation()
 
-  options.stdout.write(`${extension.localIdentifier} successfully built`)
+  options.stdout.write(`${extension.handle} successfully built`)
 }
 
 export interface BuildFunctionExtensionOptions extends ExtensionBuildOptions {}

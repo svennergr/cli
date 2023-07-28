@@ -1,8 +1,8 @@
 import {gql} from 'graphql-request'
 
 export const DevSessionCreateMutation = gql`
-  mutation DevSessionCreate($title: String!, $scopes: [String!]) {
-    devSessionCreate(input: {title: $title, scopes: $scopes}) {
+  mutation DevSessionCreate($title: String!, $scopes: [String!], $application: String!) {
+    devSessionCreate(input: {title: $title, scopes: $scopes, application: $application}) {
       app {
         apiKey
         title
@@ -15,6 +15,7 @@ export const DevSessionCreateMutation = gql`
 export interface DevSessionCreateVariables {
   title: string
   scopes: string[]
+  application: string
 }
 
 export interface DevSessionCreateSchema {

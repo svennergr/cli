@@ -159,12 +159,12 @@ export async function setupDraftableExtensionBundler({
     watch: async (result) => {
       const error = (result?.errors?.length ?? 0) > 0
       outputInfo(
-        `The Javascript bundle of the extension with ID ${extension.devUUID} has ${error ? 'an error' : 'changed'}`,
+        `The Javascript bundle of "${extension.handle}" has ${error ? 'an error' : 'changed'}`,
         error ? stderr : stdout,
       )
       if (error) return
 
-      await updateAppModules({app, extensions: [extension], adminSession, token, apiKey})
+      await updateAppModules({app, extensions: [extension], adminSession, token, apiKey, stdout})
       // await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
     },
   })

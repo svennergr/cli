@@ -24,9 +24,11 @@ export interface DevSessionUpdateVariables {
 }
 
 export interface DevSessionUpdateSchema {
-  appPackageUuids: string
-  userErrors: {
-    field: string[]
-    message: string
-  }[]
+  devSessionUpdate: {
+    appPackageUuids: string
+    userErrors: {
+      field: string[]
+      message: string
+    }[]
+  }
 }

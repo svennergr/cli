@@ -4,10 +4,6 @@ export const DevSessionDeleteMutation = gql`
   mutation devSessionDelete($id: ID!) {
     devSessionDelete(id: $id) {
       deletedAppId
-      userErrors {
-        field
-        message
-      }
     }
   }
 `
@@ -17,9 +13,7 @@ export interface DevSessionDeleteVariables {
 }
 
 export interface DevSessionDeleteSchema {
-  deletedAppId: string
-  userErrors: {
-    field: string[]
-    message: string
-  }[]
+  devSessionDelete: {
+    deletedAppId: string
+  }
 }

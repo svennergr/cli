@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {ensureDevContext} from './context.js'
 import {
   generateFrontendURL,
@@ -17,7 +16,7 @@ import {sendUninstallWebhookToAppServer} from './webhook/send-app-uninstalled-we
 import {setupConfigWatcher, setupDraftableExtensionBundler, setupFunctionWatcher} from './dev/extension/bundler.js'
 import {setCachedAppInfo} from './local-storage.js'
 import {renderDevPreviewWarning} from './extensions/common.js'
-import {bundleAndBuildExtensions} from './deploy/bundle.js'
+import {bundleAndBuildExtensionsInConcurrent} from './deploy/bundle.js'
 import {
   ReverseHTTPProxyTarget,
   runConcurrentHTTPProcessesAndPathForwardTraffic,
@@ -40,7 +39,7 @@ import {HostThemeManager} from '../utilities/host-theme-manager.js'
 
 import {ExtensionInstance} from '../models/extensions/extension-instance.js'
 import {DevSessionGenerateUrlMutation, DevSessionGenerateUrlSchema} from '../api/graphql/dev_session_generate_url.js'
-import {DevSessionUpdateMutation, DevSessionUpdateSchema} from '../api/graphql/dev_session_update.js'
+import {DevSessionUpdateMutation} from '../api/graphql/dev_session_update.js'
 import {DevSessionCreateMutation, DevSessionCreateSchema} from '../api/graphql/dev_session_create.js'
 import {Config} from '@oclif/core'
 import {reportAnalyticsEvent} from '@shopify/cli-kit/node/analytics'
@@ -56,7 +55,7 @@ import {
   ensureAuthenticatedPartners,
   ensureAuthenticatedStorefront,
 } from '@shopify/cli-kit/node/session'
-import {OutputProcess} from '@shopify/cli-kit/node/output'
+import {OutputProcess, outputInfo, outputSuccess} from '@shopify/cli-kit/node/output'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {getBackendPort} from '@shopify/cli-kit/node/environment'
 import {renderWarning} from '@shopify/cli-kit/node/ui'
@@ -95,55 +94,74 @@ export interface UpdateAppModulesOptions {
   adminSession: AdminSession
   token: string
   apiKey: string
+  stdout?: Writable
 }
 
-export async function updateAppModules({app, extensions, adminSession, token, apiKey}: UpdateAppModulesOptions) {
+export async function updateAppModules({
+  app,
+  extensions,
+  adminSession,
+  token,
+  apiKey,
+  stdout,
+}: UpdateAppModulesOptions) {
   await inTemporaryDirectory(async (tmpDir) => {
-    console.log('here1', adminSession, apiKey)
-    const signedUrlResult: DevSessionGenerateUrlSchema = await adminRequest(
-      DevSessionGenerateUrlMutation,
-      adminSession,
-      {
+    try {
+      const signedUrlResult: DevSessionGenerateUrlSchema = await adminRequest(
+        DevSessionGenerateUrlMutation,
+        adminSession,
+        {
+          apiKey,
+        },
+      )
+
+      const bundlePath = joinPath(tmpDir, `bundle.zip`)
+      await mkdir(dirname(bundlePath))
+      const identifiers = {app: apiKey, extensionIds: {}, extensions: {}}
+      await bundleAndBuildExtensionsInConcurrent({
+        app,
+        identifiers,
+        extensions,
+        bundlePath,
+        stdout:
+          stdout ??
+          new Writable({
+            write(chunk, ...args) {
+              // Do nothing if there is stdout
+            },
+          }),
+      })
+
+      const form = formData()
+      const buffer = readFileSync(bundlePath)
+      form.append('my_upload', buffer)
+      await fetch(signedUrlResult.generateDevSessionSignedUrl.signedUrl, {
+        method: 'put',
+        body: buffer,
+        headers: form.getHeaders(),
+      })
+
+      const appModules = await Promise.all(
+        extensions.flatMap((ext) => ext.bundleConfig({identifiers, token, apiKey, unifiedDeployment: true})),
+      )
+
+      await adminRequest(DevSessionUpdateMutation, adminSession, {
         apiKey,
-      },
-    )
+        appModules,
+        bundleUrl: signedUrlResult.generateDevSessionSignedUrl.signedUrl,
+      })
 
-    console.log(signedUrlResult)
+      const names = extensions.map((ext) => ext.localIdentifier).join(', ')
 
-    const bundlePath = joinPath(tmpDir, `bundle.zip`)
-    await mkdir(dirname(bundlePath))
-    const identifiers = {app: apiKey, extensionIds: {}, extensions: {}}
-    await bundleAndBuildExtensions({
-      app,
-      identifiers,
-      extensions,
-      bundlePath,
-    })
-
-    console.log('here2')
-
-    const form = formData()
-    const buffer = readFileSync(bundlePath)
-    form.append('my_upload', buffer)
-    await fetch(signedUrlResult.generateDevSessionSignedUrl.signedUrl, {
-      method: 'put',
-      body: buffer,
-      headers: form.getHeaders(),
-    })
-
-    const appModules = await Promise.all(
-      extensions.flatMap((ext) => ext.bundleConfig({identifiers, token, apiKey, unifiedDeployment: true})),
-    )
-
-    console.log(appModules)
-
-    const udpateResult: DevSessionUpdateSchema = await adminRequest(DevSessionUpdateMutation, adminSession, {
-      apiKey,
-      appModules,
-      bundleUrl: signedUrlResult.generateDevSessionSignedUrl.signedUrl,
-    })
-
-    console.log(udpateResult)
+      if (stdout) {
+        outputInfo(`Updated app modules: ${names}`, stdout)
+      } else {
+        outputSuccess(`Ephemeral dev session is ready`)
+      }
+      // eslint-disable-next-line no-catch-all/no-catch-all
+    } catch (error) {
+      outputInfo(`Failed to update app modules: ${error}`, stdout)
+    }
   })
 }
 
@@ -168,25 +186,6 @@ async function dev(options: DevOptions) {
   const apiKey = remoteApp.apiKey
   const specifications = await fetchSpecifications({token, apiKey, config: options.commandConfig})
   let localApp = await loadApp({directory: options.directory, specifications, configName})
-
-  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
-
-  console.log(`admin session ${adminSession}`)
-
-  const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
-    title: 'my-app',
-    scopes: ['write_products'],
-  })
-
-  console.log('ephemeral app: ', ephemeralApp)
-
-  await updateAppModules({
-    app: localApp,
-    extensions: localApp.allExtensions,
-    adminSession,
-    token,
-    apiKey: ephemeralApp.devSessionCreate.app.apiKey,
-  })
 
   if (!options.skipDependenciesInstallation && !localApp.usesWorkspaces) {
     localApp = await installAppDependencies(localApp)
@@ -224,7 +223,6 @@ async function dev(options: DevOptions) {
     generateFrontendURL({
       ...options,
       app: localApp,
-      noTunnel: true,
       tunnelClient,
     }),
     getBackendPort() || backendConfig?.configuration.port || getAvailableTCPPort(),
@@ -247,6 +245,33 @@ async function dev(options: DevOptions) {
   // By default, preview goes to the direct URL for the app.
   let previewUrl = buildAppURLForWeb(storeFqdn, apiKey)
   let shouldUpdateURLs = false
+
+  // ///////////////////////////
+  // ///////////////////////////
+
+  const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
+
+  const ephemeralApp: DevSessionCreateSchema = await adminRequest(DevSessionCreateMutation, adminSession, {
+    title: 'my-app',
+    scopes: ['write_products'],
+    application: previewUrl,
+  })
+
+  if (!ephemeralApp.devSessionCreate.app) {
+    throw new AbortError(`Failed to create ephemeral app, you might have reached the limit of custom apps in your shop`)
+  }
+
+  // outputInfo(`Ephemeral app created: ${ephemeralApp.devSessionCreate.app.id}`)
+
+  await updateAppModules({
+    app: localApp,
+    extensions: localApp.allExtensions,
+    adminSession,
+    token,
+    apiKey: ephemeralApp.devSessionCreate.app.apiKey,
+  })
+  // ///////////////////////////
+  // ///////////////////////////
 
   if (frontendConfig || backendConfig) {
     if (options.update) {
@@ -338,21 +363,6 @@ async function dev(options: DevOptions) {
   }
 
   if (draftableExtensions.length > 0) {
-    // const identifiers = await ensureDeploymentIdsPresence({
-    //   app: localApp,
-    //   partnersApp: remoteApp,
-    //   appId: apiKey,
-    //   appName: remoteApp.title,
-    //   force: true,
-    //   deploymentMode,
-    //   token,
-    //   envIdentifiers: prodEnvIdentifiers,
-    // })
-
-    // if (isCurrentAppSchema(localApp.configuration)) {
-    //   await updateAppIdentifiers({app: localApp, identifiers, command: 'deploy'})
-    // }
-
     additionalProcesses.push(
       devDraftableExtensionTarget({
         app: localApp,
@@ -417,6 +427,7 @@ async function dev(options: DevOptions) {
     await renderDev(
       {
         processes: additionalProcesses,
+        keepRunningAfterProcessesResolve: true,
       },
       previewUrl,
       adminSession,
@@ -428,6 +439,8 @@ async function dev(options: DevOptions) {
       portNumber: proxyPort,
       proxyTargets,
       additionalProcesses,
+      ephemeralAppId: ephemeralApp.devSessionCreate.app.id,
+      adminSession,
     })
   }
 }
@@ -625,7 +638,7 @@ export function devDraftableExtensionTarget({
       //     await updateExtensionDraft({extension, token, apiKey, registrationId, stdout, stderr, unifiedDeployment})
       //   }),
       // )
-
+      outputInfo(`Watching for changes to draftable extensions...`, stdout)
       await Promise.all(
         extensions
           .map((extension) => {
