@@ -35,6 +35,7 @@
  plugins unlink                    @oclif/plugin-plugins        
  plugins update                    @oclif/plugin-plugins        
  theme check                       @shopify/theme               
+ theme console                     @shopify/theme               
  theme delete                      @shopify/theme               
  theme dev                         @shopify/theme               
  theme info                        @shopify/theme               

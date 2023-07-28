@@ -4,10 +4,11 @@ module ShopifyCLI
   module Theme
     class Repl
       class Api
-        attr_reader :ctx, :repl
+        attr_reader :ctx, :page, :repl
 
-        def initialize(ctx, repl)
+        def initialize(ctx, page, repl)
           @ctx = ctx
+          @page = page
           @repl = repl
         end
 
@@ -92,9 +93,9 @@ module ShopifyCLI
           return @api_uri if @api_uri
 
           uri_address = if Environment.theme_access_password?
-            "https://#{ThemeAccessAPI::BASE_URL}/cli/sfr"
+            "https://#{ThemeAccessAPI::BASE_URL}/cli/sfr#{page}"
           else
-            "https://#{shop}"
+            "https://#{shop}#{page}"
           end
 
           @api_uri = URI(uri_address)
