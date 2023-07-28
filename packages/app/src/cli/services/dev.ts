@@ -79,6 +79,7 @@ export interface DevOptions {
   theme?: string
   themeExtensionPort?: number
   notify?: string
+  persistentStorage: boolean
 }
 
 export interface UpdateAppModulesOptions {
@@ -166,6 +167,8 @@ async function dev(options: DevOptions) {
   if (!options.tunnelUrl && !options.noTunnel) {
     tunnelClient = await startTunnelPlugin(options.commandConfig, tunnelPort, 'cloudflare')
   }
+
+  const persistentStorage = options.persistentStorage
 
   const token = await ensureAuthenticatedPartners()
   const {
@@ -281,6 +284,7 @@ async function dev(options: DevOptions) {
     scopes: isLegacyAppSchema(localApp.configuration)
       ? localApp.configuration.scopes
       : localApp.configuration.access_scopes?.scopes,
+    persistentStorage,
     apiSecret,
     backendPort,
     frontendServerPort,
@@ -436,6 +440,7 @@ interface DevWebOptions {
   apiSecret?: string
   hostname?: string
   scopes?: string
+  persistentStorage?: boolean
 }
 
 async function devNonProxyTarget(options: DevWebOptions, port: number): Promise<OutputProcess> {
@@ -481,6 +486,7 @@ async function devProxyTarget(options: DevWebOptions): Promise<ReverseHTTPProxyT
   const env = {
     SHOPIFY_API_KEY: options.apiKey,
     SHOPIFY_API_SECRET: options.apiSecret,
+    IN_MEMORY: options.persistentStorage ? '' : '1',
     HOST: options.hostname,
     SCOPES: options.scopes,
     NODE_ENV: `development`,
