@@ -2,21 +2,29 @@ import useLayout from '../hooks/use-layout.js'
 import {Link, LinksContext} from '../contexts/LinksContext.js'
 import {Box, Text} from 'ink'
 import React, {FunctionComponent, useContext, useRef} from 'react'
+import {ForegroundColorName} from 'chalk'
 
-export type BannerType = 'success' | 'error' | 'warning' | 'info' | 'external_error'
+export type BannerType = 'success' | 'error' | 'warning' | 'info' | 'external_error' | 'magic'
 
 interface BannerProps {
   type: BannerType
 }
 
+type Colors = {
+  [key in BannerType]: ForegroundColorName | 'dim'
+}
+
+const colors: Colors = {
+  success: 'green',
+  error: 'red',
+  warning: 'yellow',
+  info: 'dim',
+  external_error: 'red',
+  magic: 'magenta',
+}
+
 function typeToColor(type: BannerProps['type']) {
-  return {
-    success: 'green',
-    error: 'red',
-    warning: 'yellow',
-    info: 'dim',
-    external_error: 'red',
-  }[type]
+  return colors[type]
 }
 
 const Footnotes = () => {

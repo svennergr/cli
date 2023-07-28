@@ -10,6 +10,7 @@ const typeToLogLevel: {[key in AlertProps['type']]: LogLevel} = {
   warning: 'warn',
   success: 'info',
   error: 'error',
+  magic: 'info',
 }
 
 const typeToLogger: {[key in AlertProps['type']]: Logger} = {
@@ -17,6 +18,7 @@ const typeToLogger: {[key in AlertProps['type']]: Logger} = {
   warning: consoleWarn,
   success: consoleLog,
   error: consoleError,
+  magic: consoleLog,
 }
 
 export interface AlertOptions extends AlertProps {

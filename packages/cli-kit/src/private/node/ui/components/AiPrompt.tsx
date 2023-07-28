@@ -4,7 +4,7 @@ import {TextAnimation} from './TextAnimation.js'
 import {Banner} from './Banner.js'
 import {handleCtrlC} from '../../ui.js'
 import useLayout from '../hooks/use-layout.js'
-import React, {FunctionComponent, useState} from 'react'
+import React, {FunctionComponent, useEffect, useState} from 'react'
 import {Box, useInput, Text, useStdout, useApp} from 'ink'
 
 export interface AiPromptProps {
@@ -19,6 +19,27 @@ export interface AiPromptProps {
 
 const loadingBarChar = '▀'
 
+const StreamingText = ({text: inputText}: {text: string}) => {
+  const fullText = inputText
+  const [text, setText] = useState('')
+
+  useEffect(() => {
+    setText('')
+    let index = 0
+    const intervalId = setInterval(() => {
+      setText((prevText) => prevText + fullText[index])
+      index++
+      if (index === fullText.length) {
+        clearInterval(intervalId)
+      }
+    }, 30)
+
+    return () => clearInterval(intervalId)
+  }, [fullText])
+
+  return <Text>{text}</Text>
+}
+
 const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriever, onSubmit}) => {
   const {oneThird} = useLayout()
   const [error, setError] = useState<string | undefined>(undefined)
@@ -32,13 +53,11 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
   const callChain = async (answer: string) => {
     const relevantDocs = await retriever.getRelevantDocuments(answer)
 
-    setLoading(true)
     const response = await chain.call({
       ...chainParams,
       input_documents: relevantDocs,
       user_prompt: answer,
     })
-    setLoading(false)
 
     return response
   }
@@ -53,12 +72,11 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
 
     if (key.return && answer) {
       setAnswer('')
+      setLoading(true)
       callChain(answer)
         .then((response) => {
+          setLoading(false)
           setAiAnswer({command: response.output.command})
-          // if (response.output.clarifying_question.length > 0) {
-          //   setQuestion(response.output.clarifying_question)
-          // }
         })
         .catch((error) => {
           setError(error.message)
@@ -76,15 +94,16 @@ const AiPrompt: FunctionComponent<AiPromptProps> = ({chain, chainParams, retriev
       <Box flexGrow={1} />
       <Box flexDirection="column" width={oneThird} marginBottom={1}>
         {aiAnswer ? (
-          <Banner type="info">
+          <Banner type="magic">
             <Box flexDirection="column" gap={1}>
-              <Text>
-                Suggested command: <TokenizedText item={aiAnswer} />
-              </Text>
-              <Text italic>Press Ctrl + r to copy the above command to the clipboard</Text>
+              <StreamingText
+                text={`Looks like you need \`${aiAnswer.command}\`.\n\nPress Ctrl + r to copy the above command to the clipboard.`}
+              />
             </Box>
           </Banner>
         ) : null}
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore */}
         {loading ? <TextAnimation text={loadingBar} /> : null}
         <Box>
           <Box marginRight={2}>

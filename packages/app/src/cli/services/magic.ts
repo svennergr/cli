@@ -18,14 +18,14 @@ import {fileURLToPath} from 'url'
 
 const zodSchema = z.object({
   command: z.string().describe('The command the developer should run to reach their goal.'),
-  clarifying_question: z.string().describe('A clarifying question to ask the user.'),
 })
 
 export async function magic({regenerateEmbeddings = false}) {
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-    "You are an assistant to a Shopify partner who is building an app with the Shopify CLI. If you don't know the answer, ask a clarifying question, don't try to make up an answer. ",
+    `You are an assistant to a Shopify partner who is building an app with the Shopify CLI.`,
   )
   const humanTemplate = `In the JSON below, delimited by \`\`\`json. you'll find the oclif manifests the Shopify CLI.
+  Commands in this json are defined separated by colons, but in the terminal, they are separated by spaces.
   \`\`\`json
   {oclif_manifests}
   \`\`\`
