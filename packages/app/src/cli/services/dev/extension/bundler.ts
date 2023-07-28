@@ -6,10 +6,12 @@ import {AppInterface} from '../../../models/app/app.js'
 import {updateExtensionConfig, updateExtensionDraft} from '../update-extension.js'
 import {buildFunctionExtension} from '../../../services/build/extension.js'
 import {ExtensionInstance} from '../../../models/extensions/extension-instance.js'
+import {DevSessionDeleteAppModulesMutation} from '../../../api/graphql/dev_session_delete_app_modules.js'
 import {AbortController, AbortSignal} from '@shopify/cli-kit/node/abort'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
 import {AdminSession} from '@shopify/cli-kit/node/session'
+import {adminRequest} from '@shopify/cli-kit/node/api/admin'
 import {Writable} from 'stream'
 
 export interface WatchEvent {
@@ -158,19 +160,16 @@ export async function setupDraftableExtensionBundler({
   })
 
   signal.addEventListener('abort', () => {
-    outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)
+    outputDebug(`Closing file watching for ${extension.handle}`, stdout)
 
     configWatcher
       .close()
       .then(() => {
-        outputDebug(`Config file watching closed for extension with ${extension.devUUID}`, stdout)
+        outputDebug(`File watching closed for ${extension.handle}`, stdout)
       })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .catch((error: any) => {
-        outputDebug(
-          `Config file watching failed to close for extension with ${extension.devUUID}: ${error.message}`,
-          stderr,
-        )
+        outputDebug(`File watching failed to close for ${extension.handle}: ${error.message}`, stderr)
       })
   })
 }
@@ -202,13 +201,21 @@ export async function setupConfigWatcher({
 }: SetupConfigWatcherOptions) {
   const {default: chokidar} = await import('chokidar')
 
-  // const anotherWatcher = chokidar.watch(extension.directory, {}).on('unlinkDir', (_event: unknown, _path: unknown) => {
-  //   console.log(_path)
-  //   console.log(extension.directory)
-  //   if (_path === extension.directory) {
-  //     outputInfo(`Deleting extension ${extension.handle}`, stdout)
-  //   }
-  // })
+  const deletionWatcher = chokidar.watch(extension.directory).on('unlinkDir', (path) => {
+    if (path === extension.directory) {
+      outputInfo(`Deleting extension ${extension.handle}`, stdout)
+      adminRequest(DevSessionDeleteAppModulesMutation, adminSession, {apiKey, moduleUuidsToDelete: [extension.handle]})
+        .then((result: unknown) => {
+          console.log(result)
+          outputInfo(`Deleted extension ${extension.handle}`, stdout)
+        })
+
+        .catch((error: unknown) => {
+          console.log(error)
+          outputInfo(`Failed to delete extension ${extension.handle}`, stdout)
+        })
+    }
+  })
 
   const configWatcher = chokidar.watch(extension.configurationPath).on('change', (path, stats) => {
     outputInfo(`Event detected ${path}`)
@@ -228,7 +235,15 @@ export async function setupConfigWatcher({
 
   signal.addEventListener('abort', () => {
     outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)
-
+    deletionWatcher
+      .close()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((error: any) => {
+        outputDebug(
+          `Config file watching failed to close for extension with ${extension.devUUID}: ${error.message}`,
+          stderr,
+        )
+      })
     configWatcher
       .close()
       .then(() => {
