@@ -22,6 +22,7 @@ export interface FormContext {
 
 export interface FormField<TContext extends FormContext = FormContext> {
   component: (ctx: TContext) => (DemoStep | Promise<DemoStep>)
+  componentLoadingMessage?: string
   setProperty: string
 }
 
@@ -94,8 +95,11 @@ function Form<TContext extends FormContext>({
       <Box key="past" flexDirection="column">
         {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
       </Box>
-      <Box key="active">
-        {renderedActiveField ?? <TextAnimation text={loadingBar} />}
+      <Box key="active" flexDirection="column">
+        {renderedActiveField ?? <>
+          <TextAnimation text={loadingBar} />
+          <Text>{currentField.componentLoadingMessage ?? 'Loading'} ...</Text>
+        </>}
       </Box>
     </Banner>
   )

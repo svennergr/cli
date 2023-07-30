@@ -74,6 +74,7 @@ export async function prompts() {
             },
           }
         },
+        componentLoadingMessage: 'Loading organizations',
         setProperty: 'partnersOrg',
       },
       {
