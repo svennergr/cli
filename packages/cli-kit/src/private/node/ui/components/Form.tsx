@@ -1,6 +1,6 @@
-// import {TextAnimation} from './TextAnimation.js'
+import {TextAnimation} from './TextAnimation.js'
 import {DemoStep} from '../demo.js'
-// import useLayout from '../hooks/use-layout.js'
+import useLayout from '../hooks/use-layout.js'
 // import useAsyncAndUnmount from '../hooks/use-async-and-unmount.js'
 // import {isUnitTest} from '../../../../public/node/context/local.js'
 // import {AbortSignal} from '../../../../public/node/abort.js'
@@ -12,7 +12,7 @@ import {Box, Text, useApp} from 'ink'
 import {Banner} from '../components/Banner.js'
 import React, {useEffect, useRef, useState} from 'react'
 
-// const loadingBarChar = '▀'
+const loadingBarChar = '▀'
 
 type ContextValue = string | boolean
 
@@ -38,9 +38,10 @@ function Form<TContext extends FormContext>({
   onComplete,
 }: React.PropsWithChildren<FormProps<TContext>>) {
   const ctx = useRef<TContext>({} as TContext)
-  // const {twoThirds} = useLayout()
-  // const loadingBarWidth = twoThirds - 4 4 = 2x padding
-  // const loadingBar = new Array(twoThirds).fill(loadingBarChar).join('')
+  const {twoThirds} = useLayout()
+  const loadingBarWidth = twoThirds - 6 // 6 = 2x padding
+  const loadingBar = new Array(loadingBarWidth).fill(loadingBarChar).join('')
+
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0)
   const currentField = fields[currentFieldIndex]!
 
@@ -94,7 +95,7 @@ function Form<TContext extends FormContext>({
         {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
       </Box>
       <Box key="active">
-        {renderedActiveField}
+        {renderedActiveField ?? <TextAnimation text={loadingBar} />}
       </Box>
     </Banner>
   )
