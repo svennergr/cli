@@ -1,13 +1,98 @@
 import {
+  renderForm,
   renderAutocompletePrompt,
   renderConfirmationPrompt,
   renderSelectPrompt,
   renderTextPrompt,
   renderDangerousConfirmationPrompt,
 } from '@shopify/cli-kit/node/ui'
+import {sleep} from '@shopify/cli-kit/node/system'
 import figures from '@shopify/cli-kit/node/figures'
 
 export async function prompts() {
+  const formResult = await renderForm({
+    headline: 'Form',
+    fields: [
+      {
+        component: (_ctx) => {
+          return {
+            type: 'textPrompt',
+            properties: {
+              message: 'What is your app name?',
+              value: 'default-name',
+            },
+          }
+        },
+        setProperty: 'appName'
+      },
+      {
+        component: (_ctx) => {
+          return {
+            type: 'selectPrompt',
+            properties: {
+              message: 'What template would you like to use?',
+              choices: [
+                {value: 'node', label: 'Node'},
+                {value: 'react', label: 'React'},
+                {value: 'next', label: 'Next'},
+              ],
+            },
+          }
+        },
+        setProperty: 'appTemplate'
+      },
+      {
+        component: ({appName}) => {
+          return {
+            type: 'autocompletePrompt',
+            properties: {
+              message: `Which extension would you like for ${appName}?`,
+              choices: [
+                {value: 'subscription-ui-extension', label: 'Subscription UI'},
+                {value: 'checkout-ui-extension', label: 'Checkout UI'},
+                {value: 'order-discount-function', label: 'Order Discount - Function'},
+                {value: 'product-discount-function', label: 'Product Discount - Function'},
+              ],
+            },
+          }
+        },
+        setProperty: 'appExtension'
+      },
+      {
+        component: async ({appName}) => {
+          const orgList = [
+            {value: 'shopify', label: 'Shopify'},
+            {value: 'shopify-partners', label: 'Shopify Partners'},
+            {value: 'shopify-apps', label: 'Shopify Apps'},
+          ]
+          await sleep(3)
+          return {
+            type: 'autocompletePrompt',
+            properties: {
+              message: `In which Partners organization should we create ${appName}?`,
+              choices: orgList,
+            },
+          }
+        },
+        setProperty: 'partnersOrg',
+      },
+      {
+        component: (_ctx) => {
+          return {
+            type: 'confirmationPrompt',
+            properties: {
+              message: 'Are you sure you want to submit?',
+              confirmationMessage: 'Yes, confirm',
+              cancellationMessage: 'No, cancel',
+            },
+          }
+        },
+        setProperty: 'confirmation',
+      },
+    ],
+  })
+  console.log(`Form result:\n\n${JSON.stringify(formResult, null, 2)}`)
+
   // renderSelectPrompt
   await renderSelectPrompt({
     message: 'Associate your project with the org Castile Ventures?',

@@ -9,6 +9,8 @@ import React, {ReactElement, useCallback} from 'react'
 import {useApp} from 'ink'
 
 export interface SelectPromptProps<T> {
+  noUnmount?: boolean
+  submitted?: T
   message: Message
   choices: SelectInputProps<T>['items']
   onSubmit: (value: T) => void
@@ -21,6 +23,8 @@ export interface SelectPromptProps<T> {
 
 // eslint-disable-next-line react/function-component-definition
 function SelectPrompt<T>({
+  noUnmount,
+  submitted,
   message,
   choices,
   infoTable,
@@ -36,13 +40,14 @@ function SelectPrompt<T>({
   const {exit: unmountInk} = useApp()
   const {promptState, setPromptState, answer, setAnswer} = usePrompt<SelectItem<T> | undefined>({
     initialAnswer: undefined,
+    submitted: choices.find(({value}) => value === submitted)
   })
 
   const submitAnswer = useCallback(
     (answer: SelectItem<T>) => {
       setAnswer(answer)
       setPromptState(PromptState.Submitted)
-      unmountInk()
+      if (!noUnmount) unmountInk()
       onSubmit(answer.value)
     },
     [setAnswer, setPromptState, unmountInk, onSubmit],

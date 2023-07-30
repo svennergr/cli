@@ -11,6 +11,8 @@ import {Box, useApp, useInput, Text} from 'ink'
 import figures from 'figures'
 
 export interface TextPromptProps {
+  noUnmount?: boolean
+  submitted?: string
   message: string
   onSubmit: (value: string) => void
   defaultValue?: string
@@ -23,6 +25,8 @@ export interface TextPromptProps {
 }
 
 const TextPrompt: FunctionComponent<TextPromptProps> = ({
+  noUnmount,
+  submitted,
   message,
   onSubmit,
   validate,
@@ -53,6 +57,7 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
   const {oneThird} = useLayout()
   const {promptState, setPromptState, answer, setAnswer} = usePrompt<string>({
     initialAnswer: '',
+    submitted,
   })
   const answerOrDefault = answer.length > 0 ? answer : defaultValue
   const displayEmptyValue = answerOrDefault === ''
@@ -75,7 +80,7 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
       } else {
         setPromptState(PromptState.Submitted)
         onSubmit(answerOrDefault)
-        unmountInk()
+        if (!noUnmount) unmountInk()
       }
     }
   })

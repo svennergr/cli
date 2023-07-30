@@ -34,6 +34,7 @@ import {
 } from '../../private/node/ui/components/DangerousConfirmationPrompt.js'
 import {SelectPrompt, SelectPromptProps} from '../../private/node/ui/components/SelectPrompt.js'
 import {Tasks, Task} from '../../private/node/ui/components/Tasks.js'
+import {Form, FormContext, FormField} from '../../private/node/ui/components/Form.js'
 import {TextPrompt, TextPromptProps} from '../../private/node/ui/components/TextPrompt.js'
 import {AutocompletePromptProps, AutocompletePrompt} from '../../private/node/ui/components/AutocompletePrompt.js'
 import {InfoTableSection} from '../../private/node/ui/components/Prompts/InfoTable.js'
@@ -505,6 +506,39 @@ export async function renderTasks<TContext>(tasks: Task<TContext>[], {renderOpti
   // eslint-disable-next-line max-params
   return new Promise<TContext>((resolve, reject) => {
     render(<Tasks tasks={tasks} onComplete={resolve} />, renderOptions)
+      .then(() => resetRecordedSleep())
+      .catch(reject)
+  })
+}
+
+interface RenderFormOptions {
+  headline: string
+  fields: FormField[]
+  renderOptions?: RenderOptions
+}
+
+/**
+ * Runs async tasks and displays their progress to the console.
+ * @example
+ * ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ * Installing dependencies ...
+ */
+// eslint-disable-next-line max-params
+export async function renderForm<TContext extends FormContext>({headline, fields, renderOptions}: RenderFormOptions): Promise<TContext> {
+  // recordUIEvent({
+    // type: 'form',
+    // properties: {
+      // // Rather than timing exactly, pretend each step takes 2 seconds. This
+      // // should be easy to tweak manually.
+      // steps: tasks.map((task) => {
+        // return {title: task.title, duration: 2}
+      // }),
+    // },
+  // })
+
+  // eslint-disable-next-line max-params
+  return new Promise<TContext>((resolve, reject) => {
+    render(<Form headline={headline} fields={fields} onComplete={(ctx: TContext) => resolve(ctx)} />, renderOptions)
       .then(() => resetRecordedSleep())
       .catch(reject)
   })

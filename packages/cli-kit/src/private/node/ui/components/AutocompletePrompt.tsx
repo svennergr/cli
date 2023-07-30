@@ -18,6 +18,8 @@ export interface SearchResults<T> {
 }
 
 export interface AutocompletePromptProps<T> {
+  noUnmount?: boolean
+  submitted?: T
   message: Message
   choices: SelectInputProps<T>['items']
   onSubmit: (value: T) => void
@@ -33,6 +35,8 @@ const MIN_NUMBER_OF_ITEMS_FOR_SEARCH = 5
 
 // eslint-disable-next-line react/function-component-definition
 function AutocompletePrompt<T>({
+  noUnmount,
+  submitted,
   message,
   choices,
   infoTable,
@@ -50,6 +54,7 @@ function AutocompletePrompt<T>({
   const [hasMorePages, setHasMorePages] = useState(initialHasMorePages)
   const {promptState, setPromptState, answer, setAnswer} = usePrompt<SelectItem<T> | undefined>({
     initialAnswer: undefined,
+    submitted: choices.find(({value}) => value === submitted)
   })
 
   const paginatedSearch = useCallback(
@@ -66,7 +71,7 @@ function AutocompletePrompt<T>({
         setAnswer(answer)
         setPromptState(PromptState.Submitted)
         setSearchTerm('')
-        unmountInk()
+        if (!noUnmount) unmountInk()
         onSubmit(answer.value)
       }
     },

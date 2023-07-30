@@ -10,11 +10,12 @@ export enum PromptState {
 
 interface UsePromptProps<T> {
   initialAnswer: T
+  submitted?: T
 }
 
-export default function usePrompt<T>({initialAnswer}: UsePromptProps<T>) {
-  const [promptState, setPromptState] = useState<PromptState>(PromptState.Idle)
-  const [answer, setAnswer] = useState<T>(initialAnswer)
+export default function usePrompt<T>({initialAnswer, submitted}: UsePromptProps<T>) {
+  const [promptState, setPromptState] = useState<PromptState>(typeof submitted !== 'undefined' ? PromptState.Submitted : PromptState.Idle)
+  const [answer, setAnswer] = useState<T>(submitted ?? initialAnswer)
 
   return {
     promptState,

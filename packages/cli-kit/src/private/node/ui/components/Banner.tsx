@@ -7,6 +7,7 @@ export type BannerType = 'success' | 'error' | 'warning' | 'info' | 'external_er
 
 interface BannerProps {
   type: BannerType
+  headline?: string
 }
 
 function typeToColor(type: BannerProps['type']) {
@@ -38,7 +39,7 @@ const Footnotes = () => {
   ) : null
 }
 
-const BoxWithBorder: FunctionComponent<BannerProps> = ({type, children}) => {
+const BoxWithBorder: FunctionComponent<BannerProps> = ({type, headline, children}) => {
   const {twoThirds} = useLayout()
   const links = useRef<{[key: string]: Link}>({})
 
@@ -68,7 +69,7 @@ const BoxWithBorder: FunctionComponent<BannerProps> = ({type, children}) => {
         borderColor={typeToColor(type)}
       >
         <Box marginTop={-1} marginLeft={1}>
-          <Text>{` ${type.replace(/_/g, ' ')} `}</Text>
+          <Text>{` ${headline ?? type.replace(/_/g, ' ')} `}</Text>
         </Box>
         <Box flexDirection="column" paddingY={1} paddingX={2} gap={1}>
           {children}
