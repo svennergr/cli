@@ -1,6 +1,7 @@
 import {TextAnimation} from './TextAnimation.js'
 import {DemoStep} from '../demo.js'
 import useLayout from '../hooks/use-layout.js'
+import {InlineToken, LinkToken, TokenItem, TokenizedText} from './TokenizedText.js'
 // import useAsyncAndUnmount from '../hooks/use-async-and-unmount.js'
 // import {isUnitTest} from '../../../../public/node/context/local.js'
 // import {AbortSignal} from '../../../../public/node/abort.js'
@@ -27,8 +28,10 @@ export interface FormField<TContext extends FormContext = FormContext> {
   label: string
 }
 
+export type Headline = TokenItem<Exclude<InlineToken, LinkToken>>
+
 export interface FormProps<TContext extends FormContext> {
-  headline: string
+  headline: Headline
   fields: FormField<TContext>[]
   onComplete: (ctx: TContext) => void
 }
@@ -110,7 +113,8 @@ function Form<TContext extends FormContext>({
   })
 
   return (
-    <Banner type="info" headline={headline}>
+    <Banner type="info" headline="form">
+      <TokenizedText item={headline} />
       <Box key="labels" flexDirection="row">
         {fields.map((field, index) => {
           const isActive = index === currentFieldIndex
@@ -129,9 +133,11 @@ function Form<TContext extends FormContext>({
           </Box>
         })}
       </Box>
-      <Box key="past" flexDirection="column">
-        {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
-      </Box>
+      {renderedPastFields.length > 0 ? (
+        <Box key="past" flexDirection="column">
+          {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
+        </Box>
+      ) : null}
       <Box key="active" flexDirection="column">
         {renderedActiveField ?? <>
           <TextAnimation text={loadingBar} />
@@ -166,9 +172,9 @@ function renderField<TContext extends FormContext>({index, ctx, field, setProper
 
   switch(field.type) {
     case 'textPrompt':
-      return <TextPrompt key={`field-${index}`} {...field.properties} onSubmit={(value: string) => onSubmit(value)} noUnmount submitted={result as string}/>
+      return <TextPrompt key={`field-${index}`} {...field.properties} onSubmit={(value: string) => onSubmit(value)} noUnmount submitted={result as string} dimOnSubmitted />
     case 'selectPrompt':
-      return <SelectPrompt key={`field-${index}`} {...(field.properties as SelectPromptProps<TContext[keyof TContext]>)} onSubmit={onSubmit} noUnmount submitted={result} />
+      return <SelectPrompt key={`field-${index}`} {...(field.properties as SelectPromptProps<TContext[keyof TContext]>)} onSubmit={onSubmit} noUnmount submitted={result} dimOnSubmitted />
     case 'autocompletePrompt':
       const autocompleteProps = {
         search(term: string) {
@@ -184,6 +190,7 @@ function renderField<TContext extends FormContext>({index, ctx, field, setProper
         ...field.properties,
         onSubmit,
         submitted: result as string,
+        dimOnSubmitted: true,
       }
       return <AutocompletePrompt key={index} {...(autocompleteProps as AutocompletePromptProps<string>)} noUnmount />
     case 'confirmationPrompt':
@@ -200,7 +207,7 @@ function renderField<TContext extends FormContext>({index, ctx, field, setProper
         },
       ]
       const newProps = {...field.properties, choices} as Omit<SelectPromptProps<string | boolean>, 'onSubmit'>
-      return <SelectPrompt key={`field-${index}`} {...newProps} onSubmit={onSubmit} noUnmount />
+      return <SelectPrompt key={`field-${index}`} {...newProps} onSubmit={onSubmit} noUnmount dimOnSubmitted />
     default:
       throw new Error(`Unknown step type: ${(field as DemoStep).type}`)
   }

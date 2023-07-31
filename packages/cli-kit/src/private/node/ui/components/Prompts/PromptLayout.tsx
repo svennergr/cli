@@ -14,6 +14,7 @@ export type Message = TokenItem<Exclude<InlineToken, LinkToken>>
 
 export interface PromptLayoutProps {
   message: Message
+  dimOnSubmitted?: boolean
   infoTable?: InfoTableProps['table']
   abortSignal?: AbortSignal
   infoMessage?: InfoMessageProps['message']
@@ -26,6 +27,7 @@ export interface PromptLayoutProps {
 
 const PromptLayout = ({
   message,
+  dimOnSubmitted,
   infoTable,
   abortSignal,
   infoMessage,
@@ -91,14 +93,18 @@ const PromptLayout = ({
   // Object.keys on an array returns the indices as strings
   const showInfoTable = infoTable && Object.keys(infoTable).length > 0
 
+  const shouldDimOnSubmitted = dimOnSubmitted && state === PromptState.Submitted
+  const messageToDisplay = messageWithPunctuation(message)
+  const messageToken = (shouldDimOnSubmitted ? {subdued: messageToDisplay} : messageToDisplay) as TokenItem<InlineToken>
+
   return isAborted ? null : (
     <Box flexDirection="column" marginBottom={1} ref={wrapperRef}>
       <Box ref={promptAreaRef} flexDirection="column">
         <Box>
           <Box marginRight={2}>
-            <Text>?</Text>
+            <Text dimColor={shouldDimOnSubmitted}>?</Text>
           </Box>
-          <TokenizedText item={messageWithPunctuation(message)} />
+          <TokenizedText item={messageToken} />
           {header}
         </Box>
 
@@ -125,10 +131,10 @@ const PromptLayout = ({
       {state === PromptState.Submitted && submittedAnswerLabel ? (
         <Box>
           <Box marginRight={2}>
-            <Text color="cyan">{figures.tick}</Text>
+            <Text dimColor={dimOnSubmitted} color="cyan">{figures.tick}</Text>
           </Box>
 
-          <Text color="cyan">{submittedAnswerLabel}</Text>
+          <Text dimColor={dimOnSubmitted} color="cyan">{submittedAnswerLabel}</Text>
         </Box>
       ) : (
         <Box marginTop={1}>{inputComponent}</Box>

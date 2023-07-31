@@ -13,6 +13,7 @@ import figures from 'figures'
 export interface TextPromptProps {
   noUnmount?: boolean
   submitted?: string
+  dimOnSubmitted?: boolean
   message: string
   onSubmit: (value: string) => void
   defaultValue?: string
@@ -27,6 +28,7 @@ export interface TextPromptProps {
 const TextPrompt: FunctionComponent<TextPromptProps> = ({
   noUnmount,
   submitted,
+  dimOnSubmitted,
   message,
   onSubmit,
   validate,
@@ -85,22 +87,26 @@ const TextPrompt: FunctionComponent<TextPromptProps> = ({
     }
   })
 
+  const shouldDimOnSubmitted = dimOnSubmitted && promptState === PromptState.Submitted
+  const messageToDisplay = messageWithPunctuation(message)
+  const messageToken = (shouldDimOnSubmitted ? {subdued: messageToDisplay} : messageToDisplay) as TokenItem<InlineToken>
+
   return isAborted ? null : (
     <Box flexDirection="column" marginBottom={1} width={oneThird}>
       <Box>
         <Box marginRight={2}>
-          <Text>?</Text>
+          <Text dimColor={shouldDimOnSubmitted}>?</Text>
         </Box>
-        <TokenizedText item={messageWithPunctuation(message)} />
+        <TokenizedText item={messageToken} />
       </Box>
       {promptState === PromptState.Submitted ? (
         <Box>
           <Box marginRight={2}>
-            <Text color="cyan">{figures.tick}</Text>
+            <Text dimColor={dimOnSubmitted} color="cyan">{figures.tick}</Text>
           </Box>
 
           <Box flexGrow={1}>
-            <Text color="cyan" dimColor={displayEmptyValue}>
+            <Text color="cyan" dimColor={dimOnSubmitted || displayEmptyValue}>
               {password ? '*'.repeat(answer.length) : displayedAnswer}
             </Text>
           </Box>

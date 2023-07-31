@@ -20,6 +20,7 @@ export interface SearchResults<T> {
 export interface AutocompletePromptProps<T> {
   noUnmount?: boolean
   submitted?: T
+  dimOnSubmitted?: boolean
   message: Message
   choices: SelectInputProps<T>['items']
   onSubmit: (value: T) => void
@@ -37,6 +38,7 @@ const MIN_NUMBER_OF_ITEMS_FOR_SEARCH = 5
 function AutocompletePrompt<T>({
   noUnmount,
   submitted,
+  dimOnSubmitted,
   message,
   choices,
   infoTable,
@@ -120,6 +122,7 @@ function AutocompletePrompt<T>({
   return (
     <PromptLayout
       message={message}
+      dimOnSubmitted={dimOnSubmitted}
       state={promptState}
       infoTable={infoTable}
       infoMessage={infoMessage}

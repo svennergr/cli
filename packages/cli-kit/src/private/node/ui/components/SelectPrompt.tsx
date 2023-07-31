@@ -11,6 +11,7 @@ import {useApp} from 'ink'
 export interface SelectPromptProps<T> {
   noUnmount?: boolean
   submitted?: T
+  dimOnSubmitted?: boolean
   message: Message
   choices: SelectInputProps<T>['items']
   onSubmit: (value: T) => void
@@ -25,6 +26,7 @@ export interface SelectPromptProps<T> {
 function SelectPrompt<T>({
   noUnmount,
   submitted,
+  dimOnSubmitted,
   message,
   choices,
   infoTable,
@@ -56,6 +58,7 @@ function SelectPrompt<T>({
   return (
     <PromptLayout
       message={message}
+      dimOnSubmitted={dimOnSubmitted}
       state={promptState}
       submittedAnswerLabel={answer?.label}
       infoTable={infoTable}

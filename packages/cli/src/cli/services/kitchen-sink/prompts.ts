@@ -11,7 +11,7 @@ import figures from '@shopify/cli-kit/node/figures'
 
 export async function prompts() {
   const formResult = await renderForm({
-    headline: 'Form',
+    headline: "Let's create a new project! We'll start by answering a few questions.",
     fields: [
       {
         component: (_ctx) => {
