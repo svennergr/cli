@@ -58,16 +58,16 @@ function Form<TContext extends FormContext>({
       setProperty: currentField.setProperty,
       field: activeFieldComponent!,
       nextField: () => {
-        setPastFields([...pastFields, {
-          component: activeFieldComponent!,
-          setProperty: currentField.setProperty,
-          result: ctx.current[currentField.setProperty]!,
-        }])
-        setActiveFieldComponent(undefined)
         if (currentFieldIndex === fields.length - 1) {
           onComplete(ctx.current)
           unmountInk()
         } else {
+          setPastFields([...pastFields, {
+            component: activeFieldComponent!,
+            setProperty: currentField.setProperty,
+            result: ctx.current[currentField.setProperty]!,
+          }])
+          setActiveFieldComponent(undefined)
           setCurrentFieldIndex(currentFieldIndex + 1)
         }
       },
