@@ -8,7 +8,7 @@ import useLayout from '../hooks/use-layout.js'
 import {TextPrompt} from './TextPrompt.js'
 import {AutocompletePrompt, AutocompletePromptProps} from './AutocompletePrompt.js'
 import {SelectPrompt, SelectPromptProps} from './SelectPrompt.js'
-import {Box, Text, useApp} from 'ink'
+import {Box, Text, useApp, useInput} from 'ink'
 import {Banner} from '../components/Banner.js'
 import React, {useEffect, useRef, useState} from 'react'
 
@@ -45,6 +45,7 @@ function Form<TContext extends FormContext>({
 
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0)
   const currentField = fields[currentFieldIndex]!
+  const loadingField = useRef(false)
 
   const [pastFields, setPastFields] = useState<{component: DemoStep, setProperty: string, result: boolean | string}[]>([])
   const [activeFieldComponent, setActiveFieldComponent] = useState<DemoStep | undefined>(undefined)
@@ -85,10 +86,27 @@ function Form<TContext extends FormContext>({
 
   useEffect(() => {
     const fieldInitiator = async () => {
-      setActiveFieldComponent(await currentField.component(ctx.current))
+      loadingField.current = true
+      const newComponent = await currentField.component(ctx.current)
+      if (loadingField.current) {
+        loadingField.current = false
+        setActiveFieldComponent(newComponent)
+      }
     }
     fieldInitiator()
   }, [currentFieldIndex])
+
+  useInput((_input, key) => {
+    if (key.tab && key.shift) {
+      if (currentFieldIndex === 0) {
+        return
+      }
+      loadingField.current = false
+      setActiveFieldComponent(undefined)
+      setPastFields(pastFields.slice(0, pastFields.length - 1))
+      setCurrentFieldIndex(currentFieldIndex - 1)
+    }
+  })
 
   return (
     <Banner type="info" headline={headline}>

@@ -78,11 +78,41 @@ export async function prompts() {
         setProperty: 'partnersOrg',
       },
       {
-        component: (_ctx) => {
+        component: async ({partnersOrg, appName}) => {
+          const storesList = partnersOrg === 'shopify-partners' ?
+            [
+              {value: 'shopify-partners.myshopify.com', label: 'shopify-partners'},
+              {value: 'shopify-partners-2.myshopify.com', label: 'shopify-partners-2'},
+            ]
+            :
+            [
+              {value: 'snowdevil.myshopify.com', label: 'snowdevil'},
+              {value: 'shoppy.myshopify.com', label: 'shoppy'},
+            ]
+          await sleep(1.5)
+          return {
+            type: 'autocompletePrompt',
+            properties: {
+              message: `Which store do you want to use to preview ${appName}?`,
+              choices: storesList,
+            },
+          }
+        },
+        componentLoadingMessage: 'Loading stores',
+        setProperty: 'store',
+      },
+      {
+        component: ({appName, store, appTemplate, appExtension}) => {
           return {
             type: 'confirmationPrompt',
             properties: {
-              message: 'Are you sure you want to submit?',
+              message: 'Do these details look correct?',
+              infoTable: [
+                { header: 'App name', items: [appName! as string], bullet: ' ' },
+                { header: 'App template', items: [appTemplate! as string], bullet: ' ' },
+                { header: 'Extension', items: [appExtension! as string], bullet: ' ' },
+                { header: 'Store', items: [store! as string], bullet: ' ' },
+              ],
               confirmationMessage: 'Yes, confirm',
               cancellationMessage: 'No, cancel',
             },
