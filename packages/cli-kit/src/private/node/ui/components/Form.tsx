@@ -121,42 +121,6 @@ function Form<TContext extends FormContext>({
       </Box>
     </Banner>
   )
-
-  // <TextAnimation text={loadingBar} />
-
-  // const runTasks = async () => {
-    // for (const task of tasks) {
-      // setCurrentTask(task)
-
-      // // eslint-disable-next-line no-await-in-loop
-      // const subTasks = await runTask(task, ctx.current)
-
-      // // subtasks
-      // if (Array.isArray(subTasks) && subTasks.length > 0 && subTasks.every((task) => 'task' in task)) {
-        // for (const subTask of subTasks) {
-          // setCurrentTask(subTask)
-          // // eslint-disable-next-line no-await-in-loop
-          // await runTask(subTask, ctx.current)
-        // }
-      // }
-    // }
-  // }
-
-  // useAsyncAndUnmount(runTasks, {
-    // onFulfilled: () => {
-      // setState(TasksState.Success)
-      // onComplete(ctx.current)
-    // },
-    // onRejected: () => {
-      // setState(TasksState.Failure)
-    // },
-  // })
-
-  // const {isAborted} = useAbortSignal(abortSignal)
-
-  // if (silent) {
-    // return null
-  // }
 }
 
 interface RenderFieldOptions<TContext extends FormContext> {
