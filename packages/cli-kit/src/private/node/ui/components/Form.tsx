@@ -14,6 +14,8 @@ import {Banner} from '../components/Banner.js'
 import React, {useEffect, useRef, useState} from 'react'
 
 const loadingBarChar = '▀'
+const progressBarChar = '█'
+const progressBarNegativeChar = '░'
 
 type ContextValue = string | boolean
 
@@ -48,8 +50,9 @@ function Form<TContext extends FormContext>({
   const loadingBar = new Array(loadingBarWidth).fill(loadingBarChar).join('')
 
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0)
-  const currentField = fields[currentFieldIndex]!
+  const currentField = fields[currentFieldIndex]
   const loadingField = useRef(false)
+  const [complete, setComplete] = useState(false)
 
   const [pastFields, setPastFields] = useState<{component: DemoStep, setProperty: string, result: boolean | string}[]>([])
   const [activeFieldComponent, setActiveFieldComponent] = useState<DemoStep | undefined>(undefined)
@@ -59,20 +62,22 @@ function Form<TContext extends FormContext>({
     renderedActiveField = renderField<TContext>({
       index: currentFieldIndex,
       ctx: ctx.current,
-      setProperty: currentField.setProperty,
+      setProperty: currentField!.setProperty,
       field: activeFieldComponent!,
       nextField: () => {
+        setPastFields([...pastFields, {
+          component: activeFieldComponent!,
+          setProperty: currentField!.setProperty,
+          result: ctx.current[currentField!.setProperty]!,
+        }])
+        setActiveFieldComponent(undefined)
+        setCurrentFieldIndex(currentFieldIndex + 1)
         if (currentFieldIndex === fields.length - 1) {
-          onComplete(ctx.current)
-          unmountInk()
-        } else {
-          setPastFields([...pastFields, {
-            component: activeFieldComponent!,
-            setProperty: currentField.setProperty,
-            result: ctx.current[currentField.setProperty]!,
-          }])
-          setActiveFieldComponent(undefined)
-          setCurrentFieldIndex(currentFieldIndex + 1)
+          setComplete(true)
+          setTimeout(() => {
+            unmountInk()
+            onComplete(ctx.current)
+          }, 0)
         }
       },
     })
@@ -90,6 +95,7 @@ function Form<TContext extends FormContext>({
 
   useEffect(() => {
     const fieldInitiator = async () => {
+      if (!currentField) return
       loadingField.current = true
       const newComponent = await currentField.component(ctx.current)
       if (loadingField.current) {
@@ -112,10 +118,25 @@ function Form<TContext extends FormContext>({
     }
   })
 
+  const fractionComplete = currentFieldIndex / fields.length
+  const progressBarWidth = 20
+  const progressBar = new Array(progressBarWidth).fill(progressBarNegativeChar).fill(progressBarChar, 0, Math.floor(progressBarWidth * fractionComplete)).join('')
+
   return (
-    <Banner type="info" headline="form">
+    <Box
+      width={twoThirds}
+      marginBottom={1}
+      borderStyle="round"
+      borderLeft={true}
+      borderTop={false}
+      borderRight={false}
+      borderBottom={false}
+      paddingLeft={1}
+      gap={1}
+      flexDirection="column"
+    >
       <TokenizedText item={headline} />
-      <Box key="labels" flexDirection="row">
+      {undefined && <Box key="labels" flexDirection="row">
         {fields.map((field, index) => {
           const isActive = index === currentFieldIndex
           const isPast = index < currentFieldIndex
@@ -132,26 +153,32 @@ function Form<TContext extends FormContext>({
             <Text bold={isActive} dimColor={isPast}>{field.label}</Text>
           </Box>
         })}
-      </Box>
+      </Box>}
       {renderedPastFields.length > 0 ? (
         <Box key="past" flexDirection="column">
           {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
         </Box>
       ) : null}
-      <Box key="active" flexDirection="column">
+      {complete ? null : <Box key="active" flexDirection="column">
         {renderedActiveField ?? <>
           <TextAnimation text={loadingBar} />
-          <Text>{currentField.componentLoadingMessage ?? 'Loading'} ...</Text>
+          <Text>{currentField?.componentLoadingMessage ?? 'Loading'} ...</Text>
         </>}
-      </Box>
-      {pastFields.length > 0 ? (
-        <Box key="instructions" flexDirection="column">
-          <Text dimColor>
-            <Text bold>Shift+Tab</Text> to return to the previous field
-          </Text>
+      </Box>}
+      <Box key="progress" flexDirection="column">
+        <Box key="progress-indicator" flexDirection="row" gap={2}>
+          <Text bold>{pastFields.length}/{fields.length} questions answered</Text>
+          <Text>{progressBar}</Text>
         </Box>
-      ) : null}
-    </Banner>
+        {pastFields.length > 0 ? (
+          <Box key="instructions" flexDirection="row">
+            <Text dimColor>
+              <Text bold>Shift+Tab</Text> to return to the previous question
+            </Text>
+          </Box>
+        ) : null}
+      </Box>
+    </Box>
   )
 }
 
@@ -207,7 +234,7 @@ function renderField<TContext extends FormContext>({index, ctx, field, setProper
         },
       ]
       const newProps = {...field.properties, choices} as Omit<SelectPromptProps<string | boolean>, 'onSubmit'>
-      return <SelectPrompt key={`field-${index}`} {...newProps} onSubmit={onSubmit} noUnmount dimOnSubmitted />
+      return <SelectPrompt key={`field-${index}`} {...newProps} onSubmit={onSubmit} submitted={result} noUnmount dimOnSubmitted />
     default:
       throw new Error(`Unknown step type: ${(field as DemoStep).type}`)
   }
