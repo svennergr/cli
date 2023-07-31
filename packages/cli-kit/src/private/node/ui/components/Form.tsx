@@ -119,6 +119,13 @@ function Form<TContext extends FormContext>({
           <Text>{currentField.componentLoadingMessage ?? 'Loading'} ...</Text>
         </>}
       </Box>
+      {pastFields.length > 0 ? (
+        <Box key="instructions" flexDirection="column">
+          <Text dimColor>
+            <Text bold>Shift+Tab</Text> to return to the previous field
+          </Text>
+        </Box>
+      ) : null}
     </Banner>
   )
 }
