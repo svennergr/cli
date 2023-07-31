@@ -23,7 +23,8 @@ export async function prompts() {
             },
           }
         },
-        setProperty: 'appName'
+        setProperty: 'appName',
+        label: 'name',
       },
       {
         component: (_ctx) => {
@@ -39,7 +40,8 @@ export async function prompts() {
             },
           }
         },
-        setProperty: 'appTemplate'
+        setProperty: 'appTemplate',
+        label: 'template',
       },
       {
         component: ({appName}) => {
@@ -56,7 +58,8 @@ export async function prompts() {
             },
           }
         },
-        setProperty: 'appExtension'
+        setProperty: 'appExtension',
+        label: 'ext',
       },
       {
         component: async ({appName}) => {
@@ -76,6 +79,7 @@ export async function prompts() {
         },
         componentLoadingMessage: 'Loading organizations',
         setProperty: 'partnersOrg',
+        label: 'org',
       },
       {
         component: async ({partnersOrg, appName}) => {
@@ -100,6 +104,7 @@ export async function prompts() {
         },
         componentLoadingMessage: 'Loading stores',
         setProperty: 'store',
+        label: 'store',
       },
       {
         component: ({appName, store, appTemplate, appExtension}) => {
@@ -119,6 +124,7 @@ export async function prompts() {
           }
         },
         setProperty: 'confirmation',
+        label: 'confirm',
       },
     ],
   })

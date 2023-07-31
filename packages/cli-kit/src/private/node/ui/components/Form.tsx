@@ -24,6 +24,7 @@ export interface FormField<TContext extends FormContext = FormContext> {
   component: (ctx: TContext) => (DemoStep | Promise<DemoStep>)
   componentLoadingMessage?: string
   setProperty: string
+  label: string
 }
 
 export interface FormProps<TContext extends FormContext> {
@@ -110,6 +111,24 @@ function Form<TContext extends FormContext>({
 
   return (
     <Banner type="info" headline={headline}>
+      <Box key="labels" flexDirection="row">
+        {fields.map((field, index) => {
+          const isActive = index === currentFieldIndex
+          const isPast = index < currentFieldIndex
+          return <Box
+            key={`label-badge-${index}-${Math.random()}`}
+            borderStyle={isActive ? 'bold' : 'single'}
+            borderDimColor={isPast}
+            borderTop={false}
+            borderLeft={false}
+            borderRight={false}
+            borderBottom={true}
+            paddingX={1}
+          >
+            <Text bold={isActive} dimColor={isPast}>{field.label}</Text>
+          </Box>
+        })}
+      </Box>
       <Box key="past" flexDirection="column">
         {renderedPastFields.map((field, index) => <Box key={`past-field-${index}`}>{field}</Box>)}
       </Box>
