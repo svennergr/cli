@@ -170,7 +170,7 @@ function Form<TContext extends FormContext>({
           <Text bold>{pastFields.length}/{fields.length} questions answered</Text>
           <Text>{progressBar}</Text>
         </Box>
-        {pastFields.length > 0 ? (
+        {!complete && pastFields.length > 0 ? (
           <Box key="instructions" flexDirection="row">
             <Text dimColor>
               <Text bold>Shift+Tab</Text> to return to the previous question
