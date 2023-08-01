@@ -1,7 +1,7 @@
 import {GitDiff, GitDiffProps} from './GitDiff.js'
 import {InfoMessage, InfoMessageProps} from './InfoMessage.js'
 import {InfoTable, InfoTableProps} from './InfoTable.js'
-import {InlineToken, LinkToken, TokenItem, TokenizedText} from '../TokenizedText.js'
+import {tokenItemToString, InlineToken, LinkToken, TokenItem, TokenizedText} from '../TokenizedText.js'
 import {messageWithPunctuation} from '../../utilities.js'
 import {AbortSignal} from '../../../../../public/node/abort.js'
 import useAbortSignal from '../../hooks/use-abort-signal.js'
@@ -95,7 +95,7 @@ const PromptLayout = ({
 
   const shouldDimOnSubmitted = dimOnSubmitted && state === PromptState.Submitted
   const messageToDisplay = messageWithPunctuation(message)
-  const messageToken = (shouldDimOnSubmitted ? {subdued: messageToDisplay} : messageToDisplay) as TokenItem<InlineToken>
+  const messageToken = (shouldDimOnSubmitted ? {subdued: tokenItemToString(messageToDisplay)} : messageToDisplay)
 
   return isAborted ? null : (
     <Box flexDirection="column" marginBottom={1} ref={wrapperRef}>

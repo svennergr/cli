@@ -48,7 +48,11 @@ export async function prompts() {
           return {
             type: 'autocompletePrompt',
             properties: {
-              message: `Which extension would you like for ${appName}?`,
+              message: [
+                'Which extension would you like for',
+                {userInput: appName as string},
+                {char: '?'},
+              ],
               choices: [
                 {value: 'subscription-ui-extension', label: 'Subscription UI'},
                 {value: 'checkout-ui-extension', label: 'Checkout UI'},
@@ -72,7 +76,11 @@ export async function prompts() {
           return {
             type: 'autocompletePrompt',
             properties: {
-              message: `In which Partners organization should we create ${appName}?`,
+              message: [
+                'In which Partners organization should we create',
+                {userInput: appName as string},
+                {char: '?'},
+              ],
               choices: orgList,
             },
           }
@@ -97,7 +105,11 @@ export async function prompts() {
           return {
             type: 'autocompletePrompt',
             properties: {
-              message: `Which store do you want to use to preview ${appName}?`,
+              message: [
+                'Which store do you want to use to preview',
+                {userInput: appName as string},
+                {char: '?'},
+              ],
               choices: storesList,
             },
           }

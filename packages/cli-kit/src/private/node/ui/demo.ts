@@ -144,7 +144,7 @@ type RenderTableStep = zod.infer<typeof renderTableStepSchema>
 const renderAutoCompletePromptStepSchema = abstractDemoStepSchema.extend({
   type: zod.literal('autocompletePrompt'),
   properties: zod.object({
-    message: zod.string(),
+    message: headlineTokenSchema,
     choices: zod.array(
       zod.object({
         label: zod.string(),
