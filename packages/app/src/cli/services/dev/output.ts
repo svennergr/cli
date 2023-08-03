@@ -6,7 +6,7 @@ import {partnersFqdn} from '@shopify/cli-kit/node/context/fqdn'
 import {renderConcurrent, RenderConcurrentOptions, renderInfo} from '@shopify/cli-kit/node/ui'
 import {openURL} from '@shopify/cli-kit/node/system'
 import {basename} from '@shopify/cli-kit/node/path'
-import {formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
+import {formatPackageManagerCommand, outputContent, outputToken} from '@shopify/cli-kit/node/output'
 
 export async function outputUpdateURLsResult(
   updated: boolean,
@@ -58,22 +58,40 @@ export async function outputUpdateURLsResult(
   }
 }
 
-export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, previewUrl: string) {
+export function renderDev(
+  renderConcurrentOptions: RenderConcurrentOptions,
+  previewUrl: string,
+  enabledPreviewMode: 'none' | 'true' | 'false' = 'true',
+) {
   let options = renderConcurrentOptions
+
+  const shortcuts = []
+  if (enabledPreviewMode !== 'none') {
+    shortcuts.push(buildDevPreviewShortcut(enabledPreviewMode === 'true'))
+  }
 
   if (previewUrl) {
     options = {
       ...options,
-      onInput: (input, _key, exit) => {
+      onInput: async (input, _key, exit, footerContext) => {
         if (input === 'p' && previewUrl) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           openURL(previewUrl)
         } else if (input === 'q') {
           exit()
+        } else if (input === 'd' || input === 'e') {
+          const currentShortcutAction = footerContext.footer?.shortcuts.find(
+            (shortcut) => shortcut.key === 'd' || shortcut.key === 'e',
+          )
+          if (!currentShortcutAction || currentShortcutAction.key !== input) return
+          const newShortcutAction = buildDevPreviewShortcut(currentShortcutAction.key === 'e')
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          footerContext.updateShortcut(currentShortcutAction, newShortcutAction)
         }
       },
       footer: {
         shortcuts: [
+          ...shortcuts,
           {
             key: 'p',
             action: 'preview in your browser',
@@ -88,6 +106,13 @@ export function renderDev(renderConcurrentOptions: RenderConcurrentOptions, prev
     }
   }
   return renderConcurrent({...options, keepRunningAfterProcessesResolve: true})
+}
+
+function buildDevPreviewShortcut(enabled: boolean) {
+  return {
+    key: enabled ? 'd' : 'e',
+    action: outputContent`dev preview mode: ${enabled ? outputToken.green('on') : outputToken.errorText('off')}`.value,
+  }
 }
 
 async function partnersURL(organizationId: string, appId: string) {

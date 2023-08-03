@@ -12,6 +12,11 @@ import {Writable} from 'stream'
 
 export type WritableStream = (process: OutputProcess, index: number) => Writable
 
+export interface Footer {
+  shortcuts: Shortcut[]
+  subTitle?: string
+}
+
 interface Shortcut {
   key: string
   action: string
@@ -20,11 +25,16 @@ export interface ConcurrentOutputProps {
   processes: OutputProcess[]
   abortSignal: AbortSignal
   showTimestamps?: boolean
-  onInput?: (input: string, key: Key, exit: () => void) => void
-  footer?: {
-    shortcuts: Shortcut[]
-    subTitle?: string
-  }
+  onInput?: (
+    input: string,
+    key: Key,
+    exit: () => void,
+    footerContext: {
+      footer?: Footer
+      updateShortcut: (prevShortcut: Shortcut, newShortcut: Shortcut) => void
+    },
+  ) => Promise<void>
+  footer?: Footer
   // If set, the component is not automatically unmounted once the processes have all finished
   keepRunningAfterProcessesResolve?: boolean
 }
@@ -103,6 +113,7 @@ const ConcurrentOutput: FunctionComponent<ConcurrentOutputProps> = ({
   const prefixColumnSize = Math.max(...processes.map((process) => process.prefix.length))
   const {isRawModeSupported} = useStdin()
   const [state, setState] = useState<ConcurrentOutputState>(ConcurrentOutputState.Running)
+  const [footerContent, setFooterContent] = useState<Footer | undefined>(footer)
   const concurrentColors: TextProps['color'][] = useMemo(() => ['yellow', 'cyan', 'magenta', 'green', 'blue'], [])
   const lineColor = useCallback(
     (index: number) => {
@@ -142,7 +153,25 @@ const ConcurrentOutput: FunctionComponent<ConcurrentOutputProps> = ({
     (input, key) => {
       handleCtrlC(input, key)
 
-      onInput!(input, key, () => treeKill('SIGINT'))
+      const updateShortcut = (prevShortcut: Shortcut, newShortcut: Shortcut) => {
+        if (!footerContent) return
+        const newFooterContent = {...footerContent}
+
+        newFooterContent.shortcuts.map((short) => {
+          if (short.key === prevShortcut.key) {
+            short.action = newShortcut.action
+            short.key = newShortcut.key
+          }
+        })
+        setFooterContent(newFooterContent)
+      }
+
+      const triggerOnInput = async () => {
+        await onInput!(input, key, () => treeKill('SIGINT'), {footer: footerContent, updateShortcut})
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      triggerOnInput()
     },
     {isActive: typeof onInput !== 'undefined' && useShortcuts},
   )
@@ -199,20 +228,20 @@ const ConcurrentOutput: FunctionComponent<ConcurrentOutputProps> = ({
           )
         }}
       </Static>
-      {footer ? (
+      {footerContent ? (
         <Box marginY={1} flexDirection="column" flexGrow={1}>
           {useShortcuts ? (
             <Box flexDirection="column">
-              {footer.shortcuts.map((shortcut, index) => (
+              {footerContent.shortcuts.map((shortcut, index) => (
                 <Text key={index}>
                   {figures.pointerSmall} Press <Text bold>{shortcut.key}</Text> {figures.lineVertical} {shortcut.action}
                 </Text>
               ))}
             </Box>
           ) : null}
-          {footer.subTitle ? (
+          {footerContent.subTitle ? (
             <Box marginTop={useShortcuts ? 1 : 0}>
-              <Text>{footer.subTitle}</Text>
+              <Text>{footerContent.subTitle}</Text>
             </Box>
           ) : null}
         </Box>
