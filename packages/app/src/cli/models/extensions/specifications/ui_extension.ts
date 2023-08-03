@@ -10,6 +10,13 @@ import {outputContent, outputToken} from '@shopify/cli-kit/node/output'
 
 const dependency = '@shopify/checkout-ui-extensions'
 
+function trimToForty(string = '') {
+  // Spread to array to convert characters to codepoints
+  // to account for emojis and other multi-character symbols.
+  const chars = [...string]
+  return chars.length > 40 ? `${chars.slice(0, 40).join('')}…` : string
+}
+
 const validatePoints = (config: {extension_points?: unknown[]; targeting?: unknown[]}) => {
   return config.extension_points !== undefined || config.targeting !== undefined
 }
@@ -47,7 +54,8 @@ const spec = createExtensionSpecification({
     return needsCart ? [...basic, 'cart_url'] : basic
   },
   validate: async (config, directory) => {
-    return validateUIExtensionPointConfig(directory, config.extension_points)
+    console.log(config.type, config.name)
+    return validateUIExtensionPointConfig(directory, config.extension_points, config.type)
   },
   deployConfig: async (config, directory) => {
     return {
@@ -81,6 +89,7 @@ const spec = createExtensionSpecification({
 async function validateUIExtensionPointConfig(
   directory: string,
   extensionPoints: NewExtensionPointSchemaType[],
+  type: string,
 ): Promise<Result<unknown, string>> {
   const errors: string[] = []
   const uniqueTargets: string[] = []
@@ -88,6 +97,21 @@ async function validateUIExtensionPointConfig(
 
   if (!extensionPoints || extensionPoints.length === 0) {
     return err(missingExtensionPointsMessage)
+  }
+  const localesConfig = await loadLocalesConfig(directory, type)
+
+  const {translations} = localesConfig
+
+  for (const locale in translations) {
+    if (Object.prototype.hasOwnProperty.call(translations, locale)) {
+      const title = translations[locale]
+
+      if (title || !title) {
+        // eslint-disable-next-line no-console
+        console.log('You have successfully identified a title which is too long!')
+        return err(`The title for locale ${locale} exceeds 40 characters.`)
+      }
+    }
   }
 
   for await (const {module, target} of extensionPoints) {

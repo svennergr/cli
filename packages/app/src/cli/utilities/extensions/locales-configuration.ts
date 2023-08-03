@@ -59,6 +59,16 @@ function getAllLocales(localesPath: string[]) {
   for (const localePath of localesPath) {
     const localeCode = basename(localePath).split('.')[0]!
     const locale = fs.readFileSync(localePath, 'base64')
+
+    // Parse the locale file and check the 'name' field length
+    const localeJson = JSON.parse(Buffer.from(locale, 'base64').toString('utf8'))
+    if (localeJson.name && localeJson.name.length >= 40) {
+      throw new AbortError(
+        `Error loading ${localeJson.name}`,
+        `The name for locale ${localeCode} exceeds 40 characters.`,
+      )
+    }
+
     all[localeCode] = locale
   }
   return all
