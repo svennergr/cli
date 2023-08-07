@@ -12,6 +12,7 @@ import {dirname, moduleDirectory} from '@shopify/cli-kit/node/path'
 import {findPathUp} from '@shopify/cli-kit/node/fs'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {outputContent, outputInfo, outputSuccess, outputToken, outputWarn} from '@shopify/cli-kit/node/output'
+import {usingPackageManager} from '@shopify/cli-kit/node/context/local'
 
 type HomebrewPackageName = 'shopify-cli' | 'shopify-cli@3'
 
@@ -32,7 +33,7 @@ export async function upgrade(
   const projectDir = await getProjectDir(directory)
   if (projectDir) {
     newestVersion = await upgradeLocalShopify(projectDir, currentVersion)
-  } else if (usingPackageManager({env})) {
+  } else if (usingPackageManager(env)) {
     throw new AbortError(
       outputContent`Couldn't find the configuration file for ${outputToken.path(
         directory,
@@ -182,8 +183,4 @@ async function packageJsonContents(): Promise<PackageJsonWithName> {
     _packageJsonContents = _packageJsonContents || (packageJson.content as PackageJsonWithName)
   }
   return _packageJsonContents
-}
-
-function usingPackageManager({env}: UpgradeOptions = {env: process.env}): boolean {
-  return Boolean(env.npm_config_user_agent)
 }

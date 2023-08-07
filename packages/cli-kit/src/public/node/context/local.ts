@@ -166,6 +166,36 @@ export function isCloudEnvironment(env: NodeJS.ProcessEnv = process.env): boolea
 }
 
 /**
+ * Check the npm user agent to find out the current package manager.
+ *
+ * @param env - Environment variables used when the cli is launched.
+ * @returns The package manager used to run the current command.
+ */
+export function packageManager(env = process.env): string {
+  const userAgent = env[environmentVariables.npmUserAgent]
+  if (isSet(userAgent)) {
+    if (userAgent?.includes('yarn')) {
+      return 'yarn'
+    }
+    if (userAgent?.includes('pnpm')) {
+      return 'pnpm'
+    }
+    return 'npm'
+  }
+  return 'global'
+}
+
+/**
+ * Returns true if the CLI is run from a package manager.
+ *
+ * @param env - Environment variables used when the cli is launched.
+ * @returns True in case the CLI is run from a package manager.
+ */
+export function usingPackageManager(env = process.env): boolean {
+  return packageManager(env) !== 'global'
+}
+
+/**
  * Returns the cloud environment platform name and if the platform support online IDE in case the CLI is run from one of
  * them. Platform name 'localhost' is returned otherwise.
  *

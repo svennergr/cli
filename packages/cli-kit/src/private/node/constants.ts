@@ -36,6 +36,7 @@ export const environmentVariables = {
   organization: 'SHOPIFY_CLI_ORGANIZATION',
   identityToken: 'SHOPIFY_CLI_IDENTITY_TOKEN',
   refreshToken: 'SHOPIFY_CLI_REFRESH_TOKEN',
+  npmUserAgent: 'npm_config_user_agent',
 }
 
 export const systemEnvironmentVariables = {
