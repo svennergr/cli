@@ -54,7 +54,7 @@ const spec = createExtensionSpecification({
     return needsCart ? [...basic, 'cart_url'] : basic
   },
   validate: async (config, directory) => {
-    console.log(config.type, config.name)
+    console.log(config.type, config.name, 'this is in ui_extension.ts')
     return validateUIExtensionPointConfig(directory, config.extension_points, config.type)
   },
   deployConfig: async (config, directory) => {
@@ -99,17 +99,20 @@ async function validateUIExtensionPointConfig(
     return err(missingExtensionPointsMessage)
   }
   const localesConfig = await loadLocalesConfig(directory, type)
-
   const {translations} = localesConfig
 
   for (const locale in translations) {
     if (Object.prototype.hasOwnProperty.call(translations, locale)) {
-      const title = translations[locale]
+      const translation = translations[locale];
 
-      if (title || !title) {
-        // eslint-disable-next-line no-console
-        console.log('You have successfully identified a title which is too long!')
-        return err(`The title for locale ${locale} exceeds 40 characters.`)
+      if (translation) {
+        const decodedTranslation = Buffer.from(translation, 'base64').toString('utf8')
+        const translationObj = JSON.parse(decodedTranslation);
+        // console.log(translationObj);
+        if (translationObj.name && translationObj.name.length >= 40) {
+          // console.log('You have successfully identified a title which is too long!')
+          return err(`The title: ${translationObj.name} for locale ${locale} exceeds 40 characters!!.`)
+        }
       }
     }
   }
