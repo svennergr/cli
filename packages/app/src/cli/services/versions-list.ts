@@ -85,7 +85,7 @@ async function getAppApiKey(token: string, options: VersionListOptions): Promise
   const envIdentifiers = getAppIdentifiers({app: options.app})
   if (envIdentifiers.app) return envIdentifiers.app
   if (isCurrentAppSchema(options.app.configuration)) return options.app.configuration.client_id
-  const partnersApp = await fetchOrCreateOrganizationApp(options.app, token)
+  const partnersApp = await fetchOrCreateOrganizationApp({app: options.app, token})
   return partnersApp.apiKey
 }
 

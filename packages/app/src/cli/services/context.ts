@@ -1,4 +1,4 @@
-import {selectOrCreateApp} from './dev/select-app.js'
+import {createApp, selectOrCreateApp} from './dev/select-app.js'
 import {
   fetchAllDevStores,
   fetchAppFromApiKey,
@@ -241,6 +241,7 @@ export interface ReleaseContextOptions {
   reset: boolean
   force: boolean
   commandConfig: Config
+  forceCreate: boolean
 }
 
 interface ReleaseContextOutput {
@@ -306,6 +307,7 @@ export interface DeployContextOptions {
   noRelease: boolean
   commitReference?: string
   commandConfig: Config
+  forceCreate: boolean
 }
 
 /**
@@ -428,21 +430,35 @@ export async function ensureReleaseContext(options: ReleaseContextOptions): Prom
   return result
 }
 
-export async function fetchOrCreateOrganizationApp(
-  app: AppInterface,
-  token: string,
-  directory?: string,
-): Promise<OrganizationApp> {
+export async function fetchOrCreateOrganizationApp({
+  app,
+  token,
+  directory,
+  forceCreate,
+}: {
+  app: AppInterface
+  token: string
+  directory?: string
+  forceCreate?: boolean
+}): Promise<OrganizationApp> {
   const orgId = await selectOrg(token)
   const {organization, apps} = await fetchOrgsAppsAndStores(orgId, token)
   const isLaunchable = appIsLaunchable(app)
   const scopesArray = getAppScopesArray(app.configuration)
-  const partnersApp = await selectOrCreateApp(app.name, apps, organization, token, {
-    isLaunchable,
-    scopesArray,
-    directory,
-  })
-  return partnersApp
+  if (forceCreate) {
+    return createApp(organization, `auto-${new Date().toISOString()}`, token, {
+      isLaunchable,
+      scopesArray,
+      directory,
+      autoConfirm: true,
+    })
+  } else {
+    return selectOrCreateApp(app.name, apps, organization, token, {
+      isLaunchable,
+      scopesArray,
+      directory,
+    })
+  }
 }
 
 export async function fetchAppAndIdentifiers(
@@ -451,12 +467,13 @@ export async function fetchAppAndIdentifiers(
     reset: boolean
     apiKey?: string
     commandConfig: Config
+    forceCreate: boolean
   },
   token: string,
   reuseFromDev = true,
 ): Promise<[OrganizationApp, Partial<UuidOnlyIdentifiers>]> {
-  const app = options.app
-  let reuseDevCache = reuseFromDev
+  const {app, forceCreate} = options
+  let reuseDevCache = forceCreate ? false : reuseFromDev
   let envIdentifiers = getAppIdentifiers({app})
   let partnersApp: OrganizationApp | undefined
 
@@ -469,19 +486,23 @@ export async function fetchAppAndIdentifiers(
     }
   }
 
-  if (isCurrentAppSchema(app.configuration)) {
-    const apiKey = options.apiKey ?? app.configuration.client_id
-    partnersApp = await appFromId(apiKey, token)
-  } else if (options.apiKey) {
-    partnersApp = await appFromId(options.apiKey, token)
-  } else if (envIdentifiers.app) {
-    partnersApp = await appFromId(envIdentifiers.app, token)
-  } else if (reuseDevCache) {
-    partnersApp = await fetchDevAppAndPrompt(app, token)
-  }
+  if (forceCreate) {
+    partnersApp = await fetchOrCreateOrganizationApp({app, token, forceCreate: true})
+  } else {
+    if (isCurrentAppSchema(app.configuration)) {
+      const apiKey = options.apiKey ?? app.configuration.client_id
+      partnersApp = await appFromId(apiKey, token)
+    } else if (options.apiKey) {
+      partnersApp = await appFromId(options.apiKey, token)
+    } else if (envIdentifiers.app) {
+      partnersApp = await appFromId(envIdentifiers.app, token)
+    } else if (reuseDevCache) {
+      partnersApp = await fetchDevAppAndPrompt(app, token)
+    }
 
-  if (!partnersApp) {
-    partnersApp = await fetchOrCreateOrganizationApp(app, token)
+    if (!partnersApp) {
+      partnersApp = await fetchOrCreateOrganizationApp({app, token, forceCreate: false})
+    }
   }
 
   return [partnersApp, envIdentifiers]

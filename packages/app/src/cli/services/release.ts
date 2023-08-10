@@ -28,7 +28,7 @@ interface ReleaseOptions {
 }
 
 export async function release(options: ReleaseOptions) {
-  const {token, app, partnersApp} = await ensureReleaseContext(options)
+  const {token, app, partnersApp} = await ensureReleaseContext({...options, forceCreate: false})
 
   const {versionsDiff, versionDetails} = await versionDiffByVersion(partnersApp.apiKey, options.version, token)
 

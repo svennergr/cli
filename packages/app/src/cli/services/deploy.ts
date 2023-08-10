@@ -52,6 +52,9 @@ interface DeployOptions {
 
   /** The config from the Oclif command */
   commandConfig: Config
+
+  /** Whether to create a new app for deployment */
+  forceCreate: boolean
 }
 
 interface TasksContext {

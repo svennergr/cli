@@ -85,7 +85,7 @@ async function loadRemoteApp(
 ): Promise<OrganizationApp> {
   const token = await ensureAuthenticatedPartners()
   if (!apiKey) {
-    return fetchOrCreateOrganizationApp(localApp, token, directory)
+    return fetchOrCreateOrganizationApp({app: localApp, token, directory})
   }
   const app = await fetchAppFromApiKey(apiKey, token)
   if (!app) {

@@ -67,6 +67,12 @@ export default class Deploy extends Command {
       description: 'URL associated with the new app version.',
       env: 'SHOPIFY_FLAG_SOURCE_CONTROL_URL',
     }),
+    'force-create-app': Flags.boolean({
+      hidden: false,
+      description: 'Create a new app for this deployment.',
+      default: false,
+      env: 'SHOPIFY_FLAG_FORCE_CREATE_APP',
+    }),
   }
 
   async run(): Promise<void> {
@@ -95,6 +101,7 @@ export default class Deploy extends Command {
     await deploy({
       app,
       apiKey,
+      forceCreate: flags['force-create-app'],
       reset: flags.reset,
       force: flags.force,
       noRelease: flags['no-release'],

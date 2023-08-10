@@ -91,9 +91,10 @@ export async function createApp(
     isLaunchable?: boolean
     scopesArray?: string[]
     directory?: string
+    autoConfirm?: boolean
   },
 ): Promise<OrganizationApp> {
-  const name = await appNamePrompt(appName)
+  const name = options?.autoConfirm ? appName : await appNamePrompt(appName)
 
   const variables = getAppVars(org, name, options?.isLaunchable, options?.scopesArray)
 
