@@ -29,6 +29,10 @@ export const CreateAppQuery = gql`
         }
         appType
         grantedScopes
+        betas {
+          unifiedAppDeployment
+          unifiedAppDeploymentOptIn
+        }
         applicationUrl
         redirectUrlWhitelist
         requestedAccessScopes
