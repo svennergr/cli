@@ -73,10 +73,20 @@ export default class Deploy extends Command {
       default: false,
       env: 'SHOPIFY_FLAG_FORCE_CREATE_APP',
     }),
+    json: Flags.boolean({
+      hidden: false,
+      description: 'Output the command result as JSON.',
+      default: false,
+      env: 'SHOPIFY_FLAG_JSON',
+    }),
   }
 
   async run(): Promise<void> {
     const {flags} = await this.parse(Deploy)
+
+    if (flags.json) {
+      process.env.SHOPIFY_FLAG_JSON = '1'
+    }
 
     await metadata.addPublicMetadata(() => ({
       cmd_deploy_flag_message_used: Boolean(flags.message),
@@ -109,6 +119,7 @@ export default class Deploy extends Command {
       version: flags.version,
       commitReference: flags['source-control-url'],
       commandConfig: this.config,
+      json: flags.json,
     })
   }
 }

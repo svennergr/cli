@@ -19,6 +19,7 @@ import {
   SubHeadingContentToken,
 } from '../../private/node/content-tokens.js'
 import {recordUIEvent} from '../../private/node/demo-recorder.js'
+import {JsonMap} from '../../private/common/json.js'
 import stripAnsi from 'strip-ansi'
 import {Writable} from 'stream'
 import type {Change} from 'diff'
@@ -191,7 +192,7 @@ function currentLogLevel(): LogLevel {
   if (isVerbose()) {
     return 'debug'
   } else {
-    return 'info'
+    return process.env.SHOPIFY_CLI_LOG_LEVEL as LogLevel | undefined ?? 'info'
   }
 }
 
@@ -201,8 +202,11 @@ function currentLogLevel(): LogLevel {
  * @param logLevel - The desired log level for the message.
  * @returns True if the message should be outputted, false otherwise.
  */
-function shouldOutput(logLevel: LogLevel): boolean {
+export function shouldOutput(logLevel: LogLevel, json: boolean = false): boolean {
   if (isUnitTest()) {
+    return false
+  }
+  if (!json && process.env.SHOPIFY_FLAG_JSON) {
     return false
   }
   const currentLogLevelValue = logLevelValue(currentLogLevel())
@@ -307,6 +311,21 @@ export function outputWarn(content: OutputMessage, logger: Logger = consoleWarn)
 }
 
 /**
+ * Outputs a JSON message to the user.
+ * This is useful for printing JSON objects to the console, or for all output in JSON output mode.
+ * Note: JSON messages are sent through the standard output.
+ *
+ * @param content - The content to be output to the user.
+ * @param logger - The logging function to use to output to the user.
+ * @param logLevel - The log level to use for the message.
+ */
+export function outputJson(content: JsonMap, logger: Logger = consoleLog, logLevel: LogLevel = 'info'): void {
+  const message = JSON.stringify(content, null, 2)
+  if (isUnitTest()) collectLog('json', message)
+  outputWhereAppropriate(logLevel, logger, message, {json: true})
+}
+
+/**
  * Prints a new line in the terminal.
  */
 export function outputNewline(): void {
@@ -369,6 +388,7 @@ export function consoleWarn(message: string): void {
 }
 
 interface OutputWhereAppropriateOptions {
+  json?: boolean
   skipUIEvent?: boolean
 }
 
@@ -386,7 +406,7 @@ export function outputWhereAppropriate(
   message: string,
   options: OutputWhereAppropriateOptions = {skipUIEvent: false},
 ): void {
-  if (shouldOutput(logLevel)) {
+  if (shouldOutput(logLevel, options.json)) {
     if (logger instanceof Writable) {
       logger.write(message)
     } else {

@@ -27,6 +27,7 @@ export interface ConcurrentOutputProps {
   }
   // If set, the component is not automatically unmounted once the processes have all finished
   keepRunningAfterProcessesResolve?: boolean
+  silent?: boolean
 }
 interface Chunk {
   color: TextProps['color']
@@ -97,6 +98,7 @@ const ConcurrentOutput: FunctionComponent<ConcurrentOutputProps> = ({
   onInput,
   footer,
   keepRunningAfterProcessesResolve,
+  silent = false,
 }) => {
   const [processOutput, setProcessOutput] = useState<Chunk[]>([])
   const {exit: unmountInk} = useApp()
@@ -171,6 +173,8 @@ const ConcurrentOutput: FunctionComponent<ConcurrentOutputProps> = ({
   }, [abortSignal, processes, writableStream, unmountInk, keepRunningAfterProcessesResolve])
 
   const {lineVertical} = figures
+
+  if (silent) return null
 
   return (
     <>

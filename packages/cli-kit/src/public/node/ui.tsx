@@ -10,6 +10,7 @@ import {
   outputDebug,
   outputToken,
   outputWhereAppropriate,
+  shouldOutput,
 } from './output.js'
 import {isUnitTest} from './context/local.js'
 import {terminalSupportsRawMode} from './system.js'
@@ -70,7 +71,7 @@ export async function renderConcurrent({renderOptions, ...props}: RenderConcurre
   const abortSignal = props.abortSignal ?? new AbortController().signal
 
   if (terminalSupportsRawMode(renderOptions?.stdin)) {
-    return render(<ConcurrentOutput {...props} abortSignal={abortSignal} />, {
+    return render(<ConcurrentOutput {...props} abortSignal={abortSignal} silent={!shouldOutput('info')} />, {
       ...renderOptions,
       exitOnCtrlC: typeof props.onInput === 'undefined',
     })
@@ -126,6 +127,7 @@ export type RenderAlertOptions = Omit<AlertOptions, 'type'>
  *
  */
 export function renderInfo(options: RenderAlertOptions) {
+  if (!shouldOutput('info')) return
   return alert({...options, type: 'info'})
 }
 
@@ -157,6 +159,7 @@ export function renderInfo(options: RenderAlertOptions) {
  *
  */
 export function renderSuccess(options: RenderAlertOptions) {
+  if (!shouldOutput('info')) return
   return alert({...options, type: 'success'})
 }
 
@@ -189,6 +192,7 @@ export function renderSuccess(options: RenderAlertOptions) {
  *
  */
 export function renderWarning(options: RenderAlertOptions) {
+  if (!shouldOutput('warn')) return
   return alert({...options, type: 'warning'})
 }
 
@@ -206,6 +210,7 @@ export function renderWarning(options: RenderAlertOptions) {
  *
  */
 export function renderError(options: RenderAlertOptions) {
+  if (!shouldOutput('error')) return
   return alert({...options, type: 'error'})
 }
 
@@ -506,7 +511,7 @@ export async function renderTasks<TContext>(tasks: Task<TContext>[], {renderOpti
 
   // eslint-disable-next-line max-params
   return new Promise<TContext>((resolve, reject) => {
-    render(<Tasks tasks={tasks} onComplete={resolve} />, renderOptions)
+    render(<Tasks tasks={tasks} onComplete={resolve} silent={!shouldOutput('info')} />, renderOptions)
       .then(() => resetRecordedSleep())
       .catch(reject)
   })

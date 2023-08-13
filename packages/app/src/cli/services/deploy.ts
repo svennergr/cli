@@ -19,7 +19,7 @@ import {FunctionConfigType} from '../models/extensions/specifications/function.j
 import {renderInfo, renderSuccess, renderTasks} from '@shopify/cli-kit/node/ui'
 import {inTemporaryDirectory, mkdir} from '@shopify/cli-kit/node/fs'
 import {joinPath, dirname} from '@shopify/cli-kit/node/path'
-import {outputNewline, outputInfo, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
+import {outputNewline, outputInfo, outputJson, formatPackageManagerCommand} from '@shopify/cli-kit/node/output'
 import {useThemebundling} from '@shopify/cli-kit/node/context/local'
 import {getArrayRejectingUndefined} from '@shopify/cli-kit/common/array'
 import {Config} from '@oclif/core'
@@ -55,6 +55,9 @@ interface DeployOptions {
 
   /** Whether to create a new app for deployment */
   forceCreate: boolean
+
+  /** Whether to display output in JSON format */
+  json: boolean
 }
 
 interface TasksContext {
@@ -174,6 +177,7 @@ export async function deploy(options: DeployOptions) {
         registrations,
         deploymentMode,
         uploadExtensionsBundleResult,
+        json: options.json,
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,6 +200,7 @@ async function outputCompletionMessage({
   registrations,
   deploymentMode,
   uploadExtensionsBundleResult,
+  json,
 }: {
   app: AppInterface
   partnersApp: Omit<OrganizationApp, 'apiSecretKeys' | 'apiKey'>
@@ -204,9 +209,10 @@ async function outputCompletionMessage({
   registrations: AllAppExtensionRegistrationsQuerySchema
   deploymentMode: DeploymentMode
   uploadExtensionsBundleResult: UploadExtensionsBundleOutput
+  json: boolean
 }) {
   if (deploymentMode !== 'legacy') {
-    return outputUnifiedCompletionMessage(deploymentMode, uploadExtensionsBundleResult, app)
+    return outputUnifiedCompletionMessage(deploymentMode, uploadExtensionsBundleResult, app, partnersApp, json)
   }
 
   let headline: string
@@ -291,38 +297,64 @@ async function outputUnifiedCompletionMessage(
   deploymentMode: DeploymentMode,
   uploadExtensionsBundleResult: UploadExtensionsBundleOutput,
   app: AppInterface,
+  partnersApp: Omit<OrganizationApp, 'apiSecretKeys' | 'apiKey'>,
+  json: boolean,
 ) {
   const linkAndMessage = [
     {link: {label: uploadExtensionsBundleResult.versionTag, url: uploadExtensionsBundleResult.location}},
     uploadExtensionsBundleResult.message ? `\n${uploadExtensionsBundleResult.message}` : '',
   ]
+  const jsonMessage = {
+    appUrl: partnersApp.applicationUrl,
+    appOverviewUrl: uploadExtensionsBundleResult.location.replace(/versions\/.*/, ''),
+    versionUrl: uploadExtensionsBundleResult.location,
+    distributionUrl: uploadExtensionsBundleResult.location.replace(/versions\/.*/, 'distribution'),
+  }
   if (deploymentMode === 'unified') {
-    return uploadExtensionsBundleResult.deployError
-      ? renderInfo({
-          headline: 'New version created, but not released.',
-          body: [...linkAndMessage, `\n\n${uploadExtensionsBundleResult.deployError}`],
+    if (uploadExtensionsBundleResult.deployError) {
+      return renderInfo({
+        headline: 'New version created, but not released.',
+        body: [...linkAndMessage, `\n\n${uploadExtensionsBundleResult.deployError}`],
+      })
+    } else {
+      const headline = 'New version released to users.'
+      return json ?
+        outputJson({
+          status: 'success',
+          message: headline,
+          ...jsonMessage,
         })
-      : renderSuccess({
-          headline: 'New version released to users.',
+        : renderSuccess({
+          headline,
           body: linkAndMessage,
         })
+    }
   }
 
-  return renderSuccess({
-    headline: 'New version created.',
-    body: linkAndMessage,
-    nextSteps: [
-      [
-        'Run',
-        {
-          command: formatPackageManagerCommand(
-            app.packageManager,
-            'shopify app release',
-            `--version=${uploadExtensionsBundleResult.versionTag}`,
-          ),
-        },
-        'to release this version to users.',
+  const headline = 'New version created.'
+  if (json) {
+    return outputJson({
+      status: 'success',
+      message: headline,
+      ...jsonMessage,
+    })
+  } else {
+    return renderSuccess({
+      headline,
+      body: linkAndMessage,
+      nextSteps: [
+        [
+          'Run',
+          {
+            command: formatPackageManagerCommand(
+              app.packageManager,
+              'shopify app release',
+              `--version=${uploadExtensionsBundleResult.versionTag}`,
+            ),
+          },
+          'to release this version to users.',
+        ],
       ],
-    ],
-  })
+    })
+  }
 }
