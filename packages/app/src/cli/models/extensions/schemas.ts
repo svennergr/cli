@@ -12,6 +12,7 @@ export const CapabilitiesSchema = zod.object({
   network_access: zod.boolean().optional(),
   block_progress: zod.boolean().optional(),
   api_access: zod.boolean().optional(),
+  collect_buyer_consent: zod.boolean().optional(),
 })
 
 export const ExtensionsArraySchema = zod.object({

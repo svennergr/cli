@@ -122,6 +122,7 @@ export interface ExtensionPayload {
     apiAccess: boolean
     blockProgress: boolean
     networkAccess: boolean
+    collectBuyerConsent: boolean
   }
   authenticatedRedirectStartUrl?: string
   authenticatedRedirectRedirectUrls?: string[]

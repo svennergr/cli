@@ -128,6 +128,7 @@ describe('getUIExtensionPayload', () => {
         },
         capabilities: {
           blockProgress: false,
+          collectBuyerConsent: false,
           networkAccess: false,
           apiAccess: false,
         },
