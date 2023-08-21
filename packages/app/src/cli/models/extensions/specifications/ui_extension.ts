@@ -44,6 +44,9 @@ const spec = createExtensionSpecification({
     return needsCart ? [...basic, 'cart_url'] : basic
   },
   validate: async (config, directory, configPath) => {
+    // console.log("11Name: ", config.name);
+
+    // console.log(config);
     return validateUIExtensionPointConfig(directory, config.extension_points, configPath)
   },
   deployConfig: async (config, directory) => {

@@ -57,10 +57,41 @@ export async function getLocalization(
       }),
     )
     localization.lastUpdated = Date.now()
+    const handle = extension.configuration.name; //i.e. t:name/t:custom if using translation files, or somename if manually setting
+    // console.log(handle);
+    if (handle.startsWith("t:")) {
+      const modifiedHandle = handle.slice(2);
+      console.log(`Modified handle: ${modifiedHandle}`)
+      console.log("title is a translated value coming from translation files")
+      for (const [locale, translation] of Object.entries(localization.translations)) {
+        if ((translation[modifiedHandle] || '').length > 40) {
+          const message = `The title: "${translation.name}" for locale "${locale}" exceeds 40 characters.`
+          outputWarn(message, options.stderr)
+          const err = new ExtendableError();
+          err.name = "TranslationError"
+          err.message = message;
+          throw err;
+        }
+      }
+    } else if (!handle.startsWith("t:")) {
+      console.log(`title ${handle} was added directly to the toml as a string, so checking handle directly`);
+
+      if (handle.length > 40) {
+        const err = new ExtendableError();
+        err.name = "TranslationError"
+        err.message = `The title: ${handle} exceeds 40 characters. Please fix this in the toml file.`
+        throw err;
+      }
+    }
+
     outputInfo(`Parsed locales for extension ${extension.handle} at ${extension.directory}`, options.stdout)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-catch-all/no-catch-all
   } catch (error: any) {
     status = 'error'
+    //This catch was pre-existing, and not throwing.  Only throwing when necessary.
+    if (error.name === "TranslationError") {
+      // throw error;
+    }
   }
 
   return {
@@ -78,6 +109,7 @@ async function compileLocalizationFiles(
 ): Promise<void> {
   let localeContent: string | undefined
   try {
+    // console.log(extension)
     localeContent = await readFile(path)
     localization.translations[locale] = JSON.parse(localeContent)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
