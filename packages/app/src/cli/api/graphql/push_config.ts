@@ -13,6 +13,7 @@ export const PushConfig = gql`
     $posEmbedded: Boolean
     $embedded: Boolean
     $preferencesUrl: Url
+    $webhookSubscriptions: [WebhookSubscriptionsInput!]
   ) {
     appUpdate(
       input: {
@@ -27,6 +28,7 @@ export const PushConfig = gql`
         posEmbedded: $posEmbedded
         embedded: $embedded
         preferencesUrl: $preferencesUrl
+        webhookSubscriptions: $webhookSubscriptions
       }
     ) {
       userErrors {
@@ -49,6 +51,11 @@ interface AppProxy {
   proxySubPathPrefix: string
 }
 
+export interface WebhookSubscription {
+  callbackUrl: string
+  topic: string
+}
+
 export interface PushConfigVariables {
   title: string
   apiKey: string
@@ -61,6 +68,7 @@ export interface PushConfigVariables {
   posEmbedded?: boolean
   embedded?: boolean
   preferencesUrl?: string | null
+  webhookSubscriptions?: WebhookSubscription[] | null
 }
 
 export interface PushConfigSchema {

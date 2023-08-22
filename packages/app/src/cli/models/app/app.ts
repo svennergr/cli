@@ -52,6 +52,14 @@ export const AppSchema = zod
         })
         .optional(),
     }),
+    webhook_subscriptions: zod
+      .array(
+        zod.object({
+          callback_url: validateUrl(zod.string()),
+          topic: zod.string(),
+        }),
+      )
+      .optional(),
     app_proxy: zod
       .object({
         url: validateUrl(zod.string()),
@@ -119,6 +127,20 @@ export function getAppScopes(config: AppConfiguration) {
 export function getAppScopesArray(config: AppConfiguration) {
   const scopes = getAppScopes(config)
   return scopes.length ? scopes.split(',').map((scope) => scope.trim()) : []
+}
+
+/**
+ * Get webhook subscriptions as an array from a given app.toml config file.
+ * @param config - a configuration file
+ */
+export function getWebhookSubscriptionsArray(config: CurrentAppConfiguration) {
+  const webhookSubscriptions = config.webhook_subscriptions
+
+  return webhookSubscriptions
+    ? webhookSubscriptions.map((webhookSub: {callback_url: string; topic: string}) => {
+        return {callbackUrl: webhookSub.callback_url, topic: webhookSub.topic}
+      })
+    : []
 }
 
 export function usesLegacyScopesBehavior(config: AppConfiguration) {

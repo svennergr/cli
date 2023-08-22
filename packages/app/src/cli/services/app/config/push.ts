@@ -7,6 +7,7 @@ import {
   isCurrentAppSchema,
   usesLegacyScopesBehavior,
   getAppScopesArray,
+  getWebhookSubscriptionsArray,
 } from '../../../models/app/app.js'
 import {DeleteAppProxySchema, deleteAppProxy} from '../../../api/graphql/app_proxy_delete.js'
 import {confirmPushChanges} from '../../../prompts/config.js'
@@ -129,6 +130,10 @@ const getMutationVars = (app: App, configuration: CurrentAppConfiguration) => {
       proxySubPathPrefix: configuration.app_proxy.prefix,
       proxyUrl: configuration.app_proxy.url,
     }
+  }
+
+  if (configuration.webhook_subscriptions) {
+    variables.webhookSubscriptions = getWebhookSubscriptionsArray(configuration)
   }
 
   return variables
