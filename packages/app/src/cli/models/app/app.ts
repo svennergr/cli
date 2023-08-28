@@ -53,12 +53,14 @@ export const AppSchema = zod
         .optional(),
     }),
     webhook_subscriptions: zod
-      .array(
-        zod.object({
-          callback_url: validateUrl(zod.string()),
-          topic: zod.string(),
-        }),
-      )
+      .object({
+        webhook_subscriptions: zod.array(
+          zod.object({
+            callback_url: validateUrl(zod.string()),
+            topic: zod.string(),
+          }),
+        ),
+      })
       .optional(),
     app_proxy: zod
       .object({
@@ -134,7 +136,7 @@ export function getAppScopesArray(config: AppConfiguration) {
  * @param config - a configuration file
  */
 export function getWebhookSubscriptionsArray(config: CurrentAppConfiguration) {
-  const webhookSubscriptions = config.webhook_subscriptions
+  const webhookSubscriptions = config.webhook_subscriptions?.webhook_subscriptions
 
   return webhookSubscriptions
     ? webhookSubscriptions.map((webhookSub: {callback_url: string; topic: string}) => {
