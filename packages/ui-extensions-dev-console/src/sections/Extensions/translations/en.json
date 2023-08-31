@@ -3,6 +3,7 @@
   "introInstallCta": "Install your app",
   "extensionList": {
     "handle": "Handle",
+    "id": "ID",
     "preview": "Preview link",
     "mobile": "Mobile",
     "view": "View",

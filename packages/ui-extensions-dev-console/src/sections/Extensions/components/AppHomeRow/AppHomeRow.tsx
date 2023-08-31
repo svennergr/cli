@@ -30,6 +30,9 @@ export function AppHomeRow() {
         <span className={styles.Title}>{app.title}</span>
       </td>
       <td>
+        <NotApplicable />
+      </td>
+      <td>
         <PreviewLink resourceUrl={resourceUrl} rootUrl={app.url} title={'App home'} />
       </td>
       <td>

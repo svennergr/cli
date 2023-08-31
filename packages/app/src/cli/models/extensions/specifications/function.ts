@@ -65,7 +65,7 @@ const spec = createExtensionSpecification({
     'local_pickup_delivery_option_generator',
   ],
   schema: FunctionExtensionSchema,
-  appModuleFeatures: (_) => ['function'],
+  appModuleFeatures: (_) => ['function', 'ui_preview'],
   deployConfig: async (config, directory, apiKey, moduleId) => {
     let inputQuery: string | undefined
     const inputQueryPath = joinPath(directory, 'input.graphql')

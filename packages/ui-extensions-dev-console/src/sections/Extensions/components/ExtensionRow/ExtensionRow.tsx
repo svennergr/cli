@@ -35,10 +35,15 @@ export function ExtensionRow({uuid}: Props) {
     return null
   }
 
+  console.log(JSON.stringify(extension, null, 2))
+
   return (
     <Row onMouseEnter={focus} onMouseLeave={unfocus}>
       <td>
         <span className={styles.Title}>{extension.handle}</span>
+      </td>
+      <td>
+        <span>{extension.uuid}</span>
       </td>
       <td>
         <PreviewLinks extension={extension} />
