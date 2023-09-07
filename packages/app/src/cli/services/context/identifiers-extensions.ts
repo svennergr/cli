@@ -26,7 +26,9 @@ export async function ensureExtensionsIds(
   const validIdentifiers = options.envIdentifiers.extensions ?? {}
   let localExtensions = options.app.allExtensions.filter((ext) => !ext.isFunctionExtension)
   if (options.deploymentMode === 'unified' || options.deploymentMode === 'unified-skip-release') {
-    const functionExtensions = options.app.allExtensions.filter((ext) => ext.isFunctionExtension)
+    const functionExtensions = options.app.allExtensions.filter(
+      (ext) => ext.isFunctionExtension && !ext.isConfigExtension,
+    )
     functionExtensions.forEach((ext) => (ext.usingExtensionsFramework = true))
     localExtensions = localExtensions.concat(functionExtensions)
   }
@@ -104,6 +106,7 @@ export async function ensureExtensionsIds(
       options.deploymentMode,
       options.appId,
       options.token,
+      options.app,
     )
     if (!confirmed) return err('user-cancelled')
   }
@@ -135,7 +138,10 @@ async function createExtensions(extensions: LocalSource[], appId: string) {
     // Create one at a time to avoid API rate limiting issues.
     // eslint-disable-next-line no-await-in-loop
     const registration = await createExtension(appId, extension.graphQLType, extension.handle, token)
-    outputCompleted(`Created extension ${extension.handle}.`)
+    // Don't output a log message for app config extensions
+    if (!extension.isConfigExtension) {
+      outputCompleted(`Created extension ${extension.handle}.`)
+    }
     result[extension.localIdentifier] = registration
   }
   return result

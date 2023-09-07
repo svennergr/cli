@@ -318,10 +318,14 @@ class AppLoader {
       )
     }
 
+    const customConfigurationObject =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      specification.getConfigurationObject?.(configurationObject as any) || configurationObject
+
     const configuration = await parseConfigurationObject(
       specification.schema,
       configurationPath,
-      configurationObject,
+      customConfigurationObject,
       this.abortOrReport.bind(this),
     )
 
@@ -413,6 +417,36 @@ class AppLoader {
         handles.add(extension.handle)
       }
     })
+
+    // Add app config extensions
+    const appConfigSpecifications = this.specifications.filter((specification) =>
+      specification.appModuleFeatures().includes('app_config'),
+    )
+
+    if (appConfigSpecifications.length > 0) {
+      const {configuration} = await loadAppConfiguration({
+        configName: undefined,
+        directory: appDirectory,
+      })
+
+      await Promise.all(
+        appConfigSpecifications
+          .map(async (specification) => {
+            const promise = this.createExtensionInstance(
+              specification.identifier,
+              configuration,
+              configuration.path,
+              appDirectory,
+            ).then((configExtension) => {
+              if (configExtension) {
+                allExtensions.push(configExtension)
+              }
+            })
+            return promise
+          })
+          .flat(),
+      )
+    }
 
     return {allExtensions, usedCustomLayout: extensionDirectories !== undefined}
   }

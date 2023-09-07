@@ -30,6 +30,9 @@ const FULL_CONFIGURATION = {
   app_preferences: {
     url: 'https://example.com/prefs',
   },
+  access: {
+    direct_api_offline_access: true,
+  },
 }
 
 describe('writeAppConfigurationFile', () => {
@@ -82,6 +85,9 @@ url = "https://example.com/prefs"
 [build]
 automatically_update_urls_on_dev = true
 dev_store_url = "example.myshopify.com"
+
+[access]
+direct_api_offline_access = true
 `
       expect(content).toEqual(expectedContent)
     })

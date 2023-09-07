@@ -9,6 +9,7 @@ import {ExtensionInstance} from '../../../models/extensions/extension-instance.j
 import {AbortController, AbortSignal} from '@shopify/cli-kit/node/abort'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {outputDebug, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
+import {FSWatcher} from 'chokidar'
 import {Writable} from 'stream'
 
 export interface WatchEvent {
@@ -24,6 +25,8 @@ export interface FileWatcherOptions {
 export interface FileWatcher {
   close: () => void
 }
+
+export type ExtensionWithRegistrationId = ExtensionInstance & {registrationId: string}
 
 export async function setupBundlerAndFileWatcher(options: FileWatcherOptions) {
   const {default: chokidar} = await import('chokidar')
@@ -175,32 +178,87 @@ interface SetupConfigWatcherOptions {
   stderr: Writable
   signal: AbortSignal
   unifiedDeployment: boolean
+  configWatcher?: FSWatcher
 }
 
-export async function setupConfigWatcher({
-  extension,
-  token,
-  apiKey,
-  registrationId,
-  stdout,
-  stderr,
-  signal,
-  unifiedDeployment,
-}: SetupConfigWatcherOptions) {
+export async function createConfigWatcher(path: string, onChange: () => void) {
   const {default: chokidar} = await import('chokidar')
 
-  const configWatcher = chokidar.watch(extension.configuration.path).on('change', (_event, _path) => {
-    outputInfo(`Config file at path ${extension.configuration.path} changed`, stdout)
-    updateExtensionConfig({
-      extension,
-      token,
-      apiKey,
-      registrationId,
-      stdout,
-      stderr,
-      unifiedDeployment,
-    }).catch((_: unknown) => {})
+  return chokidar.watch(path).on('change', onChange)
+}
+
+export async function setupConfigExtensionsWatcher({
+  path,
+  extensions,
+  stdout,
+  stderr,
+  token,
+  apiKey,
+  unifiedDeployment,
+  signal,
+}: {path: string; extensions: ExtensionWithRegistrationId[]} & Omit<
+  SetupConfigWatcherOptions,
+  'extension' | 'registrationId'
+>) {
+  const configWatcher = await createConfigWatcher(path, () => {
+    outputInfo(`Config file at path ${path} changed`, stdout)
+
+    Promise.all(
+      extensions.map(async (extension) => {
+        return updateExtensionConfig({
+          extension,
+          token,
+          apiKey,
+          registrationId: extension.registrationId,
+          stdout,
+          stderr,
+          unifiedDeployment,
+        })
+      }),
+    ).catch((_: unknown) => {})
   })
+
+  signal.addEventListener('abort', () => {
+    extensions.forEach((extension) => {
+      outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)
+    })
+
+    configWatcher
+      .close()
+      .then(() => {
+        extensions.forEach((extension) => {
+          outputDebug(`Config file watching closed for extension with ${extension.devUUID}`, stdout)
+        })
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((error: any) => {
+        extensions.forEach((extension) => {
+          outputDebug(
+            `Config file watching failed to close for extension with ${extension.devUUID}: ${error.message}`,
+            stderr,
+          )
+        })
+      })
+  })
+}
+
+export async function setupConfigWatcher(options: SetupConfigWatcherOptions) {
+  const {extension, token, apiKey, registrationId, stdout, stderr, signal, unifiedDeployment} = options
+
+  const configWatcher =
+    options.configWatcher ||
+    (await createConfigWatcher(extension.configuration.path, () => {
+      outputInfo(`Config file at path ${extension.configuration.path} changed`, stdout)
+      updateExtensionConfig({
+        extension,
+        token,
+        apiKey,
+        registrationId,
+        stdout,
+        stderr,
+        unifiedDeployment,
+      }).catch((_: unknown) => {})
+    }))
 
   signal.addEventListener('abort', () => {
     outputDebug(`Closing config file watching for extension with ID ${extension.devUUID}`, stdout)

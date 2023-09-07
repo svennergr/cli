@@ -49,6 +49,7 @@ export async function ensureFunctionsIds(
       options.deploymentMode,
       options.appId,
       options.token,
+      options.app,
     )
     if (!confirmed) return err('user-cancelled')
   }

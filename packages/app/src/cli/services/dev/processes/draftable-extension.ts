@@ -1,6 +1,12 @@
 import {BaseProcess, DevProcessFunction} from './types.js'
 import {updateExtensionDraft} from '../update-extension.js'
-import {setupConfigWatcher, setupDraftableExtensionBundler, setupFunctionWatcher} from '../extension/bundler.js'
+import {
+  ExtensionWithRegistrationId,
+  setupConfigExtensionsWatcher,
+  setupConfigWatcher,
+  setupDraftableExtensionBundler,
+  setupFunctionWatcher,
+} from '../extension/bundler.js'
 import {ExtensionInstance} from '../../../models/extensions/extension-instance.js'
 import {AppInterface} from '../../../models/app/app.js'
 import {PartnersAppForIdentifierMatching, ensureDeploymentIdsPresence} from '../../context/identifiers.js'
@@ -38,8 +44,53 @@ export const pushUpdatesForDraftableExtensions: DevProcessFunction<DraftableExte
     }),
   )
 
+  const configExtensions = extensions.filter((extension) => extension.isConfigExtension)
+  const normalExtensions = extensions.filter((extension) => !extension.isConfigExtension)
+
+  if (configExtensions.length > 0) {
+    await Promise.all(
+      Array.from(
+        configExtensions.reduce((map, extension: ExtensionInstance) => {
+          if (!map.has(extension.configuration.path)) {
+            map.set(extension.configuration.path, new Set())
+          }
+
+          const registrationId = remoteExtensions[extension.localIdentifier]
+          if (!registrationId) {
+            return map
+          }
+
+          const castedExtension = extension as ExtensionWithRegistrationId
+          castedExtension.registrationId = registrationId
+          map.get(extension.configuration.path)!.add(castedExtension)
+
+          return map
+        }, new Map<string, Set<ExtensionWithRegistrationId>>()),
+      )
+        .map(async ([path, watchedExtensions]) => {
+          if (!watchedExtensions) {
+            return
+          }
+
+          return [
+            setupConfigExtensionsWatcher({
+              path,
+              extensions: Array.from(watchedExtensions),
+              token,
+              apiKey,
+              stdout,
+              stderr,
+              signal,
+              unifiedDeployment,
+            }),
+          ]
+        })
+        .flat(),
+    )
+  }
+
   await Promise.all(
-    extensions
+    normalExtensions
       .map((extension) => {
         const registrationId = remoteExtensions[extension.localIdentifier]
         if (!registrationId) throw new AbortError(`Extension ${extension.localIdentifier} not found on remote app.`)

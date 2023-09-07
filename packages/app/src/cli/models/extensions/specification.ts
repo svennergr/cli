@@ -13,6 +13,7 @@ export type ExtensionFeature =
   | 'cart_url'
   | 'esbuild'
   | 'single_js_entry_path'
+  | 'app_config'
 
 /**
  * Extension specification with all the needed properties and methods to load an extension.
@@ -36,6 +37,7 @@ export interface ExtensionSpecification<TConfiguration extends BaseConfigType = 
     apiKey: string,
     moduleId?: string,
   ) => Promise<{[key: string]: unknown} | undefined>
+  getConfigurationObject?: (config: TConfiguration) => {[key: string]: unknown}
   validate?: (config: TConfiguration & {path: string}, directory: string) => Promise<Result<unknown, string>>
   preDeployValidation?: (extension: ExtensionInstance<TConfiguration>) => Promise<void>
   buildValidation?: (extension: ExtensionInstance<TConfiguration>) => Promise<void>

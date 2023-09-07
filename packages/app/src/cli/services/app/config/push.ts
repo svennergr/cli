@@ -95,6 +95,15 @@ export async function pushConfig(options: PushOptions) {
       }
     }
 
+    // console.log('direct_api_offline_access', configuration.access?.direct_api_offline_access)
+
+    // // @todo: make sure we upload app_access module separately
+    // const uploadAppAccessModuleResult = await uploadConfigExtensions({
+    //   apiKey: configuration.client_id,
+    // })
+
+    // console.log('uploadAppAccessModuleResult ---->', uploadAppAccessModuleResult)
+
     renderSuccess({
       headline: `Updated your app config for ${configuration.name}`,
       body: [`Your ${configFileName} config is live for your app users.`],

@@ -200,6 +200,31 @@ export async function uploadExtensionsBundle(
   }
 }
 
+/**
+ * Uploads static app modules
+ * @param options - The upload options
+ */
+export async function uploadConfigExtensions(options: {apiKey: string; token: string}) {
+  const appVersionUUID = randomUUID()
+  let signedURL
+  let deployError
+
+  const variables: AppDeployVariables = {
+    apiKey: options.apiKey,
+    uuid: appVersionUUID,
+    skipPublish: false,
+  }
+
+  const mutation = AppDeploy
+  const result: AppDeploySchema = await handlePartnersErrors(() => partnersRequest(mutation, options.token, variables))
+
+  if (result.appDeploy?.userErrors?.length > 0) {
+    // @todo: handle displaying errors
+  }
+
+  return result
+}
+
 const VALIDATION_ERRORS_TITLE = '\nValidation errors'
 const GENERIC_ERRORS_TITLE = '\n'
 
