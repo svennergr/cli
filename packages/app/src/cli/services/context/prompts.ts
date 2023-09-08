@@ -1,4 +1,4 @@
-import {LocalSource, RemoteSource} from './identifiers.js'
+import {EnsureDeploymentIdsPresenceOptions, LocalSource, RemoteSource} from './identifiers.js'
 import {LocalRemoteSource} from './id-matching.js'
 import {IdentifiersExtensions} from '../../models/app/identifiers.js'
 import {DeploymentMode} from '../deploy/mode.js'
@@ -53,10 +53,12 @@ export interface SourceSummary {
 
 export async function deployConfirmationPrompt(
   {appTitle, question, identifiers, toCreate, onlyRemote, dashboardOnly}: SourceSummary,
-  deploymentMode: DeploymentMode,
-  apiKey: string,
-  token: string,
-  app: AppInterface,
+  {
+    deploymentMode,
+    appId: apiKey,
+    token,
+    app,
+  }: Pick<EnsureDeploymentIdsPresenceOptions, 'app' | 'appId' | 'deploymentMode' | 'token'>,
 ): Promise<boolean> {
   let {infoTable, removesExtension}: {infoTable: InfoTableSection[]; removesExtension: boolean} =
     await buildUnifiedDeploymentInfoPrompt(apiKey, token, identifiers, toCreate, dashboardOnly, deploymentMode, app)

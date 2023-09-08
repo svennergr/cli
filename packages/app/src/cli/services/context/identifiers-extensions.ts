@@ -103,10 +103,7 @@ export async function ensureExtensionsIds(
             ? dashboardOnlyExtensions
             : [],
       },
-      options.deploymentMode,
-      options.appId,
-      options.token,
-      options.app,
+      options,
     )
     if (!confirmed) return err('user-cancelled')
   }

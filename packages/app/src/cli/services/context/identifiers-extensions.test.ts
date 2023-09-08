@@ -533,9 +533,7 @@ describe('ensureExtensionsIds: asks user to confirm deploy', () => {
         dashboardOnly: [DASHBOARD_REGISTRATION_A],
         toCreate: [],
       },
-      'unified',
-      opt.appId,
-      opt.token,
+      opt,
     )
   })
 
@@ -572,9 +570,7 @@ describe('ensureExtensionsIds: asks user to confirm deploy', () => {
         dashboardOnly: [],
         toCreate: [],
       },
-      'legacy',
-      opt.appId,
-      opt.token,
+      opt,
     )
   })
 
