@@ -1,11 +1,14 @@
 import {AppVersionsDiffSchema} from '../api/graphql/app_versions_diff.js'
 import metadata from '../metadata.js'
+import {AppInterface} from '../models/app/app.js'
+import {isAppConfigType} from '../utilities/isAppConfigType.js'
 import {AbortSilentError} from '@shopify/cli-kit/node/error'
 import {renderConfirmationPrompt, renderDangerousConfirmationPrompt} from '@shopify/cli-kit/node/ui'
 
 export async function confirmReleasePrompt(
   appName: string,
   versionsDiff: AppVersionsDiffSchema['app']['versionsDiff'],
+  app: AppInterface,
 ) {
   const infoTable = []
   const extensions = [...versionsDiff.added, ...versionsDiff.updated]
@@ -13,7 +16,15 @@ export async function confirmReleasePrompt(
   if (extensions.length > 0) {
     infoTable.push({
       header: 'Includes:',
-      items: extensions.map((extension) => extension.registrationTitle),
+      items: extensions
+        .filter((extension) => {
+          // Filter out app config extensions in the prompt
+          const localExtension = app.allExtensions.find((localExtension) => {
+            return localExtension.devUUID === extension.uuid
+          })
+          return !(localExtension?.type && isAppConfigType(app, localExtension?.type))
+        })
+        .map((extension) => extension.registrationTitle),
       bullet: '+',
     })
   }

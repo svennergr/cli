@@ -1,0 +1,9 @@
+schema: v1
+extend: shopify:legacy
+repos:
+  - extensions
+  - cli
+  - partners
+  - partners-web-platform:
+      env:
+        SKIP_STORYBOOK: "1"

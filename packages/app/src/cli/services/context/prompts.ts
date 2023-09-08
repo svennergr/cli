@@ -5,6 +5,7 @@ import {DeploymentMode} from '../deploy/mode.js'
 import {fetchActiveAppVersion} from '../dev/fetch.js'
 import metadata from '../../metadata.js'
 import {AppInterface} from '../../models/app/app.js'
+import {isAppConfigType} from '../../utilities/isAppConfigType.js'
 import {
   InfoTableSection,
   renderAutocompletePrompt,
@@ -61,7 +62,16 @@ export async function deployConfirmationPrompt(
   }: Pick<EnsureDeploymentIdsPresenceOptions, 'app' | 'appId' | 'deploymentMode' | 'token'>,
 ): Promise<boolean> {
   let {infoTable, removesExtension}: {infoTable: InfoTableSection[]; removesExtension: boolean} =
-    await buildUnifiedDeploymentInfoPrompt(apiKey, token, identifiers, toCreate, dashboardOnly, deploymentMode, app)
+    await buildUnifiedDeploymentInfoPrompt(
+      apiKey,
+      token,
+      identifiers,
+      // Filter out app config extensions in the prompt
+      toCreate.filter((extension) => !extension.isConfigExtension),
+      dashboardOnly,
+      deploymentMode,
+      app,
+    )
   if (infoTable.length === 0 && deploymentMode === 'legacy') {
     ;({infoTable, removesExtension} = buildLegacyDeploymentInfoPrompt({
       identifiers,
@@ -173,12 +183,15 @@ async function getUnifiedDeploymentInfoBreakdown(
   let toCreateFinal: string[] = []
   const toUpdate: string[] = []
   let dashboardOnlyFinal = dashboardOnly
+
   for (const [identifier, uuid] of Object.entries(localRegistration)) {
-    // Filter out app config extensions in the prompts
+    // Filter out app config extensions in the prompt
     const localExtension = app.allExtensions.find((extension) => {
       return extension.localIdentifier === identifier
     })
-    if (localExtension?.type && !isAppConfigType(app, localExtension?.type)) {
+    const shouldExclude = localExtension?.type && isAppConfigType(app, localExtension?.type)
+
+    if (!shouldExclude) {
       if (nonDashboardRemoteRegistrations.includes(uuid)) {
         toUpdate.push(identifier)
       } else {
@@ -290,12 +303,4 @@ export async function extensionMigrationPrompt(
     confirmationMessage: confirmMessage,
     cancellationMessage: 'No, cancel',
   })
-}
-
-function isAppConfigType(app: AppInterface, type: string) {
-  const extensionInstances = app.extensionsForType({
-    identifier: type,
-    externalIdentifier: type,
-  })
-  return extensionInstances[0]?.specification.appModuleFeatures().includes('app_config')
 }

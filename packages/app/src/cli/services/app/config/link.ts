@@ -140,6 +140,10 @@ export function mergeAppConfiguration(
     pos: {
       embedded: remoteApp.posEmbedded || false,
     },
+    access: {
+      // @todo: get value from remote extension
+      direct_api_offline_access: false,
+    },
   }
 
   const hasAnyPrivacyWebhook =
