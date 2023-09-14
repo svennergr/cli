@@ -115,7 +115,7 @@ const getMutationVars = (app: App, configuration: CurrentAppConfiguration) => {
   const variables: PushConfigVariables = {
     apiKey: configuration.client_id,
     title: configuration.name,
-    applicationUrl: configuration.application_url,
+    // applicationUrl: configuration.application_url,
     webhookApiVersion: configuration.webhooks?.api_version,
     redirectUrlAllowlist: configuration.auth?.redirect_urls ?? null,
     embedded: configuration.embedded ?? app.embedded,

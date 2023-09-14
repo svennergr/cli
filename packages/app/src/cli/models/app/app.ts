@@ -29,11 +29,10 @@ export const AppSchema = zod
   .object({
     name: zod.string().max(30),
     client_id: zod.string(),
-    application_url: validateUrl(zod.string()),
     embedded: zod.boolean(),
-    access: zod
+    home: zod
       .object({
-        direct_api_offline_access: zod.boolean().optional(),
+        application_url: validateUrl(zod.string()).optional(),
       })
       .optional(),
     access_scopes: zod

@@ -129,7 +129,6 @@ export function mergeAppConfiguration(
     path: appConfiguration.path,
     client_id: remoteApp.apiKey,
     name: remoteApp.title,
-    application_url: remoteApp.applicationUrl.replace(/\/$/, ''),
     embedded: remoteApp.embedded === undefined ? true : remoteApp.embedded,
     webhooks: {
       api_version: remoteApp.webhookApiVersion || '2023-07',
@@ -140,9 +139,9 @@ export function mergeAppConfiguration(
     pos: {
       embedded: remoteApp.posEmbedded || false,
     },
-    access: {
+    home: {
       // @todo: get value from remote extension
-      direct_api_offline_access: false,
+      application_url: remoteApp.applicationUrl.replace(/\/$/, ''),
     },
   }
 

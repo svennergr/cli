@@ -1,18 +1,21 @@
 import {BaseSchema} from '../schemas.js'
+import {AppSchema} from '../../app/app.js'
 import {createExtensionSpecification} from '../specification.js'
-import {zod} from '@shopify/cli-kit/node/schema'
+
+const AppHomeSchema = BaseSchema.merge(AppSchema.pick({home: true}))
 
 const appHomeSpecification = createExtensionSpecification({
   identifier: 'app_home',
-  schema: BaseSchema.extend({
-    application_url: zod.string(),
+  schema: AppHomeSchema,
+  appModuleFeatures: (_) => ['app_config'],
+  deployConfig: async (config) => ({
+    application_url: config.home?.application_url,
   }),
-  appModuleFeatures: (_) => [],
-  deployConfig: async (config, extensionPath) => {
-    return {
-      application_url: config.application_url,
-    }
-  },
+  getConfigurationObject: (config) => ({
+    type: 'app_home',
+    name: 'app-home',
+    home: config.home,
+  }),
 })
 
 export default appHomeSpecification

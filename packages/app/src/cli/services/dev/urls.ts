@@ -174,7 +174,9 @@ export async function updateURLs(
   if (localApp && isCurrentAppSchema(localApp.configuration) && localApp.configuration.client_id === apiKey) {
     const localConfiguration: AppConfiguration = {
       ...localApp.configuration,
-      application_url: urls.applicationUrl,
+      home: {
+        application_url: urls.applicationUrl,
+      },
       auth: {
         ...localApp.configuration.auth,
         redirect_urls: urls.redirectUrlWhitelist,
