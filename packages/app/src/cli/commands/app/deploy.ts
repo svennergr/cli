@@ -66,6 +66,12 @@ export default class Deploy extends Command {
       description: 'URL associated with the new app version.',
       env: 'SHOPIFY_FLAG_SOURCE_CONTROL_URL',
     }),
+    'config-only': Flags.boolean({
+      hidden: false,
+      description: 'Only updates the config modules. Other modules will be deployed using their current version.',
+      env: 'SHOPIFY_FLAG_CONFIG_ONLY',
+      default: false,
+    }),
   }
 
   async run(): Promise<void> {
@@ -102,6 +108,7 @@ export default class Deploy extends Command {
       reset: flags.reset,
       force: flags.force,
       noRelease: flags['no-release'],
+      configOnly: flags['config-only'],
       message: flags.message,
       version: flags.version,
       commitReference: flags['source-control-url'],

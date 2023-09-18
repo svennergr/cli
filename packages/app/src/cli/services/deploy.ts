@@ -41,6 +41,9 @@ interface DeployOptions {
   /** If true, deploy app without releasing it to the users */
   noRelease: boolean
 
+  /** If true, only deploy config modules */
+  configOnly: boolean
+
   /** App version message */
   message?: string
 
@@ -88,16 +91,21 @@ export async function deploy(options: DeployOptions) {
   let registrations: AllAppExtensionRegistrationsQuerySchema
   let uploadExtensionsBundleResult: UploadExtensionsBundleOutput
 
+  const modulesToDeploy = getModulesToDeploy({
+    app: options.app,
+    configOnly: options.configOnly,
+  })
+
   await inTemporaryDirectory(async (tmpDir) => {
     try {
-      const bundle = app.allExtensions.some((ext) => ext.features.includes('bundling'))
+      const bundle = modulesToDeploy.some((ext) => ext.features.includes('bundling'))
       let bundlePath: string | undefined
 
       if (bundle) {
         bundlePath = joinPath(tmpDir, `bundle.zip`)
         await mkdir(dirname(bundlePath))
       }
-      await bundleAndBuildExtensions({app, bundlePath, identifiers})
+      await bundleAndBuildExtensions({app, modulesToDeploy, bundlePath, identifiers})
 
       const uploadTaskTitle = (() => {
         switch (deploymentMode) {
@@ -114,16 +122,14 @@ export async function deploy(options: DeployOptions) {
         {
           title: 'Running validation',
           task: async () => {
-            await Promise.all([app.allExtensions.map((ext) => ext.preDeployValidation())])
+            await Promise.all([modulesToDeploy.map((ext) => ext.preDeployValidation())])
           },
         },
         {
           title: uploadTaskTitle,
           task: async () => {
             const appModules = await Promise.all(
-              options.app.allExtensions.flatMap((ext) =>
-                ext.bundleConfig({identifiers, token, apiKey, unifiedDeployment}),
-              ),
+              modulesToDeploy.flatMap((ext) => ext.bundleConfig({identifiers, token, apiKey, unifiedDeployment})),
             )
 
             if (bundle || unifiedDeployment) {
@@ -141,12 +147,12 @@ export async function deploy(options: DeployOptions) {
             }
 
             if (!useThemebundling()) {
-              const themeExtensions = options.app.allExtensions.filter((ext) => ext.isThemeExtension)
+              const themeExtensions = modulesToDeploy.filter((ext) => ext.isThemeExtension)
               await uploadThemeExtensions(themeExtensions, {apiKey, identifiers, token})
             }
 
             if (!unifiedDeployment) {
-              const functions = options.app.allExtensions.filter(
+              const functions = modulesToDeploy.filter(
                 (ext) => ext.isFunctionExtension,
               ) as ExtensionInstance<FunctionConfigType>[]
               identifiers = await uploadFunctionExtensions(functions, {
@@ -171,6 +177,7 @@ export async function deploy(options: DeployOptions) {
         registrations,
         deploymentMode,
         uploadExtensionsBundleResult,
+        configOnly: options.configOnly,
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,6 +192,13 @@ export async function deploy(options: DeployOptions) {
   })
 }
 
+function getModulesToDeploy({app, configOnly}: {app: AppInterface; configOnly: boolean}) {
+  if (configOnly) {
+    return app.allExtensions.filter((ext) => ext.isConfigExtension)
+  }
+  return app.allExtensions
+}
+
 async function outputCompletionMessage({
   app,
   partnersApp,
@@ -193,6 +207,7 @@ async function outputCompletionMessage({
   registrations,
   deploymentMode,
   uploadExtensionsBundleResult,
+  configOnly,
 }: {
   app: AppInterface
   partnersApp: Omit<OrganizationApp, 'apiSecretKeys' | 'apiKey'>
@@ -201,6 +216,7 @@ async function outputCompletionMessage({
   registrations: AllAppExtensionRegistrationsQuerySchema
   deploymentMode: DeploymentMode
   uploadExtensionsBundleResult: UploadExtensionsBundleOutput
+  configOnly: boolean
 }) {
   if (deploymentMode !== 'legacy') {
     return outputUnifiedCompletionMessage(deploymentMode, uploadExtensionsBundleResult, app)
@@ -250,8 +266,9 @@ async function outputCompletionMessage({
     ]
   }
 
-  const nonFunctionExtensions = app.allExtensions.filter((ext) => !ext.isFunctionExtension)
-  const functionExtensions = app.allExtensions.filter((ext) => ext.isFunctionExtension)
+  const modulesToDeploy = getModulesToDeploy({app, configOnly})
+  const nonFunctionExtensions = modulesToDeploy.filter((ext) => !ext.isFunctionExtension)
+  const functionExtensions = modulesToDeploy.filter((ext) => ext.isFunctionExtension)
 
   const customSections: AlertCustomSection[] = [
     {

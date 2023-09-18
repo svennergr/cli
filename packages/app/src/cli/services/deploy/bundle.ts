@@ -6,9 +6,11 @@ import {AbortSignal} from '@shopify/cli-kit/node/abort'
 import {inTemporaryDirectory, mkdirSync, touchFile} from '@shopify/cli-kit/node/fs'
 import {joinPath} from '@shopify/cli-kit/node/path'
 import {Writable} from 'stream'
+import {ExtensionInstance} from '../../models/extensions/extension-instance.js'
 
 export interface BundleOptions {
   app: AppInterface
+  modulesToDeploy: ExtensionInstance[]
   bundlePath?: string
   identifiers: Identifiers
 }
@@ -20,7 +22,7 @@ export async function bundleAndBuildExtensions(options: BundleOptions) {
     await touchFile(joinPath(bundleDirectory, '.shopify'))
 
     await renderConcurrent({
-      processes: options.app.allExtensions.map((extension) => {
+      processes: options.modulesToDeploy.map((extension) => {
         return {
           prefix: extension.localIdentifier,
           action: async (stdout: Writable, stderr: Writable, signal: AbortSignal) => {
