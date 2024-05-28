@@ -15,9 +15,9 @@ interface FilePartitions {
 }
 
 interface ReconciliationOptions {
-  noDelete?: boolean
-  only?: string[]
-  ignore?: string[]
+  noDelete: boolean
+  only: string[]
+  ignore: string[]
 }
 
 export async function reconcileJsonFiles(
@@ -25,7 +25,7 @@ export async function reconcileJsonFiles(
   session: AdminSession,
   remoteChecksums: Checksum[],
   localThemeFileSystem: ThemeFileSystem,
-  options?: ReconciliationOptions,
+  options: ReconciliationOptions,
 ) {
   const {filesOnlyPresentLocally, filesOnlyPresentOnRemote, filesWithConflictingChecksums} =
     await identifyFilesToReconcile(remoteChecksums, localThemeFileSystem, options)
@@ -54,7 +54,7 @@ export async function reconcileJsonFiles(
 async function identifyFilesToReconcile(
   remoteChecksums: Checksum[],
   localThemeFileSystem: ThemeFileSystem,
-  options: ReconciliationOptions = {},
+  options: ReconciliationOptions,
 ): Promise<{
   filesOnlyPresentOnRemote: Checksum[]
   filesOnlyPresentLocally: Checksum[]
@@ -101,7 +101,7 @@ async function identifyFilesToReconcile(
 async function applyFileFilters(
   files: Checksum[],
   localThemeFileSystem: ThemeFileSystem,
-  options: ReconciliationOptions,
+  options: {only: string[]; ignore: string[]},
 ) {
   const filteredFiles = await applyIgnoreFilters(files, localThemeFileSystem, options)
   return filteredFiles.filter((file) => file.key.endsWith('.json'))
@@ -181,7 +181,7 @@ async function partitionFilesByReconciliationStrategy(
     filesOnlyPresentOnRemote: Checksum[]
     filesWithConflictingChecksums: Checksum[]
   },
-  options?: ReconciliationOptions,
+  options: ReconciliationOptions,
 ): Promise<FilePartitions> {
   const {filesOnlyPresentLocally, filesOnlyPresentOnRemote, filesWithConflictingChecksums} = files
 
@@ -189,7 +189,7 @@ async function partitionFilesByReconciliationStrategy(
   const filesToDownload: Checksum[] = []
   const remoteFilesToDelete: Checksum[] = []
 
-  if (!options?.noDelete) {
+  if (!options.noDelete) {
     await promptFileReconciliationStrategy(
       filesOnlyPresentLocally,
       'The files listed below are only present locally. What would you like to do?',

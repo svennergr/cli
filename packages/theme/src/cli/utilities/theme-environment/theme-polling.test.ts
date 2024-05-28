@@ -14,6 +14,7 @@ vi.mock('../theme-fs.js')
 describe('pollRemoteJsonChanges', async () => {
   const developmentTheme = buildTheme({id: 1, name: 'Theme', role: DEVELOPMENT_THEME_ROLE})!
   const adminSession = {token: '', storeFqdn: ''}
+  const defaultOptions = {noDelete: false, only: [], ignore: []}
 
   let defaultThemeFileSystem: ThemeFileSystem
   let files: Map<string, ThemeAsset>
@@ -31,7 +32,7 @@ describe('pollRemoteJsonChanges', async () => {
     vi.mocked(fetchThemeAsset).mockResolvedValue({checksum: '2', key: 'templates/asset.json', value: 'content'})
 
     // When
-    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem)
+    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem, defaultOptions)
 
     // Then
     expect(defaultThemeFileSystem.files.get('templates/asset.json')).toEqual({
@@ -49,7 +50,7 @@ describe('pollRemoteJsonChanges', async () => {
     vi.mocked(fetchThemeAsset).mockResolvedValue({checksum: '1', key: 'templates/asset.json', value: 'content'})
 
     // When
-    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem)
+    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem, defaultOptions)
 
     // Then
     expect(defaultThemeFileSystem.files.get('templates/asset.json')).toEqual({
@@ -70,7 +71,7 @@ describe('pollRemoteJsonChanges', async () => {
     )
 
     // When
-    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, themeFileSystem)
+    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, themeFileSystem, defaultOptions)
 
     // Then
     expect(themeFileSystem.files.get('templates/asset.json')).toEqual({
@@ -89,6 +90,7 @@ describe('pollRemoteJsonChanges', async () => {
 
     // When
     await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, themeFileSystem, {
+      ...defaultOptions,
       noDelete: false,
     })
 
@@ -106,6 +108,7 @@ describe('pollRemoteJsonChanges', async () => {
 
     // When
     await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, themeFileSystem, {
+      ...defaultOptions,
       noDelete: true,
     })
 
@@ -139,7 +142,7 @@ describe('pollRemoteJsonChanges', async () => {
     // When
     // Then
     await expect(() =>
-      pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, localThemeFileSystem),
+      pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, localThemeFileSystem, defaultOptions),
     ).rejects.toThrow(
       new AbortError(
         `Detected changes to the file 'templates/asset.json' on both local and remote sources. Aborting...`,
@@ -161,7 +164,7 @@ describe('pollRemoteJsonChanges', async () => {
     )
 
     // When
-    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem)
+    await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem, defaultOptions)
 
     // Then
     expect(fetchThemeAsset).not.toHaveBeenCalled()
@@ -176,7 +179,13 @@ describe('pollRemoteJsonChanges', async () => {
       vi.mocked(fetchChecksums).mockResolvedValue(updatedRemoteChecksums)
 
       // When
-      await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem)
+      await pollRemoteJsonChanges(
+        developmentTheme,
+        adminSession,
+        remoteChecksums,
+        defaultThemeFileSystem,
+        defaultOptions,
+      )
 
       // Then
       expect(defaultThemeFileSystem.files.get('section/section.liquid')).toBeUndefined()
@@ -197,6 +206,7 @@ describe('pollRemoteJsonChanges', async () => {
 
       // When
       await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem, {
+        ...defaultOptions,
         only: ['templates/asset.json'],
       })
 
@@ -226,6 +236,7 @@ describe('pollRemoteJsonChanges', async () => {
 
       // When
       await pollRemoteJsonChanges(developmentTheme, adminSession, remoteChecksums, defaultThemeFileSystem, {
+        ...defaultOptions,
         ignore: ['templates/asset.json'],
       })
 

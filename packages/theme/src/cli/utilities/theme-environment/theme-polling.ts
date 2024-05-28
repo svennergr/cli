@@ -10,8 +10,8 @@ class PollingError extends Error {}
 
 interface PollingOptions {
   noDelete?: boolean
-  only?: string[]
-  ignore?: string[]
+  only: string[]
+  ignore: string[]
 }
 
 export function pollThemeEditorChanges(
@@ -19,7 +19,7 @@ export function pollThemeEditorChanges(
   session: AdminSession,
   remoteChecksum: Checksum[],
   localFileSystem: ThemeFileSystem,
-  options?: PollingOptions,
+  options: PollingOptions,
 ) {
   outputDebug('Listening for changes in the theme editor')
 
@@ -43,7 +43,7 @@ export async function pollRemoteJsonChanges(
   currentSession: AdminSession,
   remoteChecksums: Checksum[],
   localFileSystem: ThemeFileSystem,
-  options: PollingOptions = {},
+  options: PollingOptions,
 ): Promise<Checksum[]> {
   const filteredRemoteChecksums = await applyFileFilters(remoteChecksums, localFileSystem, options)
 
@@ -82,7 +82,7 @@ export async function pollRemoteJsonChanges(
     }),
   )
 
-  if (!options?.noDelete) {
+  if (!options.noDelete) {
     await Promise.all(
       assetsDeletedFromRemote
         .filter((file) => file.key.endsWith('.json'))

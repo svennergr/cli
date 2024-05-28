@@ -56,7 +56,7 @@ export interface DevServerContext {
   /**
    * Additional options for the development server.
    */
-  options?: {
+  options: {
     /**
      * Prevents deletion of local files.
      */
@@ -65,12 +65,12 @@ export interface DevServerContext {
     /**
      * Glob patterns ignore-list for file reconciliation and sychronization.
      */
-    ignore?: string[]
+    ignore: string[]
 
     /**
      * Glob patterns allow-list for file reconciliation and sychronization.
      */
-    only?: string[]
+    only: string[]
   }
 }
 
