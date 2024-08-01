@@ -15,9 +15,9 @@ export function getMarketingActivtyExtensionsToMigrate(
   identifiers: IdentifiersExtensions,
 ) {
   const ids = getExtensionIds(localSources, identifiers)
-  const localExtensionTypesToMigrate = ['marketing_activity_extension_cli']
+  const localExtensionTypesToMigrate = ['marketing_activity']
   const remoteExtensionTypesToMigrate = ['marketing_activity_extension']
-  const typesMap = new Map<string, string>([['marketing_activity_extension_cli', 'marketing_activity_extension']])
+  const typesMap = new Map<string, string>([['marketing_activity', 'marketing_activity_extension']])
 
   const local = localSources.filter((source) => localExtensionTypesToMigrate.includes(source.type))
   const remote = remoteSources.filter((source) => remoteExtensionTypesToMigrate.includes(source.type))

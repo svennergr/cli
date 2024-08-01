@@ -2,7 +2,7 @@ import {MarketingActivityExtensionSchema} from './marketing_activity_extension_s
 import {createExtensionSpecification} from '../specification.js'
 
 const spec = createExtensionSpecification({
-  identifier: 'marketing_activity_extension_cli',
+  identifier: 'marketing_activity',
   schema: MarketingActivityExtensionSchema,
   appModuleFeatures: (_) => ['bundling'],
   deployConfig: async (config, _) => {
