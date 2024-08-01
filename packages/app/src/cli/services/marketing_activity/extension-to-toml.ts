@@ -166,7 +166,7 @@ export function buildTomlObject(extension: ExtensionRegistration): string {
   const localExtensionRepresentation = {
     extensions: [
       {
-        type: 'marketing_activity_extension_cli',
+        type: 'marketing_activity',
         name: config.title,
         handle: slugify(extension.title.substring(0, MAX_EXTENSION_HANDLE_LENGTH)),
         title: config.title,

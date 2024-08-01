@@ -42,7 +42,7 @@ describe('extension-to-toml', () => {
 
     // Then
     expect(got).toEqual(`[[extensions]]
-type = "marketing_activity_extension_cli"
+type = "marketing_activity"
 name = "test mae"
 handle = "mae-test-123"
 title = "test mae"
@@ -87,7 +87,7 @@ is_automation = false
 
     // Then
     expect(got).toEqual(`[[extensions]]
-type = "marketing_activity_extension_cli"
+type = "marketing_activity"
 name = "test mae"
 handle = "mae-test-123455555555544444"
 title = "test mae"
@@ -132,7 +132,7 @@ is_automation = false
 
     // Then
     expect(got).toEqual(`[[extensions]]
-type = "marketing_activity_extension_cli"
+type = "marketing_activity"
 name = "test mae"
 handle = "mae-test-123"
 title = "test mae"

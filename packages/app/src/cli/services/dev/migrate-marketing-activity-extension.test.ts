@@ -8,7 +8,7 @@ import {describe, expect, test} from 'vitest'
 
 function getLocalExtension(attributes: Partial<LocalSource> = {}) {
   return {
-    type: 'marketing_activity_extension_cli',
+    type: 'marketing_activity',
     localIdentifier: 'test-marketing',
     configuration: {
       name: 'test-marketing',
@@ -35,7 +35,7 @@ describe('getExtensionsToMigrate()', () => {
     // Given
     const title = 'test123'
     const localExtension = getLocalExtension({
-      type: 'marketing_activity_extension_cli',
+      type: 'marketing_activity',
       localIdentifier: title,
     })
     const remoteExtension = getRemoteExtension({
@@ -54,7 +54,7 @@ describe('getExtensionsToMigrate()', () => {
   test('matching my local and remote IDs', () => {
     // Given
     const localExtension = getLocalExtension({
-      type: 'marketing_activity_extension_cli',
+      type: 'marketing_activity',
       localIdentifier: 'test-marketing',
     })
     const remoteExtension = getRemoteExtension({type: 'marketing_activity_extension', title: 'remote', uuid: '1234'})
@@ -66,7 +66,7 @@ describe('getExtensionsToMigrate()', () => {
     expect(toMigrate).toStrictEqual([{local: localExtension, remote: remoteExtension}])
   })
 
-  test('does not return extensions where local.type is not marketing_activity_extension_cli', () => {
+  test('does not return extensions where local.type is not marketing_activity', () => {
     // Given
     const localExtension = getLocalExtension({type: 'checkout_ui_extension'})
     const remoteExtension = getRemoteExtension({type: 'flow_action_definition'})
