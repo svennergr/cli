@@ -302,7 +302,13 @@ export class AppManagementClient implements DeveloperPlatformClient {
 
   async specifications({organizationId}: MinimalAppIdentifiers): Promise<RemoteSpecification[]> {
     const query = SpecificationsQuery
-    const result = await appManagementRequest<SpecificationsQuerySchema>(organizationId, query, await this.token())
+    const result = await appManagementRequest<SpecificationsQuerySchema>(
+      organizationId,
+      query,
+      await this.token(),
+      {},
+      true,
+    )
     return result.specifications.map(
       (spec): RemoteSpecification => ({
         name: spec.name,
@@ -534,7 +540,7 @@ export class AppManagementClient implements DeveloperPlatformClient {
   ): Promise<AppVersionsDiffSchema> {
     const variables: AppVersionByIdQueryVariables = {versionId}
     const [currentVersion, selectedVersion] = await Promise.all([
-      this.activeAppVersionRawResult(app),
+      this.fetchApp(app),
       appManagementRequest<AppVersionByIdQuerySchema>(
         app.organizationId,
         AppVersionByIdQuery,
@@ -572,7 +578,7 @@ export class AppManagementClient implements DeveloperPlatformClient {
   }
 
   async activeAppVersion(app: MinimalAppIdentifiers): Promise<ActiveAppVersion> {
-    const result = await this.activeAppVersionRawResult(app)
+    const result = await this.fetchApp(app)
     return {
       appModuleVersions: result.app.activeRelease.version.appModules.map((mod) => {
         return {
@@ -863,20 +869,7 @@ export class AppManagementClient implements DeveloperPlatformClient {
   private async fetchApp({id, organizationId}: MinimalAppIdentifiers): Promise<ActiveAppReleaseQuerySchema> {
     const query = ActiveAppReleaseQuery
     const variables: ActiveAppReleaseQueryVariables = {appId: id}
-    return appManagementRequest<ActiveAppReleaseQuerySchema>(organizationId, query, await this.token(), variables)
-  }
-
-  private async activeAppVersionRawResult({
-    id,
-    organizationId,
-  }: MinimalAppIdentifiers): Promise<ActiveAppReleaseQuerySchema> {
-    const variables: ActiveAppReleaseQueryVariables = {appId: id}
-    return appManagementRequest<ActiveAppReleaseQuerySchema>(
-      organizationId,
-      ActiveAppReleaseQuery,
-      await this.token(),
-      variables,
-    )
+    return appManagementRequest<ActiveAppReleaseQuerySchema>(organizationId, query, await this.token(), variables, true)
   }
 
   private async organizationBetaFlags(
