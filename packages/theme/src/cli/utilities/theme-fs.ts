@@ -3,9 +3,10 @@ import {ThemeFileSystem, Key, ThemeAsset} from '@shopify/cli-kit/node/themes/typ
 import {glob, readFile, ReadOptions, fileExists, mkdir, writeFile, removeFile} from '@shopify/cli-kit/node/fs'
 import {joinPath, basename, relativePath} from '@shopify/cli-kit/node/path'
 import {lookupMimeType, setMimeTypes} from '@shopify/cli-kit/node/mimes'
-import {consoleError, outputDebug} from '@shopify/cli-kit/node/output'
+import {outputDebug} from '@shopify/cli-kit/node/output'
 import {buildThemeAsset} from '@shopify/cli-kit/node/themes/factories'
 import chokidar from 'chokidar'
+import EventEmitter from 'node:events'
 
 const DEFAULT_IGNORE_PATTERNS = [
   '**/.git',
@@ -88,6 +89,43 @@ function createThemeFileSystem(root: string, files: Map<string, ThemeAsset>): Th
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class TFS extends EventEmitter {
+  root: string
+  files: Map<string, ThemeAsset>
+  private watcher: chokidar.FSWatcher
+
+  constructor(root: string, files: Map<string, ThemeAsset>) {
+    super()
+    this.root = root
+    this.files = files
+    this.watcher = chokidar.watch([root])
+    this.watcher.on('add', async (path) => {
+      await this.read(relativePath(root, path))
+      this.emit('add', this.files.get(relativePath(root, path)))
+    })
+
+    this.watcher.on('unlink', (path) => {})
+  }
+
+  async read(assetKey: string) {
+    const fileValue = await readThemeFile(this.root, assetKey)
+    const fileChecksum = await checksum(this.root, assetKey)
+    const themeAsset = buildThemeAsset({
+      key: assetKey,
+      value: typeof fileValue === 'string' ? fileValue : '',
+      checksum: fileChecksum,
+      attachment: Buffer.isBuffer(fileValue) ? fileValue.toString('base64') : '',
+    })
+
+    if (themeAsset) {
+      this.files.set(assetKey, themeAsset)
+    }
+
+    return fileValue
+  }
+}
+
 async function scanThemeFiles(root: string, directoriesToWatch: string[]): Promise<{[key: string]: string}[]> {
   outputDebug(`Scanning theme files in ${root}`)
   const watcher = chokidar.watch(directoriesToWatch, {
@@ -99,28 +137,19 @@ async function scanThemeFiles(root: string, directoriesToWatch: string[]): Promi
   const checksumValues: {[key: string]: string}[] = []
 
   await new Promise<void>((resolve, reject) => {
-    watcher
-      .on('add', (path) => {
-        outputDebug(`Processing file: ${path}`)
-        const relPath = relativePath(root, path)
+    watcher.on('add', (path) => {
+      outputDebug(`Processing file: ${path}`)
+      const relPath = relativePath(root, path)
 
-        checksum(root, relPath)
-          .then((checksumValue) => {
-            checksumValues.push({key: relPath, checksum: checksumValue})
-            outputDebug(`Processed file: ${relPath}`)
-          })
-          .catch((error) => {
-            watcher.emit('error', error)
-          })
-      })
-      .on('ready', () => {
-        outputDebug('Finished mounting theme file system')
-        resolve()
-      })
-      .on('error', (error) => {
-        consoleError(`Failed to mount theme file system: ${error}`)
-        reject(error)
-      })
+      checksum(root, relPath)
+        .then((checksumValue) => {
+          checksumValues.push({key: relPath, checksum: checksumValue})
+          outputDebug(`Processed file: ${relPath}`)
+        })
+        .catch((error) => {
+          watcher.emit('error', error)
+        })
+    })
   })
 
   await watcher.close()
