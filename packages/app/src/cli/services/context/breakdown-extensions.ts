@@ -62,7 +62,7 @@ export async function extensionsIdentifiersDeployBreakdown(options: EnsureDeploy
   const extensionsToConfirm = await ensureExtensionsIds(options, remoteExtensionsRegistrations.app)
 
   if (extensionsToConfirm.dashboardOnlyExtensions.length > 0) {
-    remoteExtensionsRegistrations = await fetchRemoteExtensionsRegistrations(options)
+    remoteExtensionsRegistrations = await fetchRemoteExtensionsRegistrations({...options, activeAppVersion: undefined})
   }
   let extensionIdentifiersBreakdown = loadLocalExtensionsIdentifiersBreakdown(extensionsToConfirm)
   if (options.release) {
@@ -118,6 +118,7 @@ export async function configExtensionsIdentifiersBreakdown({
   localApp,
   versionAppModules,
   release,
+  activeAppVersion,
 }: {
   developerPlatformClient: DeveloperPlatformClient
   apiKey: string
@@ -125,6 +126,7 @@ export async function configExtensionsIdentifiersBreakdown({
   localApp: AppInterface
   versionAppModules?: AppModuleVersion[]
   release?: boolean
+  activeAppVersion?: ActiveAppVersion
 }) {
   if (localApp.allExtensions.filter((extension) => extension.isAppConfigExtension).length === 0) return
   if (!release) return loadLocalConfigExtensionIdentifiersBreakdown(localApp)
@@ -134,6 +136,7 @@ export async function configExtensionsIdentifiersBreakdown({
     remoteApp,
     localApp,
     versionAppModules,
+    activeAppVersion,
   )
 }
 
@@ -149,7 +152,7 @@ function loadLocalConfigExtensionIdentifiersBreakdown(app: AppInterface): Config
 async function fetchRemoteExtensionsRegistrations(
   options: EnsureDeploymentIdsPresenceOptions,
 ): Promise<AllAppExtensionRegistrationsQuerySchema> {
-  return options.developerPlatformClient.appExtensionRegistrations(options.remoteApp)
+  return options.developerPlatformClient.appExtensionRegistrations(options.remoteApp, options.activeAppVersion)
 }
 
 async function resolveRemoteConfigExtensionIdentifiersBreakdown(
@@ -157,6 +160,7 @@ async function resolveRemoteConfigExtensionIdentifiersBreakdown(
   remoteApp: MinimalOrganizationApp,
   app: AppInterface,
   versionAppModules?: AppModuleVersion[],
+  activeAppVersion?: ActiveAppVersion,
 ) {
   const remoteConfig: Partial<AppConfigurationUsedByCli> =
     (await fetchAppRemoteConfiguration(
@@ -164,6 +168,7 @@ async function resolveRemoteConfigExtensionIdentifiersBreakdown(
       developerPlatformClient,
       app.specifications ?? [],
       app.remoteFlags,
+      activeAppVersion,
     )) ?? {}
   const baselineConfig = (
     versionAppModules
