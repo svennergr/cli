@@ -857,7 +857,6 @@ export class AppManagementClient implements DeveloperPlatformClient {
     const variables: ActiveAppReleaseQueryVariables = {appId: id}
     return appManagementRequest<ActiveAppReleaseQuerySchema>(organizationId, query, await this.token(), {
       variables,
-      cacheEnabled: true,
     })
   }
 
