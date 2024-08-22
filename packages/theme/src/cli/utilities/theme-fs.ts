@@ -94,11 +94,16 @@ export async function mountThemeFileSystem(root: string): Promise<ThemeFileSyste
   ) => {
     const fileKey = getKey(filePath)
 
+    const previousChecksum = files.get(fileKey)?.checksum ?? ''
     const contentPromise = read(fileKey).then(() => files.get(fileKey)?.value ?? '')
 
     // contentPromise resolves to file.value and does not include file.attachment
     const syncPromise = contentPromise.then(async (_content) => {
       const file = files.get(fileKey)!
+
+      if (previousChecksum === file.checksum) {
+        return
+      }
 
       const results = await bulkUploadThemeAssets(
         Number(themeId),
