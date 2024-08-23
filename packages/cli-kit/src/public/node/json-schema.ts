@@ -1,3 +1,4 @@
+/* eslint no-console: ["error", { allow: ["info", "error"] }] */
 import {ParseConfigurationResult} from './schema.js'
 import {getPathValue} from '../common/object.js'
 import {capitalize} from '../common/string.js'
@@ -28,6 +29,7 @@ export async function normaliseJsonSchema(schema: string): Promise<SchemaObject>
  *
  * @param subject - The object to validate.
  * @param schema - The JSON schema to validate against.
+ * @throws {Error} Will throw an error.
  * @returns The result of the validation. If the state is 'error', the errors will be in a zod-like format.
  */
 export function jsonSchemaValidate(
@@ -35,7 +37,14 @@ export function jsonSchemaValidate(
   schema: SchemaObject,
 ): ParseConfigurationResult<unknown> & {rawErrors?: AjvError[]} {
   const ajv = new Ajv({allowUnionTypes: true})
-  const validator = ajv.compile(schema)
+  let validator
+  try {
+    validator = ajv.compile(schema)
+  } catch (error) {
+    console.info(`hullo ${error}`)
+    console.info(`schema ${JSON.stringify(schema)}`)
+    throw error
+  }
   validator(subject)
 
   // Errors from the contract are post-processed to be more zod-like and to deal with unions better
