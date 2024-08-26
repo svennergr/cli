@@ -16,6 +16,8 @@ export async function setupDevServer(theme: Theme, ctx: DevServerContext) {
 
 async function ensureThemeEnvironmentSetup(theme: Theme, ctx: DevServerContext) {
   if (ctx.options.themeEditorSync) {
+    await ctx.localThemeFileSystem.ready()
+
     await reconcileAndPollThemeEditorChanges(theme, ctx.session, ctx.remoteChecksums, ctx.localThemeFileSystem, {
       noDelete: ctx.options.noDelete,
       ignore: ctx.options.ignore,
