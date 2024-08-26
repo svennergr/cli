@@ -18,14 +18,26 @@ export interface DevServerSession extends AdminSession {
   storefrontToken: string
 
   /**
+   * Timestamp marking when the developer session has been created.
+   */
+  updatedAt: Date
+
+  /**
    * Password for accessing password-protected stores.
    */
   storefrontPassword?: string
 
   /**
-   * Timestamp marking when this session expires.
+   * Storefront digest cookie identifies an authenticated session and allow the
+   * rendering happen without the need a password
    */
-  expiresAt: Date
+  storefrontDigestCookie?: string
+
+  /**
+   * Shopify essential cookie essentially identifies the session, which is
+   * crucial to determine the theme being used during the rendering.
+   */
+  shopifyEssentialCookie?: string
 }
 
 /**
@@ -115,6 +127,11 @@ export interface DevServerRenderContext {
    * URL path to be rendered.
    */
   path: string
+
+  /**
+   * HTTP method to be used during the rendering.
+   */
+  method: 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE'
 
   /**
    * Theme identifier for rendering.

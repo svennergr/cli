@@ -3,16 +3,19 @@ import {parseCookies, serializeCookies} from './cookies.js'
 import {defaultHeaders, storefrontReplaceTemplatesParams} from './storefront-utils.js'
 import {DevServerSession, DevServerRenderContext} from './types.js'
 import {outputDebug} from '@shopify/cli-kit/node/output'
-import {ensureAuthenticatedStorefront} from '@shopify/cli-kit/node/session'
+import {AdminSession, ensureAuthenticatedStorefront} from '@shopify/cli-kit/node/session'
 import {fetch, type Response} from '@shopify/cli-kit/node/http'
 import {createError} from 'h3'
+
+/** Session authentication headers to prevent requests re-authenticating */
+// const rendererHeaders: {[key: string]: string} = {}
 
 export async function render(session: DevServerSession, context: DevServerRenderContext): Promise<Response> {
   const url = buildStorefrontUrl(session, context)
 
   outputDebug(`→ Rendering ${url} (with ${Object.keys(context.replaceTemplates)})...`)
 
-  const bodyParams = storefrontReplaceTemplatesParams(context.replaceTemplates)
+  const bodyParams = storefrontReplaceTemplatesParams(context)
   const headers = await buildHeaders(session, context)
 
   const response = await fetch(url, {
@@ -117,7 +120,7 @@ function buildStorefrontUrl(session: DevServerSession, {path, sectionId, query}:
   return `${url}?${params}`
 }
 
-function buildBaseStorefrontUrl(session: DevServerSession) {
+export function buildBaseStorefrontUrl(session: AdminSession) {
   if (isThemeAccessSession(session)) {
     return 'https://theme-kit-access.shopifyapps.com/cli/sfr'
   } else {
@@ -125,7 +128,7 @@ function buildBaseStorefrontUrl(session: DevServerSession) {
   }
 }
 
-function isThemeAccessSession(session: DevServerSession) {
+function isThemeAccessSession(session: AdminSession) {
   return session.token.startsWith('shptka_')
 }
 
@@ -142,3 +145,11 @@ function cleanHeader(headers: {[key: string]: string}): {[key: string]: string} 
   delete headers.authorization
   return headers
 }
+
+// function isExpired(session: AdminSession): boolean {
+//   const now = new Date()
+//   const thirtyMinutes = 30 * 60 * 1000 // 30 minutes in milliseconds
+//   const timeDifference = now.getTime() - expiresAt.getTime()
+
+//   return timeDifference > thirtyMinutes
+// }

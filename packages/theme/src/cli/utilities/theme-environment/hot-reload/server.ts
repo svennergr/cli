@@ -182,6 +182,7 @@ export function getHotReloadHandler(theme: Theme, ctx: DevServerContext) {
       }
 
       return render(ctx.session, {
+        method: event.method,
         path: browserPathname ?? '/',
         query: [...new URLSearchParams(browserSearch).entries()],
         themeId: String(theme.id),

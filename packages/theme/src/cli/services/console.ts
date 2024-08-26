@@ -38,7 +38,7 @@ export async function initializeRepl(
     ...adminSession,
     storefrontToken,
     storefrontPassword: password,
-    expiresAt: new Date(),
+    updatedAt: new Date(),
   }
   return replLoop(themeSession, themeId, url)
 }

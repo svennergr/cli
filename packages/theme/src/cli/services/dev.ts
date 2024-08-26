@@ -70,7 +70,7 @@ export async function dev(options: DevOptions) {
     ...options.adminSession,
     storefrontToken: options.storefrontToken,
     storefrontPassword,
-    expiresAt: new Date(),
+    updatedAt: new Date(),
   }
 
   const host = options.host || DEFAULT_HOST
@@ -130,10 +130,14 @@ async function legacyDev(options: DevOptions) {
     adminToken = undefined
     storefrontToken = undefined
 
+    /**
+     * Executes the theme serve command.
+     * Every 110 minutes, it will refresh the session token.
+     */
     setInterval(() => {
       outputDebug('Refreshing theme session tokens...')
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      refreshTokens(options.store, options.password)
+      refreshTokens(options.store, true, options.password)
     }, THEME_REFRESH_TIMEOUT_IN_MS)
   }
 
@@ -197,11 +201,13 @@ export function showDeprecationWarnings(args: string[]) {
   }
 }
 
-export async function refreshTokens(store: string, password: string | undefined) {
+export async function refreshTokens(store: string, updateRubyCLI: boolean, password: string | undefined) {
   const adminSession = await ensureAuthenticatedThemes(store, password, [], true)
   const storefrontToken = await ensureAuthenticatedStorefront([], password)
-  if (useEmbeddedThemeCLI()) {
+
+  if (updateRubyCLI && useEmbeddedThemeCLI()) {
     await execCLI2(['theme', 'token', '--admin', adminSession.token, '--sfr', storefrontToken])
   }
+
   return {adminSession, storefrontToken}
 }

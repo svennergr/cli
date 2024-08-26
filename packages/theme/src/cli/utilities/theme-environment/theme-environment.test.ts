@@ -40,7 +40,7 @@ describe('startDevServer', () => {
 
   const localThemeFileSystem = fakeThemeFileSystem('tmp', localFiles)
   const defaultServerContext: DevServerContext = {
-    session: {storefrontToken: '', token: '', storeFqdn: 'my-store.myshopify.com', expiresAt: new Date()},
+    session: {storefrontToken: '', token: '', storeFqdn: 'my-store.myshopify.com', updatedAt: new Date()},
     remoteChecksums: [],
     localThemeFileSystem,
     directory: 'tmp',
