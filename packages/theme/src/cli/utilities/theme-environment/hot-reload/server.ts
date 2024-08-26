@@ -118,7 +118,7 @@ export function setupInMemoryTemplateWatcher(theme: Theme, ctx: DevServerContext
 // --- SSE Hot Reload ---
 
 const eventEmitter = new EventEmitter()
-function emitHotReloadEvent(event: HotReloadEvent) {
+export function emitHotReloadEvent(event: HotReloadEvent) {
   eventEmitter.emit('hot-reload', event)
 }
 

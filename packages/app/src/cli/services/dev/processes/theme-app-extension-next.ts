@@ -3,17 +3,21 @@ import {ExtensionInstance} from '../../../models/extensions/extension-instance.j
 import {DeveloperPlatformClient} from '../../../utilities/developer-platform-client.js'
 import {HostThemeManager} from '../../../utilities/extensions/theme/host-theme-manager.js'
 import {outputDebug, outputInfo} from '@shopify/cli-kit/node/output'
-import {AdminSession, ensureAuthenticatedAdmin} from '@shopify/cli-kit/node/session'
+import {AdminSession, ensureAuthenticatedAdmin, ensureAuthenticatedStorefront} from '@shopify/cli-kit/node/session'
 import {fetchTheme} from '@shopify/cli-kit/node/themes/api'
 import {AbortError} from '@shopify/cli-kit/node/error'
 import {Theme} from '@shopify/cli-kit/node/themes/types'
 import {renderInfo, renderTasks, Task} from '@shopify/cli-kit/node/ui'
+import {initializeDevelopmentExtensionServer, ensureValidPassword, isStorefrontPasswordProtected} from '@shopify/theme'
 
 interface ThemeAppExtensionServerOptions {
   adminSession: AdminSession
+  storefrontToken: string
   developerPlatformClient: DeveloperPlatformClient
+  storefrontPassword?: string
   themeId?: string
   themeExtensionPort?: number
+  themeExtensionDirectory: string
 }
 
 interface HostThemeSetupOptions {
@@ -40,7 +44,13 @@ export async function setupPreviewThemeAppExtensionsProcess(
     return
   }
 
+  const themeExtension = themeExtensions[0]!
+  const themeExtensionDirectory = themeExtension.directory
   const adminSession = await ensureAuthenticatedAdmin(storeFqdn)
+  const storefrontToken = await ensureAuthenticatedStorefront([])
+  const storefrontPassword = (await isStorefrontPasswordProtected(adminSession.storeFqdn))
+    ? await ensureValidPassword('', adminSession.storeFqdn)
+    : undefined
 
   const themeId = await findOrCreateHostTheme(adminSession, theme)
 
@@ -58,9 +68,12 @@ export async function setupPreviewThemeAppExtensionsProcess(
     function: runThemeAppExtensionsServerNext,
     options: {
       adminSession,
+      storefrontToken,
+      storefrontPassword,
       developerPlatformClient,
       themeId,
       themeExtensionPort,
+      themeExtensionDirectory,
     },
   }
 }
@@ -92,12 +105,18 @@ export async function findOrCreateHostTheme(adminSession: AdminSession, theme?: 
 }
 const runThemeAppExtensionsServerNext: DevProcessFunction<ThemeAppExtensionServerOptions> = async (
   {stdout: _stdout, stderr: _stderr, abortSignal: _abortSignal},
-  _PreviewThemeAppExtensionsOptions,
+  options,
 ) => {
-  await initializeFSWatcher()
-  await startThemeAppExtensionDevelopmentServer()
+  const themeManager = new HostThemeManager(options.adminSession, {devPreview: true})
+  const theme = await themeManager.findOrCreate()
+
+  const server = await initializeDevelopmentExtensionServer(theme, {
+    adminSession: options.adminSession,
+    storefrontToken: options.storefrontToken,
+    storefrontPassword: options.storefrontPassword,
+    themeExtensionDirectory: options.themeExtensionDirectory,
+    themeExtensionPort: options.themeExtensionPort ?? 9293,
+  })
+
+  await server.start()
 }
-
-async function initializeFSWatcher() {}
-
-async function startThemeAppExtensionDevelopmentServer() {}

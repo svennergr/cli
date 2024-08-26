@@ -35,3 +35,6 @@ const COMMANDS = {
 }
 
 export default COMMANDS
+export * from './cli/utilities/theme-ext-environment/theme-ext-server.js'
+export {isStorefrontPasswordProtected} from './cli/utilities/theme-environment/storefront-session.js'
+export {ensureValidPassword} from './cli/utilities/theme-environment/storefront-password-prompt.js'

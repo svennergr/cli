@@ -91,8 +91,19 @@ export interface ThemeFileSystem {
    * @param adminSession - The admin session for API communication.
    * @returns A Promise that resolves to an FSWatcher instance.
    */
-  startWatcher: (themeId: string, adminSession: AdminSession) => Promise<void>
+  startWatcher: (themeId?: string, adminSession?: AdminSession) => Promise<void>
 }
+// /**
+//  * Represents a theme app extensions on the file system.
+//  */
+// export interface ThemeExtensionFileSystem extends ThemeFileSystem {
+//   /**
+//    * Starts a file watcher for the theme directory.
+//    *
+//    * @returns A Promise that resolves to an FSWatcher instance.
+//    */
+//   startWatcher: () => Promise<void>
+// }
 
 /**
  * Represents a theme.

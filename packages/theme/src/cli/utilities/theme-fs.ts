@@ -170,7 +170,7 @@ export function mountThemeFileSystem(root: string): ThemeFileSystem {
     addEventListener: (eventName, cb) => {
       eventEmitter.on(eventName, cb)
     },
-    startWatcher: async (themeId: string, adminSession: AdminSession) => {
+    startWatcher: async (themeId?: string, adminSession?: AdminSession) => {
       const {default: chokidar} = await import('chokidar')
 
       const watcher = chokidar.watch([...directoriesToWatch], {
@@ -180,9 +180,9 @@ export function mountThemeFileSystem(root: string): ThemeFileSystem {
       })
 
       watcher
-        .on('add', handleFileUpdate.bind(null, 'add', themeId, adminSession))
-        .on('change', handleFileUpdate.bind(null, 'change', themeId, adminSession))
-        .on('unlink', handleFileDelete.bind(null, themeId, adminSession))
+        .on('add', handleFileUpdate.bind(null, 'add', themeId!, adminSession!))
+        .on('change', handleFileUpdate.bind(null, 'change', themeId!, adminSession!))
+        .on('unlink', handleFileDelete.bind(null, themeId!, adminSession!))
     },
   }
 }

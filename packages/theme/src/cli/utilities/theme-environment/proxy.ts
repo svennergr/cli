@@ -13,13 +13,13 @@ import {
   setResponseHeader,
   removeResponseHeader,
 } from 'h3'
-import {lookupMimeType} from '@shopify/cli-kit/node/mimes'
 import {extname} from '@shopify/cli-kit/node/path'
 import type {Theme} from '@shopify/cli-kit/node/themes/types'
 import type {Response as NodeResponse} from '@shopify/cli-kit/node/http'
 import type {DevServerContext} from './types.js'
 
 const VANITY_CDN_PREFIX = '/cdn/'
+const MAIN_CDN_PREFIX = '/main/cdn/'
 const IGNORED_ENDPOINTS = [
   '/.well-known',
   '/shopify/monorail',
@@ -56,6 +56,7 @@ export function getProxyHandler(_theme: Theme, ctx: DevServerContext) {
  */
 function canProxyRequest(event: H3Event) {
   if (event.path.startsWith(VANITY_CDN_PREFIX)) return true
+  if (event.path.startsWith(MAIN_CDN_PREFIX)) return true
 
   const [pathname] = event.path.split('?') as [string]
   const extension = extname(pathname)
@@ -78,21 +79,10 @@ function getStoreFqdnForRegEx(ctx: DevServerContext) {
 export function injectCdnProxy(originalContent: string, ctx: DevServerContext) {
   let content = originalContent
 
-  // -- Redirect all usages to the vanity CDN to the local server:
+  // -- Redirect all CDN usage to the local server:
   const vanityCdnRE = new RegExp(`(https?:)?//${getStoreFqdnForRegEx(ctx)}${VANITY_CDN_PREFIX}`, 'g')
   content = content.replace(vanityCdnRE, VANITY_CDN_PREFIX)
-
-  // -- Only redirect usages of the main CDN for known local assets to the local server:
-  const mainCdnRE = /(?:https?:)?\/\/cdn\.shopify\.com\/(.*?\/(assets\/[^?">]+)(?:\?|"|>|$))/g
-  const existingAssets = new Set([...ctx.localThemeFileSystem.files.keys()].filter((key) => key.startsWith('assets')))
-  content = content.replace(mainCdnRE, (matchedUrl, pathname, matchedAsset) => {
-    const isLocalAsset = matchedAsset && existingAssets.has(matchedAsset as string)
-    if (!isLocalAsset) return matchedUrl
-    // Do not proxy images, they may require filters or other CDN features
-    if (lookupMimeType(matchedAsset).startsWith('image/')) return matchedUrl
-    // Prefix with vanityCdnPath to later read local assets
-    return `${VANITY_CDN_PREFIX}${pathname}`
-  })
+  content = content.replace(/\/\/cdn\.shopify\.com\//g, MAIN_CDN_PREFIX)
 
   return content
 }
@@ -182,10 +172,12 @@ export function getProxyStorefrontHeaders(event: H3Event) {
 }
 
 function proxyStorefrontRequest(event: H3Event, ctx: DevServerContext) {
-  const target = `https://${ctx.session.storeFqdn}${event.path}`
-  const pathname = event.path.split('?')[0]!
+  const path = event.path.replaceAll(MAIN_CDN_PREFIX, '/')
+  const host = event.path.startsWith(MAIN_CDN_PREFIX) ? 'cdn.shopify.com' : ctx.session.storeFqdn
+  const pathname = path.split('?')[0]!
   const body = getRequestWebStream(event)
 
+  const target = `https://${host}${path}`
   const proxyHeaders = getProxyStorefrontHeaders(event)
   // Required header for CDN requests
   proxyHeaders.referer = target
