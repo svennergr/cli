@@ -16,7 +16,7 @@ vi.mock('./remote-theme-watcher.js')
 vi.mock('../theme-uploader.js')
 vi.mock('./storefront-renderer.js')
 
-describe('startDevServer', () => {
+describe('setupDevServer', () => {
   const developmentTheme = buildTheme({id: 1, name: 'Theme', role: DEVELOPMENT_THEME_ROLE})!
   const localFiles = new Map([
     ['templates/asset.json', {checksum: '1', key: 'templates/asset.json'}],
