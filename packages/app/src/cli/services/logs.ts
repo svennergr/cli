@@ -24,7 +24,6 @@ interface LogsOptions {
 
 export async function logs(commandOptions: LogsOptions) {
   const logsConfig = await prepareForLogs(commandOptions)
-  const multipleStores = commandOptions.storeFqdns && commandOptions.storeFqdns.length > 1
 
   const validSources = sourcesForApp(logsConfig.localApp)
 
@@ -63,7 +62,6 @@ export async function logs(commandOptions: LogsOptions) {
 
   if (commandOptions.format === 'json') {
     consoleLog(JSON.stringify({subscribedToStores: commandOptions.storeFqdns}))
-    consoleLog(JSON.stringify({message: 'Waiting for app logs...'}))
     await renderJsonLogs({
       options: {
         variables,
@@ -73,10 +71,6 @@ export async function logs(commandOptions: LogsOptions) {
       storeNameById: logsConfig.storeNameById,
     })
   } else {
-    if (multipleStores) {
-      consoleLog(`Subscribing to additional stores: ${commandOptions.storeFqdns?.slice(1).join(', ')}\n`)
-    }
-    consoleLog('Waiting for app logs...\n')
     await renderLogs({
       options: {
         variables,
@@ -105,6 +99,7 @@ async function prepareForLogs(commandOptions: LogsOptions): Promise<{
     ...commandOptions,
     storeFqdn: primaryStoreFqdn,
     developerPlatformClient,
+    customLogsInfoBox: true,
   }
   const {storeId, storeFqdn, remoteApp, localApp} = await ensureDevContext(devContextOptions)
 

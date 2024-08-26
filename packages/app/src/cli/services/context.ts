@@ -56,6 +56,8 @@ export interface DevContextOptions {
   storeFqdn?: string
   reset: boolean
   developerPlatformClient: DeveloperPlatformClient
+  customLogsInfoBox?: boolean
+  storeFqdns?: string[]
 }
 
 interface DevContextOutput {
@@ -251,12 +253,23 @@ export async function ensureDevContext(options: DevContextOptions): Promise<DevC
     })
   }
 
-  showReusedDevValues({
-    selectedApp,
-    selectedStore,
-    cachedInfo,
-    organization,
-  })
+  if (options.customLogsInfoBox) {
+    renderAppLogsConfigInfo({
+      devStore: selectedStore.shopDomain,
+      selectedStores: options.storeFqdns,
+      org: organization.businessName,
+      appName: selectedApp.title,
+      configFile: cachedInfo!.configFile,
+      resetMessage: resetHelpMessage,
+    })
+  } else {
+    showReusedDevValues({
+      selectedApp,
+      selectedStore,
+      cachedInfo,
+      organization,
+    })
+  }
 
   const result = buildOutput(selectedApp, selectedStore, localApp, cachedInfo)
   await logMetadataForLoadedContext({
@@ -867,6 +880,7 @@ interface CurrentlyUsedConfigInfoOptions {
   appName: string
   org?: string
   devStore?: string
+  selectedStores?: string[]
   updateURLs?: string
   configFile?: string
   appDotEnv?: string
@@ -898,6 +912,37 @@ export function renderCurrentlyUsedConfigInfo({
 
   renderInfo({
     headline: configFile ? `Using ${fileName}:` : 'Using these settings:',
+    body,
+  })
+}
+
+function renderAppLogsConfigInfo({
+  org,
+  appName,
+  devStore,
+  selectedStores,
+  configFile,
+  appDotEnv,
+  resetMessage,
+  includeConfigOnDeploy,
+}: CurrentlyUsedConfigInfoOptions): void {
+  const items = [`App:             ${appName}`]
+
+  if (org) items.unshift(`Org:             ${org}`)
+  if (selectedStores && selectedStores.length > 0) {
+    selectedStores.forEach((storeUrl) => items.push(`Dev store:       ${storeUrl}`))
+  } else {
+    items.push(`Dev store:       ${devStore}`)
+  }
+  if (includeConfigOnDeploy !== undefined) items.push(`Include config:  ${includeConfigOnDeploy ? 'Yes' : 'No'}`)
+
+  let body: TokenItem = [{list: {items}}]
+  if (resetMessage) body = [...body, '\n', ...resetMessage]
+
+  const fileName = (appDotEnv && basename(appDotEnv)) || (configFile && getAppConfigurationFileName(configFile))
+
+  renderInfo({
+    headline: `Waiting for app logs...\n\n${configFile ? `Using ${fileName}:` : 'Using these settings:'}`,
     body,
   })
 }

@@ -776,6 +776,47 @@ api_version = "2023-04"
     expect(options.developerPlatformClient.orgAndApps).not.toBeCalled()
   })
 
+  test('renders custom info with input from flags when customLogInfoBox flag is passed', async () => {
+    // Given
+    vi.mocked(getCachedAppInfo).mockReturnValue({...CACHED1, previousAppId: APP1.apiKey})
+    vi.mocked(fetchStoreByDomain).mockResolvedValue({organization: ORG1, store: STORE1})
+
+    // When
+    const options = devOptions({
+      customLogsInfoBox: true,
+      storeFqdn: 'domain1',
+      storeFqdns: ['domain1', 'domain2'],
+      developerPlatformClient: buildDeveloperPlatformClient({
+        appFromId: () => Promise.resolve(APP1),
+        orgAndApps: () => Promise.resolve(ORG_AND_APPS_RESPONSE),
+      }),
+    })
+    await ensureDevContext(options)
+
+    // Then
+    expect(renderInfo).toHaveBeenCalledWith({
+      body: [
+        {
+          list: {
+            items: [
+              'Org:             org1',
+              'App:             app1',
+              'Dev store:       domain1',
+              'Dev store:       domain2',
+            ],
+          },
+        },
+        '\n',
+        'You can pass ',
+        {
+          command: '--reset',
+        },
+        ' to your command to reset your app configuration.',
+      ],
+      headline: 'Waiting for app logs...\n\nUsing these settings:',
+    })
+  })
+
   test('returns selected data and updates internal state, with inputs from flags', async () => {
     // Given
     vi.mocked(getCachedAppInfo).mockReturnValue(undefined)

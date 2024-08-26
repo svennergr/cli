@@ -42,7 +42,6 @@ describe('logs', () => {
     })
 
     // Then
-    expect(consoleLog).toHaveBeenCalledWith('{"message":"Waiting for app logs..."}')
     expect(spy).toHaveBeenCalled()
   })
 
@@ -66,7 +65,6 @@ describe('logs', () => {
     })
 
     // Then
-    expect(consoleLog).toHaveBeenCalledWith('Waiting for app logs...\n')
     expect(spy).toHaveBeenCalled()
   })
 
@@ -145,7 +143,6 @@ describe('logs', () => {
     const expectedStoreMap = new Map()
     expectedStoreMap.set('1', 'store-fqdn')
     expectedStoreMap.set('2', 'other-fqdn')
-    expect(consoleLog).toHaveBeenCalledWith('{"message":"Waiting for app logs..."}')
     expect(consoleLog).toHaveBeenCalledWith('{"subscribedToStores":["store-fqdn","other-fqdn"]}')
     expect(spy).toHaveBeenCalledWith({
       options: {
@@ -182,8 +179,6 @@ describe('logs', () => {
     const expectedStoreMap = new Map()
     expectedStoreMap.set('1', 'store-fqdn')
     expectedStoreMap.set('2', 'other-fqdn')
-    expect(consoleLog).toHaveBeenCalledWith('Waiting for app logs...\n')
-    expect(consoleLog).toHaveBeenCalledWith('Subscribing to additional stores: other-fqdn\n')
     expect(spy).toHaveBeenCalledWith({
       options: {
         developerPlatformClient: expect.anything(),
@@ -191,6 +186,42 @@ describe('logs', () => {
       },
       pollOptions: expect.anything(),
       storeNameById: expectedStoreMap,
+    })
+  })
+
+  test('should call ensureDevContext with customLogsInfoBox flag and all the store urls', async () => {
+    // Given
+    const sources = ['extensions.source']
+    await setupDevContext(sources)
+    vi.mocked(storeFromFqdn).mockResolvedValueOnce(testOrganizationStore({shopId: '2', shopDomain: 'other-fqdn'}))
+
+    // When
+    await logs({
+      reset: false,
+      format: 'text',
+      directory: 'directory',
+      apiKey: 'api-key',
+      storeFqdns: ['store-fqdn', 'other-fqdn'],
+      sources,
+      status: 'status',
+      configName: 'config-name',
+      userProvidedConfigName: 'user-provided-config-name',
+    })
+
+    // Then
+    expect(ensureDevContext).toHaveBeenCalledWith({
+      apiKey: 'api-key',
+      configName: 'config-name',
+      customLogsInfoBox: true,
+      developerPlatformClient: expect.anything(),
+      directory: 'directory',
+      format: 'text',
+      status: 'status',
+      reset: false,
+      sources: ['extensions.source'],
+      storeFqdn: 'store-fqdn',
+      storeFqdns: ['store-fqdn', 'other-fqdn'],
+      userProvidedConfigName: 'user-provided-config-name',
     })
   })
 })
