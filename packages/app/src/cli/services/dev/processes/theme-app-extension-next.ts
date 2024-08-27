@@ -2,7 +2,7 @@ import {BaseProcess, DevProcessFunction} from './types.js'
 import {ExtensionInstance} from '../../../models/extensions/extension-instance.js'
 import {DeveloperPlatformClient} from '../../../utilities/developer-platform-client.js'
 import {HostThemeManager} from '../../../utilities/extensions/theme/host-theme-manager.js'
-import {outputDebug, outputInfo} from '@shopify/cli-kit/node/output'
+import {outputDebug} from '@shopify/cli-kit/node/output'
 import {AdminSession, ensureAuthenticatedAdmin} from '@shopify/cli-kit/node/session'
 import {fetchTheme} from '@shopify/cli-kit/node/themes/api'
 import {AbortError} from '@shopify/cli-kit/node/error'
@@ -31,8 +31,6 @@ export interface PreviewThemeAppExtensionsProcess extends BaseProcess<ThemeAppEx
 export async function setupPreviewThemeAppExtensionsProcess(
   options: HostThemeSetupOptions,
 ): Promise<PreviewThemeAppExtensionsProcess | undefined> {
-  outputInfo('This feature is currently in development and is not ready for use or testing yet.')
-
   const {allExtensions, storeFqdn, theme, themeExtensionPort, developerPlatformClient} = options
 
   const themeExtensions = allExtensions.filter((ext) => ext.isThemeExtension)
