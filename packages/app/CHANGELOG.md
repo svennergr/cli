@@ -1,5 +1,21 @@
 # @shopify/app
 
+## 3.67.0
+
+### Minor Changes
+
+- e9aeab01e4: Ensure output is also interactive when prompting
+
+### Patch Changes
+
+- 60ff8754ca: Bump Shopify/theme-tools packages
+- 57e497b315: Add proper user-agent header for pollAppLogs
+- 97aade1256: Remove duplicated slashes when deploying webhooks with relative URIs
+- Updated dependencies [e9aeab01e4]
+  - @shopify/cli-kit@3.67.0
+  - @shopify/create-app@3.67.0
+  - @shopify/plugin-cloudflare@3.67.0
+
 ## 3.66.0
 
 ### Minor Changes

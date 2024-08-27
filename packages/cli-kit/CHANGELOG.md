@@ -1,5 +1,11 @@
 # @shopify/cli-kit
 
+## 3.67.0
+
+### Minor Changes
+
+- e9aeab01e4: Ensure output is also interactive when prompting
+
 ## 3.66.0
 
 ### Minor Changes
