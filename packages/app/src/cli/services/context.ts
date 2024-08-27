@@ -253,6 +253,20 @@ export async function ensureDevContext(options: DevContextOptions): Promise<DevC
     })
   }
 
+  showAppConfigInfo(options, {organization, selectedApp, selectedStore, cachedInfo})
+
+  const result = buildOutput(selectedApp, selectedStore, localApp, cachedInfo)
+  await logMetadataForLoadedContext({
+    organizationId: result.remoteApp.organizationId,
+    apiKey: result.remoteApp.apiKey,
+  })
+  return result
+}
+
+function showAppConfigInfo(
+  options: DevContextOptions,
+  {organization, selectedApp, selectedStore, cachedInfo}: ReusedValuesOptions,
+) {
   if (options.customLogsInfoBox) {
     renderAppLogsConfigInfo({
       devStore: selectedStore.shopDomain,
@@ -270,13 +284,6 @@ export async function ensureDevContext(options: DevContextOptions): Promise<DevC
       organization,
     })
   }
-
-  const result = buildOutput(selectedApp, selectedStore, localApp, cachedInfo)
-  await logMetadataForLoadedContext({
-    organizationId: result.remoteApp.organizationId,
-    apiKey: result.remoteApp.apiKey,
-  })
-  return result
 }
 
 const resetHelpMessage: Token[] = [
@@ -922,24 +929,20 @@ function renderAppLogsConfigInfo({
   devStore,
   selectedStores,
   configFile,
-  appDotEnv,
   resetMessage,
-  includeConfigOnDeploy,
 }: CurrentlyUsedConfigInfoOptions): void {
   const items = [`App:             ${appName}`]
-
   if (org) items.unshift(`Org:             ${org}`)
   if (selectedStores && selectedStores.length > 0) {
     selectedStores.forEach((storeUrl) => items.push(`Dev store:       ${storeUrl}`))
   } else {
     items.push(`Dev store:       ${devStore}`)
   }
-  if (includeConfigOnDeploy !== undefined) items.push(`Include config:  ${includeConfigOnDeploy ? 'Yes' : 'No'}`)
 
   let body: TokenItem = [{list: {items}}]
   if (resetMessage) body = [...body, '\n', ...resetMessage]
 
-  const fileName = (appDotEnv && basename(appDotEnv)) || (configFile && getAppConfigurationFileName(configFile))
+  const fileName = configFile && getAppConfigurationFileName(configFile)
 
   renderInfo({
     headline: `Waiting for app logs...\n\n${configFile ? `Using ${fileName}:` : 'Using these settings:'}`,
