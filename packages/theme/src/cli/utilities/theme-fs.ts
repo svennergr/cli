@@ -1,4 +1,5 @@
 import {calculateChecksum} from './asset-checksum.js'
+import {timestampDateFormat} from '../constants.js'
 import {glob, readFile, ReadOptions, fileExists, mkdir, writeFile, removeFile} from '@shopify/cli-kit/node/fs'
 import {joinPath, basename, relativePath} from '@shopify/cli-kit/node/path'
 import {lookupMimeType, setMimeTypes} from '@shopify/cli-kit/node/mimes'
@@ -353,11 +354,8 @@ function dirPath(filePath: string) {
 
 function outputSyncResult(action: 'update' | 'delete', fileKey: string): void {
   outputInfo(
-    outputContent`• ${new Date().toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })} Synced ${outputToken.raw('»')} ${outputToken.gray(`${action} ${fileKey}`)}`,
+    outputContent`• ${timestampDateFormat.format(new Date())} Synced ${outputToken.raw('»')} ${outputToken.gray(
+      `${action} ${fileKey}`,
+    )}`,
   )
 }
